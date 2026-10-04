@@ -1,0 +1,24 @@
+labeled reviews: 29  (complaints and cancellations: 11)
+engine          topic  intent     sev   all 3  sev err  sent err | complaints:  topic  intent    sev
+jev simple      28/29   28/29   26/29   24/29     0.10      0.25 |              11/11   11/11   8/11
+jev sentence    27/29   28/29   25/29   23/29     0.14      0.23 |               9/11   11/11   7/11
+gemma           25/29   29/29   26/29   23/29     0.10      0.12 |               7/11   11/11   8/11
+
+gemma misses:
+  row 5: you billing/complaint/4  gemma usability/complaint/3  | You can't even listen to music you want it just shuffles it, like what the hell? This app is ki
+  row 19: you usability/complaint/3  gemma usability/complaint/2  | Spotify is great, but the new homescreen update is horrible. You're not tiktok or Instagram. I 
+  row 22: you catalog/cancellation/3  gemma usability/cancellation/3  | Please stop with the recommendations! I use the premium family sub and I want to listen to my p
+  row 24: you other/cancellation/4  gemma usability/cancellation/4  | The update made the app useless .... Uninstall krdia ye app ab bekar hai ... Wynk hi theek h
+  row 26: you billing/complaint/3  gemma usability/complaint/3  | Recent update really sucks. The ability to skip a song or go to previous song has been removed 
+  row 29: you playback/complaint/4  gemma playback/complaint/3  | Iam a premium user. But this app if i using wifi not able to connect Internet. But if using mob
+
+jev simple misses:
+  row 2: you other/unclear/1  jev other/praise/1  | Thik thak hi hai
+  row 5: you billing/complaint/4  jev billing/complaint/3  | You can't even listen to music you want it just shuffles it, like what the hell? This app is ki
+  row 10: you other/praise/1  jev playback/praise/1  | Best for listening songs
+  row 19: you usability/complaint/3  jev usability/complaint/2  | Spotify is great, but the new homescreen update is horrible. You're not tiktok or Instagram. I 
+  row 22: you catalog/cancellation/3  jev catalog/cancellation/2  | Please stop with the recommendations! I use the premium family sub and I want to listen to my p
+
+jev simple vs gemma on all 100: identical topic+intent+severity on 77; topic agrees 90, intent agrees 95, severity agrees 89
+on the 29 labeled: engines agree on 22, and that shared answer matches yours on 21; engines differ on 7: jev matches you on 3, gemma on 2, neither on 2
+label spread on all 100 (topic): {'jev simple': {'other': 55, 'usability': 16, 'catalog': 9, 'billing': 7, 'playback': 7, 'downloads': 3, 'access': 2, 'support': 1}, 'gemma': {'other': 55, 'usability': 21, 'catalog': 9, 'playback': 5, 'billing': 4, 'downloads': 3, 'access': 2, 'support': 1}}

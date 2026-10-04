@@ -1,0 +1,62 @@
+==============================================================================
+E2: bias of the selected winner's accuracy when scored on the same 50 labels
+Model: per item, error indicators eA~Bern(1-pA), eB~Bern(1-pB), correlation phi.
+Pick the classifier with the higher observed accuracy on the 50 (ties: coin flip).
+Bias = E[observed accuracy of the picked one - TRUE accuracy of the picked one].
+
+Anchor (exact, no simulation): equal 80%/80%, independent errors: bias = +3.17 points
+Anchor (no selection): a single classifier's accuracy on 50 is unbiased; simulated below as 'no-select'.
+  no-select mean error = -0.012 points (should be ~0)
+
+400000 reps each, n=50
+  pA    pB    phi   bias(points)  mean reported acc  P(picked truly worse)  P(overstated by >=5 pts)
+  0.80  0.80  0.0   +3.17         83.17%             0.000                  0.344
+  0.80  0.80  0.3   +2.66         82.66%             0.000                  0.320
+  0.80  0.80  0.5   +2.23         82.23%             0.000                  0.301
+  0.80  0.78  0.0   +3.14         82.33%             0.403                  0.347
+  0.80  0.78  0.3   +2.58         81.81%             0.385                  0.320
+  0.80  0.78  0.5   +2.14         81.41%             0.366                  0.299
+  0.80  0.75  0.0   +2.77         81.39%             0.276                  0.354
+  0.80  0.75  0.3   +2.14         80.95%             0.238                  0.320
+  0.80  0.75  0.5   +1.62         80.62%             0.200                  0.289
+  0.80  0.70  0.0   +1.75         80.51%             0.124                  0.277
+  0.80  0.70  0.3   +1.09         80.26%             0.084                  0.246
+  0.80  0.70  0.5   +0.63         80.13%             0.050                  0.224
+
+More than two candidates (independent errors, all true accuracy 80%): exact E[max of k]/n - p by simulation
+  k=2: bias = +3.17 points
+  k=3: bias = +4.71 points
+  k=5: bias = +6.37 points
+  k=8: bias = +7.71 points
+
+==============================================================================
+E3: 95% CI for accuracy near 80% on n=50
+  x/50   acc    Wald (lo,hi) half     Wilson (lo,hi) half    Clopper-Pearson exact (lo,hi) half
+  38/50  0.76   (0.642,0.878) ±11.8   (0.626,0.857) ±11.6    (0.618,0.869) ±12.6
+  39/50  0.78   (0.665,0.895) ±11.5   (0.648,0.872) ±11.2    (0.640,0.885) ±12.2
+  40/50  0.80   (0.689,0.911) ±11.1   (0.670,0.888) ±10.9    (0.663,0.900) ±11.8
+  41/50  0.82   (0.714,0.926) ±10.6   (0.692,0.902) ±10.5    (0.686,0.914) ±11.4
+  42/50  0.84   (0.738,0.942) ±10.2   (0.715,0.917) ±10.1    (0.709,0.928) ±11.0
+  Known-answer anchor: Clopper-Pearson for 0/50 upper bound should be 1-0.025^(1/50) = 0.0711 -> 0.0711
+  Smallest n whose 95% half-width is < 10 points at observed accuracy closest to 80%:
+    Wald: n=61 (x=49, half-width 9.98 pts)
+    Wilson: n=60 (x=48, half-width 9.98 pts)
+    Clopper-Pearson: n=70 (x=56, half-width 9.94 pts)
+  Half-width at 80% for n=50,100,200,400 (Wald): n=50: ±11.1, n=100: ±7.8, n=200: ±5.5, n=400: ±3.9
+
+==============================================================================
+E4: P(a class with prevalence p has >=5 examples in a uniform sample of 50)
+  p=0.020: expected count=1.00  P(X>=5)=0.0032  P(X=0)=0.3642  P(X>=1)=0.6358
+  p=0.050: expected count=2.50  P(X>=5)=0.1036  P(X=0)=0.0769  P(X>=1)=0.9231
+  p=0.100: expected count=5.00  P(X>=5)=0.5688  P(X=0)=0.0052  P(X>=1)=0.9948
+  p=0.125: expected count=6.25  P(X>=5)=0.7654  P(X=0)=0.0013  P(X>=1)=0.9987
+  p=0.200: expected count=10.00  P(X>=5)=0.9815  P(X=0)=0.0000  P(X>=1)=1.0000
+  anchor: exact hypergeometric (without replacement, N=660,609) for 5%: 0.1036 (binomial above should match)
+
+  Joint: P(ALL 8 classes have >=5 of 50), by simulation (300k reps)
+    best case, perfectly uniform prevalence (12.5% each): P=0.0449, mean smallest-class count=2.96
+    stated skewed vector [0.3, 0.2, 0.15, 0.1, 0.1, 0.08, 0.05, 0.02]: P=0.00000, mean smallest-class count=0.74
+  n needed so one class of prevalence p has >=5 with probability >=0.90 / >=0.95:
+    p=0.02: n=398 (90%), n=456 (95%)
+    p=0.05: n=158 (90%), n=181 (95%)
+    p=0.10: n=78 (90%), n=89 (95%)

@@ -1,0 +1,68 @@
+b0_baseline_2sessions              status=pass             issue_counts={}  baseline: before=r01,r02,r03,r04,r06,r07,r08,r10,r12,r13
+a1_i_two_initial_calls_id_in_before status=pass             issue_counts={}  r01 in two succeeded initial calls, same LC
+a1_ii_two_resume_calls_id_not_in_before status=pass             issue_counts={}  r15 in two succeeded resume calls, same LC
+a1_iii_second_call_resume_id_in_before status=review_required  issue_counts={"reprocessed_checkpoint": 1}  r01 (in before) gets 2nd call with phase resume
+a1_iv_initial_then_resume_id_not_in_before status=pass             issue_counts={}  r15 first call initial, second resume, not in before
+a2_i_two_models_two_configs_both_initial status=review_required  issue_counts={"call_config_mismatch": 1}  r01 record=LC2; calls LC1 (batch) + LC2
+a2_ii_two_models_two_configs_both_resume status=review_required  issue_counts={"call_config_mismatch": 1}  r15 (not in before) record=LC2; calls LC1 + LC2
+a2_iii_two_configs_second_in_resume_id_in_before status=review_required  issue_counts={"call_config_mismatch": 1, "reprocessed_checkpoint": 1, "resume_call_evidence": 1}  r01 in before; LC1 initial then LC2 resume
+a2_iv_whole_batch_relabelled       status=review_required  issue_counts={"call_config_mismatch": 5}  5 IDs relabelled under LC2; one flag per ID expected
+a3_i_shared_config_models_differ_initial status=pass             issue_counts={}  r01: small + strong calls, one shared LC, both initial
+a3_ii_shared_config_models_differ_resume status=pass             issue_counts={}  r15 (not in before): both calls resume, shared LC
+a3_iii_shared_config_second_resume_id_in_before status=review_required  issue_counts={"reprocessed_checkpoint": 1}  r01 in before; strong call phase resume, shared LC
+a4_i_five_sessions                 status=pass             issue_counts={}  phases=['initial', 'resume', 'resume', 'resume', 'resume']; before=['r01', 'r02', 'r03', 'r04', 'r06']; after=all 27 completed
+a4_ii_five_sessions_after_is_partial status=pass             issue_counts={}  after = end of session 2 only (subset of completed)
+a5_i_relabel_in_resume_shared_config status=review_required  issue_counts={"reprocessed_checkpoint": 1}  5 sessions; strong-model resume call for r01 (in before), shared LC
+a5_ii_relabel_in_resume_distinct_config status=review_required  issue_counts={"call_config_mismatch": 1, "reprocessed_checkpoint": 1, "resume_call_evidence": 1}  5 sessions; r01 in before; LC2 resume call; record=LC2
+a5_iii_same_call_but_phase_string_initial status=pass             issue_counts={}  identical to a5_i except phase string = initial
+a5_iv_relabel_in_resume_id_not_in_before status=pass             issue_counts={}  5 sessions; strong resume call for r15 (NOT in before)
+a6_a_original_not_first_in_file    status=pass             issue_counts={}  cache map={'r02': 'r27', 'r03': 'r20', 'r04': 'r25', 'r09': 'r27', 'r11': 'r20', 'r14': 'r27'}
+a6_b_cached_copies_in_before       status=pass             issue_counts={}  6 cached copies (originals r02,r03,r04 are initial) added to before
+a6_c_copy_in_before_original_done_in_resume status=pass             issue_counts={}  r02 cached from r27 (call phase=resume, in before=False)
+a6_d_chain_of_aliases              status=review_required  issue_counts={"invalid_cache_reuse": 1, "resume_snapshot_mismatch": 1, "unfinished_classification": 1}  r14 -> r09 -> r02
+a6_e_copy_of_original_without_call status=review_required  issue_counts={"unlogged_completed_records": 1}  original r02 has no enrich call; copies r09,r14,r27 remain
+a7_i_dev_calls_same_config         status=pass             issue_counts={}  dev calls phase initial, LC1; IDs in before and not in before
+a7_ii_dev_calls_same_config_incl_copy_and_empty status=pass             issue_counts={}  dev call lists cached copy r09, empty r05, resume-completed r22
+a7_iii_dev_calls_different_config  status=review_required  issue_counts={"call_config_mismatch": 8}  same as a7_i but dev label_config=LC-dev (8 IDs)
+a7_iv_dev_calls_phase_resume       status=review_required  issue_counts={"reprocessed_checkpoint": 1}  dev call marked resume, lists before IDs
+a7_v_dev_calls_phase_dev           status=review_required  issue_counts={"invalid_run_phase": 1}  dev call with phase='dev'
+a8_i_empty_ids_int_tokens          status=pass             issue_counts={}  baseline non-enrich calls=[('verify', [], 500, 100), ('group', [], 500, 100), ('memo', [], 500, 100)]
+a8_ii_verify_real_ids_other_config status=pass             issue_counts={}  verify lists r01,r15,r10 with label_config=verify-cfg-v2
+a8_iii_verify_all_ids_phase_resume status=pass             issue_counts={}  verify lists all 30 IDs (incl. before IDs), phase resume, other LC
+a8_iv_non_enrich_zero_tokens       status=pass             issue_counts={}  verify/group/memo tokens = 0
+a9_i_local_request_id              status=pass             issue_counts={}  request_ids replaced by local strings ('local-lmstudio-...', 'x')
+a9_ii_tokens_missing               status=review_required  issue_counts={"invalid_usage": 2}  one enrich call without token fields
+a9_iii_tokens_null                 status=review_required  issue_counts={"invalid_usage": 2}  one enrich call with null tokens
+a9_iv_tokens_null_on_memo          status=review_required  issue_counts={"invalid_usage": 1}  memo call output_tokens null
+a9_v_tokens_float                  status=review_required  issue_counts={"invalid_usage": 1}  input_tokens 1000.0 (float)
+a9_vi_request_id_missing           status=review_required  issue_counts={"invalid_request_id": 1}  request_id null
+a10_i_nonempty_quarantined_clean   status=review_required  issue_counts={"unfinished_classification": 1}  r22 (praise, not in checkpoints/membership) quarantined with reason; failed call logged
+a10_ii_nonempty_quarantined_left_in_after status=review_required  issue_counts={"resume_snapshot_mismatch": 1, "unfinished_classification": 1}  same, but r22 still listed in checkpoint_after
+a11_i_sentiment_int                status=pass             issue_counts={}  sentiment ints: r16=0, r22=1, r01=-1
+a11_ii_entities_empty              status=pass             issue_counts={}  entities=[] on all 27 completed records
+a11_iii_quote_is_whole_text        status=pass             issue_counts={}  evidence_quote = entire review_text on all completed (r08 keeps its spaces)
+a11_iv_quote_trimmed               status=pass             issue_counts={}  r08 text='  Love the playlists  ', quote=trimmed text
+a11_v_all_combined                 status=pass             issue_counts={}  int sentiment 0/1 + entities [] + quote=trimmed whole text, all records
+a11_vi_sentiment_bool              status=review_required  issue_counts={"invalid_schema": 1, "resume_snapshot_mismatch": 1, "unfinished_classification": 1}  sentiment true (JSON bool)
+a11_vii_quote_case_changed         status=review_required  issue_counts={"claim_mismatch": 2, "invalid_membership": 1, "ranking_mismatch": 3, "resume_call_evidence": 1, "resume_snapshot_mismatch": 1, "unfinished_classification": 1, "unsupported_quote": 1}  quote differs from source only by case
+a11_viii_quote_whitespace_collapsed status=review_required  issue_counts={"claim_mismatch": 2, "invalid_membership": 1, "ranking_mismatch": 3, "resume_call_evidence": 1, "resume_snapshot_mismatch": 1, "unfinished_classification": 1, "unsupported_quote": 1}  r01 quote has doubled space; r08 quote has single surrounding spaces (still a substring)
+a12_i_failed_initial_ids_in_before status=pass             issue_counts={}  failed initial call lists r01,r02,r03 (in before), later succeeded
+a12_ii_failed_resume_ids_not_in_before status=pass             issue_counts={}  failed resume call lists r15,r16 (not in before)
+a12_iii_failed_resume_ids_in_before status=review_required  issue_counts={"reprocessed_checkpoint": 1}  failed resume call lists r01 (in before)
+a12_iv_failed_call_no_usage        status=review_required  issue_counts={"invalid_usage": 2}  failed initial call with null usage
+a12_v_failed_call_other_config     status=pass             issue_counts={}  failed initial call with a different label_config
+t1_quarantined_ids_in_checkpoints  status=review_required  issue_counts={"resume_call_evidence": 1, "resume_snapshot_mismatch": 1}  empty-text quarantined IDs listed in completed_ids
+t2_retry_reuses_request_id         status=review_required  issue_counts={"invalid_request_id": 1}  failed attempt and its retry share request_id
+t3_call_lists_id_not_in_file       status=review_required  issue_counts={"invalid_call_ids": 1, "unlogged_completed_records": 1}  one succeeded batch also lists an ID absent from the input
+t4_whitespace_row_other_reason     status=review_required  issue_counts={"incorrect_empty_reason": 1}  whitespace-only row quarantined with reason 'whitespace_only'
+t5_resume_completes_only_cached_copies status=review_required  issue_counts={"resume_call_evidence": 1}  all enrich calls initial; after-before = cached copies only
+t6_cache_source_text_not_identical status=review_required  issue_counts={"invalid_cache_reuse": 1, "resume_snapshot_mismatch": 1, "unfinished_classification": 1}  r22 cached from r08: identical labels, non-identical text
+t7_enrich_call_without_phase_when_failed status=review_required  issue_counts={"invalid_run_phase": 1}  failed enrich call with no phase field
+t8_before_id_original_relabelled_copies_follow status=review_required  issue_counts={"call_config_mismatch": 1, "reprocessed_checkpoint": 1, "resume_call_evidence": 1}  original r02 (in before) relabelled in resume under LC2; copies updated
+a4_iii_five_sessions_cached_copies_in_before status=pass             issue_counts={}  5 sessions; before also lists cached copies of session-1 originals
+a4_iv_five_sessions_checkpoints_list_quarantined status=review_required  issue_counts={"resume_call_evidence": 1, "resume_snapshot_mismatch": 1}  5 sessions; checkpoints also list quarantined empty-text IDs
+a4_v_five_sessions_session2_marked_initial status=pass             issue_counts={}  5 sessions; session-2 batch marked initial though its IDs are not in before
+a4_vi_five_sessions_session1_marked_resume status=review_required  issue_counts={"reprocessed_checkpoint": 1, "resume_call_evidence": 1}  5 sessions; the session-1 batch marked resume
+t9_memo_call_without_review_ids_key status=review_required  issue_counts={"invalid_call_ids": 1}  memo call omits review_ids instead of sending []
+t10_one_bad_quote_on_praise_not_in_before status=review_required  issue_counts={"resume_snapshot_mismatch": 1, "unfinished_classification": 1, "unsupported_quote": 1}  r22 (praise, session 2) quote differs by case only
+t11_first_model_call_logged_failed_then_second_config status=pass             issue_counts={}  as a2_iv, but the LC1 call has outcome=failed

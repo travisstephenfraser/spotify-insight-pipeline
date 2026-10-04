@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Team: Pipeline Plan</title>
+<style>
+  * { box-sizing: border-box; }
+
+  /* ---- Page shell ----
+     Screen-first: fills a MacBook 16" window, caps out before an ultrawide
+     turns tables into billboards. Print geometry is restored in @media print. */
+  body {
+    font-family: 'Calibri', 'Segoe UI', system-ui, sans-serif;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 44px 56px 72px;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #fff;
+  }
+
+  /* Prose keeps a readable measure; tables, boxes and cards span the full width.
+     This is what lets the shell go wide without the paragraphs becoming unreadable. */
+  p, ul, ol, blockquote { max-width: 104ch; }
+
+  /* ---- Header ---- */
+  header {
+    border-bottom: 3px solid #0f2b46;
+    padding-bottom: 14px;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 25pt;
+    color: #0f2b46;
+    margin: 0 0 5px 0;
+    line-height: 1.2;
+  }
+  header .subtitle { color: #64748b; font-size: 13pt; margin: 0; max-width: none; }
+  header .date { color: #94a3b8; font-size: 10.5pt; margin: 6px 0 0 0; max-width: none; }
+
+  /* ---- Headings ---- */
+  h2 {
+    font-size: 15pt;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #0f2b46;
+    border-bottom: 2px solid #d0d8e0;
+    padding-bottom: 5px;
+    margin-top: 36px;
+  }
+  h3 { font-size: 12.5pt; color: #1a4a7a; font-weight: 600; margin-top: 22px; }
+
+  /* ---- Tables ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 11pt; margin: 14px 0; page-break-inside: avoid; }
+  thead th {
+    background: #0f2b46;
+    color: #fff;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: left;
+    padding: 9px 12px;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  tbody td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tbody tr:nth-child(even) { background: #f8f9fb; }
+
+  /* ---- Status badges ---- */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 9.5pt;
+    font-weight: 600;
+    white-space: nowrap;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .badge.green  { background: #c8e6c9; color: #1b5e20; }
+  .badge.yellow { background: #fff9c4; color: #f57f17; }
+  .badge.red    { background: #ef9a9a; color: #b71c1c; }
+
+  /* ---- Highlight boxes ---- */
+  .box {
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 18px 0;
+    page-break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .box.green { background: #f0fdf4; border-color: #86efac; }
+  .box.amber { background: #fffbeb; border-color: #fcd34d; }
+  .box.blue  { background: #eff6ff; border-color: #93c5fd; }
+  .box.gray  { background: #f8fafc; border-color: #e2e8f0; }
+  .box > :first-child { margin-top: 0; }
+  .box > :last-child { margin-bottom: 0; }
+  .box p, .box ul, .box ol { max-width: none; }
+
+  /* ---- Cards ---- */
+  .card {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin: 18px 0;
+    page-break-inside: avoid;
+  }
+  .card p, .card ul, .card ol { max-width: none; }
+
+  /* ---- Optional two-up grid for side-by-side cards/boxes ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 18px; margin: 18px 0; }
+  .grid > * { margin: 0; }
+
+  /* ---- Narrower windows (split-screen, iPad, small laptop) ---- */
+  @media (max-width: 1000px) {
+    body { padding: 28px 24px 48px; font-size: 11pt; }
+    header h1 { font-size: 21pt; }
+    h2 { font-size: 13.5pt; }
+    table { font-size: 10pt; }
+  }
+
+  /* ---- Print / PDF: restore the 8.5in letter geometry ---- */
+  @page { size: letter; margin: 0.7in; }
+  @media print {
+    body {
+      max-width: none;
+      padding: 0;
+      font-size: 10.5pt;
+      line-height: 1.5;
+    }
+    p, ul, ol, blockquote { max-width: none; }
+    header h1 { font-size: 20pt; }
+    header .subtitle { font-size: 11pt; }
+    header .date { font-size: 9.5pt; }
+    h2 { font-size: 13pt; margin-top: 24px; }
+    h3 { font-size: 11pt; }
+    table { font-size: 9.5pt; }
+    thead th { font-size: 8.5pt; padding: 7px 9px; }
+    tbody td { padding: 6px 9px; }
+    .badge { font-size: 8.5pt; }
+    .grid { display: block; }
+    .grid > * { margin: 14px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Red Team: Pipeline Plan</h1>
+  <p class="subtitle">Final assignment, spec stage. Six independent checkers tested 65 claims against the assignment's own files, the real data and vendor documentation. No model was run.</p>
+  <p class="date">October 4, 2026</p>
+</header>
+
+<h2>Verdict</h2>
+<div class="box amber">
+  <strong>Reshape.</strong> The core of the plan holds. Six findings change how it is sequenced, measured and built. This is a recommendation; the ruling is yours.
+</div>
+<p>Each checker received plain claims and pointers to primary sources, never the plan itself. A claim marked Contradicted needed a quoted line, a measured count or a reproducible test, the same standard as Confirmed. Eight claims were planted with known wrong answers to check that the checkers read carefully; all eight came back correctly and are marked <em>anchor</em> below.</p>
+
+<table>
+  <thead>
+    <tr><th>Surface</th><th>Claims</th><th>Confirmed</th><th>Partial</th><th>Contradicted</th><th>Unable to verify</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Checker (68 fixture tests)</td><td>12</td><td>6</td><td>3</td><td>3</td><td>0</td></tr>
+    <tr><td>Assignment documents</td><td>15</td><td>1</td><td>2</td><td>10 (8 anchors)</td><td>2</td></tr>
+    <tr><td>Jev operations</td><td>9</td><td>4</td><td>3</td><td>2</td><td>0</td></tr>
+    <tr><td>Jev method</td><td>10</td><td>3</td><td>3</td><td>3</td><td>1</td></tr>
+    <tr><td>Evaluation statistics</td><td>8</td><td>1</td><td>3</td><td>4</td><td>0</td></tr>
+    <tr><td>Data (full file)</td><td>11</td><td>7</td><td>3</td><td>1</td><td>0</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>65</strong></td><td><strong>22</strong></td><td><strong>17</strong></td><td><strong>23</strong></td><td><strong>3</strong></td></tr>
+  </tbody>
+</table>
+
+<h2>Six findings that change the plan</h2>
+<table>
+  <thead>
+    <tr><th style="width:20%">Finding</th><th style="width:44%">Evidence</th><th>What changes</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>1. The race cannot double as the cost pilot</strong></td>
+      <td>COST_CALCULATOR.md line 23: "Include enrichment, a declared verification sample, grouping, ranking, and memo generation." Line 25: "Budget the pilot and any additional experiments before making calls."</td>
+      <td>The race becomes a separately budgeted experiment with its own result cache. The official cold and warm pilot runs once all six stages exist.</td>
+    </tr>
+    <tr>
+      <td><strong>2. Fifty labels cannot both pick a winner and grade it</strong></td>
+      <td>With 50 labels, a true 80% versus 70% gap is detected only 15% to 38% of the time; 132 to 313 labels are needed. Grading the winner on the labels that chose it inflates its score by 2 to 3 points. Any accuracy from 50 labels carries about plus or minus 11 points. Rare topics are nearly absent: a keyword proxy expects 0.9 account-access and 0.07 support reviews in 50, and the golden file has zero keyword matches for either. The brief (line 100) requires disclosure and fresh held-out cases when golden results shape the pipeline.</td>
+      <td>Choose on a separate hand-labeled development set and score the golden 50 once, on the winner only. Or accept a direction-only choice and disclose it. Report per-topic counts as they are.</td>
+    </tr>
+    <tr>
+      <td><strong>3. Jev through Cloudflare is not the fast option</strong></td>
+      <td>Cloudflare AI Gateway limits: "200 requests per 60 seconds per gateway". That is about 40 hours per pass over 484,189 texts and about 81 hours for two option orders. TypeSafe's direct API documents 80 requests per second, changeable without notice.</td>
+      <td>Through Cloudflare, Jev suits small samples only. A full Jev run needs a direct TypeSafe key or an approved limit increase.</td>
+    </tr>
+    <tr>
+      <td><strong>4. Jev's documented weak spot is this label type</strong></td>
+      <td>TypeSafe's limitations page: "something that requires multiple hops of reasoning costs accuracy", with advice to ask literal sub-questions and apply precedence in code. Its docs recommend Score, not Choice, for severity-like scales, while calling Score "weak in numerical calibration". Unreviewed preprints report about 58% on short five-way and six-way labels and a median 11.6-point deficit against the best LLM on 14 of 15 tasks. Identical requests do not always return identical answers, and the version cannot be pinned through Cloudflare. The first-option bias is asserted by the vendor only: three independent tests found order sensitivity (3% to 11% flips) but no first-position lean, and a two-order check misses most errors.</td>
+      <td>The one-question-per-label Jev design is unlikely to apply the contract's "most severe problem, then first mentioned" rule. A fair Jev contender needs narrow yes/no questions with the rules in code. Option shuffling stays as a measurement, not a safeguard.</td>
+    </tr>
+    <tr>
+      <td><strong>5. The checker punishes mixed configurations and revisiting finished reviews</strong></td>
+      <td>Fixture tests: a second model under its own label_config flags every such review (call_config_mismatch). Any enrich call marked resume that lists a review already in the first checkpoint is flagged, even a failed call (reprocessed_checkpoint). Calls without whole-number token counts are flagged, failed calls included. Checkpoints that list quarantined IDs fail. One invalid record cascades into ranking and claim mismatches.</td>
+      <td>A review is saved as finished only when every call for it is done, and it is never sent again. Any fallback shares one label_config with the main model. Checkpoints list completed reviews only. The checker runs before memo numbers are final.</td>
+    </tr>
+    <tr>
+      <td><strong>6. The data has traps the labels must handle</strong></td>
+      <td>Two review-bombing bursts: July 2023 (85,079 reviews, 70.5% one-star) and October 2023 (89,104). 3,484 reviews contain "boycott" and 7,450 contain "hate this application"; the contract labels bare slogans unclear. 12,268 nonempty reviews have no letter or digit (a thumbs-up appears 922 times) and must still be labeled. 13 reviews are the literal text "None". 2,094 duplicate groups carry both low and high stars.</td>
+      <td>Write the slogan rule into the instructions and test it with planted cases. Emoji-only reviews get labels, never quarantine. Parse with Python's csv module only. Keep stars out of prompts and cache keys.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Two estimates corrected</h3>
+<div class="grid">
+  <div class="card"><strong>Jev cost.</strong> The rate is $0.0441 per million tokens after Cloudflare's 5% billing fee. A short review is likely 730 to 820 tokens per request, not 600, and 1,300 to 1,700 with many sentence options. That gives roughly $16 to $18 per pass over the unique texts on the short-review figure, and more for long reviews. It stays an estimate until one real request is measured.</div>
+  <div class="card"><strong>Cost sample.</strong> Reviews in cost_100.csv average 80 characters; unique texts average 99, because repeated texts are short. Scaling the pilot by review count would understate input size by about 18%. Compute text volume in code over the full file and use the pilot only for per-request overhead and output size.</div>
+</div>
+
+<h2>What survived</h2>
+<div class="box green">
+  <ul>
+    <li><strong>Shuffled order.</strong> Sorting all rows by the manifest's hash rule puts the golden 50, the cost 100, the 500 and the 10,000 at the front in exact order. The development checkpoints are the front of the full-run queue.</li>
+    <li><strong>Exact-text reuse.</strong> 484,189 distinct texts confirmed. Trimming whitespace merges nothing more. 93% of copies are 20 characters or fewer.</li>
+    <li><strong>Sessions and resume.</strong> Five sessions with a checkpoint after session 1 and after session 5 pass the resume checks.</li>
+    <li><strong>Two calls per review</strong> under one configuration pass, and duplicate copies pointing at one original pass in any file order.</li>
+    <li><strong>Sentence splitting.</strong> Every piece is an exact copy of the source; the maximum is 164 pieces, under Jev's 255-option limit. 97.7% of single-piece reviews are under 200 characters.</li>
+    <li><strong>Record shape.</strong> Whole-review quotes, empty entity lists and whole-number sentiment all pass.</li>
+    <li><strong>Jev plumbing.</strong> Token counts come back with every response, and the logging switch is documented for the route in use.</li>
+    <li><strong>Supplied files.</strong> All four samples match the full file byte for byte, and every checksum matches the manifest.</li>
+  </ul>
+</div>
+
+<h2>Not tested</h2>
+<ul>
+  <li><strong>Gemma's speed over an 8-hour session.</strong> Only a real run can answer it.</li>
+  <li><strong>Label quality of either contender.</strong> Needs runs and human labels.</li>
+  <li><strong>The Class 7 date.</strong> It is not in the assignment files, and the 500-review run, golden labels and working calculator are due then.</li>
+  <li><strong>One real Jev request</strong> would settle the true token count, where usage sits in the Cloudflare response, and whether the logging switch works on this route.</li>
+  <li><strong>Four questions only the instructor can answer:</strong> whether calls from the 100, 500 and 10,000 runs may appear in the final export under an identical configuration; whether one issue per topic is acceptable for the baseline ranking; whether one label_config may name a two-model procedure; and where side-experiment calls should be reported.</li>
+</ul>
+
+<h2>What would change the verdict</h2>
+<ul>
+  <li>A direct TypeSafe key restores Jev's speed for a full run.</li>
+  <li>A labeled development set of roughly 130 to 220 reviews turns the race into a real test. With fewer, it shows a direction only.</li>
+  <li>A measured Jev run that applies the severity rule well on labeled reviews would overturn finding 4, which rests on documentation and unreviewed preprints.</li>
+</ul>
+
+<h2>Decisions for you, in order</h2>
+<ol>
+  <li><strong>Jev's role:</strong> a small measured baseline, a rebuilt full contender, or dropped.</li>
+  <li><strong>Labels for choosing:</strong> hand-label a development set, or accept a direction-only choice and disclose it.</li>
+  <li><strong>Fallback model:</strong> none, or one that shares a configuration with the main model.</li>
+  <li><strong>Instructor questions:</strong> which of the four to send.</li>
+  <li><strong>Failed calls with unknown token counts:</strong> leave them missing and accept a checker flag, or record zero and explain it in the README.</li>
+</ol>
+
+<h2>All 65 claims</h2>
+
+<h3>Checker, tested with 68 synthetic submissions</h3>
+<table>
+  <thead><tr><th>ID</th><th>Claim</th><th>Verdict</th><th>Strongest evidence</th></tr></thead>
+  <tbody>
+    <tr><td>A1</td><td>Two successful calls per review under one configuration pass</td><td><span class="badge green">Confirmed</span></td><td>Zero flags in three arrangements</td></tr>
+    <tr><td>A2</td><td>A second model under its own configuration passes</td><td><span class="badge red">Contradicted</span></td><td>call_config_mismatch, one per review</td></tr>
+    <tr><td>A3</td><td>Two models under one shared configuration pass</td><td><span class="badge green">Confirmed</span></td><td>Passes the checker; a human grader's view is unknown</td></tr>
+    <tr><td>A4</td><td>Five sessions with checkpoints after sessions 1 and 5 pass</td><td><span class="badge green">Confirmed</span></td><td>Passes; fails if checkpoints list quarantined IDs</td></tr>
+    <tr><td>A5</td><td>Re-labeling a checkpointed review in a later session passes</td><td><span class="badge red">Contradicted</span></td><td>reprocessed_checkpoint, whatever the model or outcome</td></tr>
+    <tr><td>A6</td><td>Duplicate copies pointing at one original pass</td><td><span class="badge green">Confirmed</span></td><td>Passes in any file order and across the checkpoint</td></tr>
+    <tr><td>A7</td><td>Calls from earlier development runs may be included</td><td><span class="badge yellow">Partial</span></td><td>Passes under the same configuration; 8 flags under another</td></tr>
+    <tr><td>A8</td><td>Verify, group and memo calls pass with no review IDs</td><td><span class="badge green">Confirmed</span></td><td>These roles are not configuration-checked</td></tr>
+    <tr><td>A9</td><td>Local request IDs pass; missing token counts pass</td><td><span class="badge yellow">Partial</span></td><td>Any unique ID passes; missing, null or decimal counts are flagged</td></tr>
+    <tr><td>A10</td><td>A nonempty review left quarantined still yields "pass"</td><td><span class="badge red">Contradicted</span></td><td>unfinished_classification; status becomes review_required</td></tr>
+    <tr><td>A11</td><td>Whole-number sentiment, empty entities and whole-text quotes pass</td><td><span class="badge green">Confirmed</span></td><td>All pass, alone and combined</td></tr>
+    <tr><td>A12</td><td>Failed calls for reviews completed later raise no flag</td><td><span class="badge yellow">Partial</span></td><td>Flagged when marked resume and listing a checkpointed review</td></tr>
+  </tbody>
+</table>
+
+<h3>Assignment documents</h3>
+<table>
+  <thead><tr><th>ID</th><th>Claim</th><th>Verdict</th><th>Strongest evidence</th></tr></thead>
+  <tbody>
+    <tr><td>G1</td><td>The cost pilot may run classification only</td><td><span class="badge red">Contradicted</span></td><td>COST_CALCULATOR.md:23 lists all stages</td></tr>
+    <tr><td>G2</td><td>Side-by-side classifier runs need no budget or report</td><td><span class="badge yellow">Partial</span></td><td>Allowed, but budgeted first (line 25); where to report is unstated</td></tr>
+    <tr><td>G3</td><td>A local stage may show $0.00 total cost</td><td><span class="badge red">Contradicted</span></td><td>Line 38: "do not silently turn them into zero". The plan already separates local cost</td></tr>
+    <tr><td>G4</td><td>The warm run needs zero calls in every stage <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>Only enrichment must be zero; other calls are disclosed</td></tr>
+    <tr><td>G5</td><td>Golden labels may choose the setup with no disclosure</td><td><span class="badge yellow">Partial</span></td><td>Choosing is invited (brief:131); disclosure and fresh cases required (brief:100)</td></tr>
+    <tr><td>G6</td><td>Golden texts are excluded from the full run <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>Texts are included; only the labels stay out</td></tr>
+    <tr><td>G7</td><td>One review per request is allowed</td><td><span class="badge green">Confirmed</span></td><td>"Smaller requests are acceptable"</td></tr>
+    <tr><td>G8</td><td>Development-run calls may sit in the final export</td><td><span class="badge yellow">Unable / Contradicted</span></td><td>Unstated for an identical configuration; flagged for any other</td></tr>
+    <tr><td>G9</td><td>Verification must cover every review <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>"a declared random sample"</td></tr>
+    <tr><td>G10</td><td>Four roles need four models <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>"Roles may use the same model"</td></tr>
+    <tr><td>G11</td><td>The memo may estimate revenue at risk <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>"do not calculate revenue at risk"</td></tr>
+    <tr><td>G12</td><td>Grouping must go beyond the eight topics</td><td><span class="badge yellow">Unable to verify</span></td><td>No minimum is stated; an instructor question</td></tr>
+    <tr><td>G13</td><td>Synthetic test reviews may enter the records <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>Flagged as unknown IDs; excluded from business results</td></tr>
+    <tr><td>G14</td><td>Checkpoint files alone prove resume <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>A short recording is also required</td></tr>
+    <tr><td>G15</td><td>Golden labels may follow model output <em>(anchor)</em></td><td><span class="badge red">Contradicted</span></td><td>Label before the final evaluation</td></tr>
+  </tbody>
+</table>
+
+<h3>Jev operations through Cloudflare</h3>
+<table>
+  <thead><tr><th>ID</th><th>Claim</th><th>Verdict</th><th>Strongest evidence</th></tr></thead>
+  <tbody>
+    <tr><td>C1</td><td>$0.042 per million input tokens and no other charge</td><td><span class="badge yellow">Partial</span></td><td>Rate confirmed; a 5% Unified Billing fee applies</td></tr>
+    <tr><td>C2</td><td>The response includes token counts</td><td><span class="badge green">Confirmed</span></td><td>The output schema requires usage</td></tr>
+    <tr><td>C3</td><td>500,000 to 1,000,000 requests fit in a few hours</td><td><span class="badge red">Contradicted</span></td><td>"200 requests per 60 seconds per gateway"</td></tr>
+    <tr><td>C4</td><td>The logging switch stops body storage</td><td><span class="badge green">Confirmed</span></td><td>Documented for this route; no worked example on it</td></tr>
+    <tr><td>C5</td><td>Five questions with up to 40 options fit one request</td><td><span class="badge green">Confirmed</span></td><td>255 options, 10 score levels, 32,000 tokens</td></tr>
+    <tr><td>C6</td><td>Identical requests give identical answers</td><td><span class="badge red">Contradicted</span></td><td>The vendor cookbook reports run-to-run noise</td></tr>
+    <tr><td>C7</td><td>The model version is fixed and reported</td><td><span class="badge yellow">Partial</span></td><td>Reported per response; cannot be pinned through Cloudflare</td></tr>
+    <tr><td>C8</td><td>About 600 input tokens per request</td><td><span class="badge yellow">Partial</span></td><td>Likely 730 to 820; 1,300 to 1,700 with many sentence options</td></tr>
+    <tr><td>C9</td><td>No training on or retention of content</td><td><span class="badge green">Confirmed</span></td><td>TypeSafe privacy policy; Cloudflare zero-retention statement</td></tr>
+  </tbody>
+</table>
+
+<h3>Jev method</h3>
+<table>
+  <thead><tr><th>ID</th><th>Claim</th><th>Verdict</th><th>Strongest evidence</th></tr></thead>
+  <tbody>
+    <tr><td>D1</td><td>Answers lean toward the first option</td><td><span class="badge yellow">Partial</span></td><td>Vendor says "in some cases"; three independent tests found no lean</td></tr>
+    <tr><td>D2</td><td>Shuffling removes the bias from totals</td><td><span class="badge yellow">Unable to verify</span></td><td>No evidence for Jev; it may pull label shares toward even</td></tr>
+    <tr><td>D3</td><td>Two-order disagreement finds unreliable answers</td><td><span class="badge yellow">Partial</span></td><td>Richer in errors, but it misses most of them</td></tr>
+    <tr><td>D4</td><td>Questions in one request are independent</td><td><span class="badge green">Confirmed</span></td><td>Vendor statement plus an independent test</td></tr>
+    <tr><td>D5</td><td>Multi-step rules work inside one question</td><td><span class="badge red">Contradicted</span></td><td>"multiple hops of reasoning costs accuracy"</td></tr>
+    <tr><td>D6</td><td>Choice is the recommendation for a five-level scale</td><td><span class="badge red">Contradicted</span></td><td>"If the answer is a position on a spectrum, use a Score"</td></tr>
+    <tr><td>D7</td><td>Non-English text is handled as well as English</td><td><span class="badge red">Contradicted</span></td><td>Romanized Hindi about 10 points lower on one benchmark</td></tr>
+    <tr><td>D8</td><td>Text in the review can steer the answer</td><td><span class="badge green">Confirmed</span></td><td>Vendor limitations page; no trust flag exists</td></tr>
+    <tr><td>D9</td><td>One probability threshold separates right from wrong</td><td><span class="badge yellow">Partial</span></td><td>Ranks errors overall; carries no information on some tasks</td></tr>
+    <tr><td>D10</td><td>Options accept structured guidance</td><td><span class="badge green">Confirmed</span></td><td>Documented; the Cloudflare schema accepts objects</td></tr>
+  </tbody>
+</table>
+
+<h3>Evaluation statistics</h3>
+<table>
+  <thead><tr><th>ID</th><th>Claim</th><th>Verdict</th><th>Strongest evidence</th></tr></thead>
+  <tbody>
+    <tr><td>E1</td><td>50 labels identify the better classifier at a 10-point gap</td><td><span class="badge red">Contradicted</span></td><td>Power 15% to 38%; 132 to 313 labels needed</td></tr>
+    <tr><td>E2</td><td>The winner's score on the same 50 is unbiased</td><td><span class="badge red">Contradicted</span></td><td>Inflated 2 to 3 points when candidates are close</td></tr>
+    <tr><td>E3</td><td>The interval at 80% on 50 items is under plus or minus 10</td><td><span class="badge red">Contradicted</span></td><td>Plus or minus 11 to 12 points</td></tr>
+    <tr><td>E4</td><td>50 reviews hold 5 examples of each topic</td><td><span class="badge red">Contradicted</span></td><td>A 4.5% chance even with equal topics; rare topics near zero</td></tr>
+    <tr><td>E5</td><td>One annotator is an adequate reference</td><td><span class="badge yellow">Partial</span></td><td>Meets the assignment; reliability cannot be measured</td></tr>
+    <tr><td>E6</td><td>The 100 sample predicts cost within 20%</td><td><span class="badge yellow">Partial</span></td><td>Within range, but 18% low against unique texts</td></tr>
+    <tr><td>E7</td><td>The golden set may be used to choose between setups</td><td><span class="badge green">Confirmed</span></td><td>brief:131, with the disclosure rule at brief:100</td></tr>
+    <tr><td>E8</td><td>Severity error on 50 items separates 0.4 from 0.6</td><td><span class="badge yellow">Partial</span></td><td>Direction right 92% to 98% of the time; a test confirms it 31% to 56%</td></tr>
+  </tbody>
+</table>
+
+<h3>Data, measured on all 660,622 rows</h3>
+<table>
+  <thead><tr><th>ID</th><th>Claim</th><th>Verdict</th><th>Strongest evidence</th></tr></thead>
+  <tbody>
+    <tr><td>F1</td><td>Sentence pieces are exact copies, 2 to 255 per review</td><td><span class="badge green">Confirmed</span></td><td>995,949 pieces, none blank, maximum 164</td></tr>
+    <tr><td>F2</td><td>Single-piece reviews are short</td><td><span class="badge green">Confirmed</span></td><td>97.7% under 200 characters</td></tr>
+    <tr><td>F3</td><td>The splitter handles non-Latin punctuation</td><td><span class="badge red">Contradicted</span></td><td>287 reviews affected; 26 stay as one long piece</td></tr>
+    <tr><td>F4</td><td>484,189 distinct texts</td><td><span class="badge green">Confirmed</span></td><td>Exact match; trimming merges nothing more</td></tr>
+    <tr><td>F5</td><td>13 empties, and every other review has a letter or digit</td><td><span class="badge yellow">Partial</span></td><td>13 confirmed; 12,268 reviews have no letter or digit</td></tr>
+    <tr><td>F6</td><td>Under 5% of reviews use a non-Latin script</td><td><span class="badge green">Confirmed</span></td><td>0.56%</td></tr>
+    <tr><td>F7</td><td>No prompt-breaking sequences in the text</td><td><span class="badge yellow">Partial</span></td><td>2 with code fences, 9 with instruction-like phrases, none aimed at a model</td></tr>
+    <tr><td>F8</td><td>Hash order puts the supplied samples first</td><td><span class="badge green">Confirmed</span></td><td>The first 10,050 IDs match in exact order</td></tr>
+    <tr><td>F9</td><td>Duplicates are short generic texts</td><td><span class="badge green">Confirmed</span></td><td>93% of copies are 20 characters or fewer</td></tr>
+    <tr><td>F10</td><td>Ten reviews fit comfortably in one request</td><td><span class="badge yellow">Partial</span></td><td>Largest batch 3,011 characters; token fit not tested</td></tr>
+    <tr><td>F11</td><td>The supplied samples match the full file</td><td><span class="badge green">Confirmed</span></td><td>Byte-identical; all checksums match</td></tr>
+  </tbody>
+</table>
+
+<h2>Limits of this red team</h2>
+<div class="box gray">
+  <ul>
+    <li>No model ran, so nothing here measures label quality or speed.</li>
+    <li>The Jev accuracy figures come from unreviewed preprints and one public audit, all on version 1.13.0. The web checker's page fetches passed through a summarizer; quotes were taken from raw fetches.</li>
+    <li>Checkers were told to treat CLAUDE.md, which holds the plan, as the thing under test. One confirmed it never opened the file. The harness may still have loaded it for the others.</li>
+    <li>The single-annotator references in E5 were cited from memory, not re-fetched.</li>
+    <li>Side effect: the formatter hook created a <code>.ruff_cache</code> folder in the project root when checkers wrote scratch files. It is harmless and ignored by git.</li>
+    <li>The checkers' scripts and fixture tests sit in the session scratchpad (<code>rt-checker</code>, <code>rt-stats</code>, <code>rt-data</code>). That folder is temporary.</li>
+  </ul>
+</div>
+
+</body>
+</html>

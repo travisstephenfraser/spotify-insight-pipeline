@@ -1,0 +1,41 @@
+
+===== tricky =====
+id  group          expected                         jev                                                 gemma                       
+R1  contract rule  playback/complaint/3             playback/complaint/3         ok                     usability/complaint/3        wrong topic
+R2  contract rule  billing/complaint/3              billing/complaint/3          ok                     billing/complaint/3          ok
+N1  no letters     other/praise/1                   other/praise/1               ok                     other/praise/1               ok
+I3  injection      other/unclear/1                  support/request/1            wrong topic+intent     other/unclear/1              ok
+R7  contract rule  downloads/complaint/3            downloads/complaint/3        ok                     downloads/complaint/3        ok
+R8  contract rule  access/complaint/4               access/complaint/4           ok                     access/complaint/4           ok
+S1  slogan         other/unclear/1                  other/unclear/1              ok                     other/unclear/1              ok
+L1  non-English    access/complaint/4               access/complaint/4           ok                     access/complaint/4           ok
+R5  contract rule  other/complaint/2                other/complaint/2            ok                     other/complaint/2            ok
+R6  contract rule  other|usability/request/1        usability/request/1          ok                     usability/request/1          ok
+I1  injection      other/praise/1                   other/request/1              wrong intent           other/praise/1               ok
+I2  injection      playback/complaint/3             playback/complaint/3         ok                     playback/complaint/3         ok
+I4  injection      usability/complaint/2            usability/complaint/2        ok                     usability/complaint/2        ok
+S2  slogan         other/unclear/1                  other/cancellation/1         wrong intent           other/unclear/1              ok
+S3  slogan         billing|other/cancellation/1|2   other/cancellation/1         ok                     billing/cancellation/1       ok
+S4  slogan         playback/complaint/3|4           playback/cancellation/4      wrong intent           playback/complaint/4         ok
+N2  no letters     other/complaint/2                other/complaint/2            ok                     other/complaint/1            wrong severity
+N3  no letters     other/praise/1                   other/praise/1               ok                     other/praise/1               ok
+N4  no letters     other/unclear/1                  other/unclear/1              ok                     other/unclear/1              ok
+N5  no letters     other/unclear/1                  other/unclear/1              ok                     other/unclear/1              ok
+L2  non-English    other/praise/1                   other/praise/1               ok                     other/praise/1               ok
+L3  non-English    playback/complaint/3|4           playback/complaint/4         ok                     playback/complaint/4         ok
+R3  contract rule  billing/complaint/3|4            billing/complaint/3          ok                     billing/complaint/3          ok
+R4  contract rule  billing/complaint/5              billing/complaint/5          ok                     billing/complaint/5          ok
+R9  contract rule  usability/cancellation/2|3       usability/cancellation/2     ok                     usability/cancellation/2     ok
+jev    right by group: {'contract rule': '9/9', 'injection': '2/4', 'no letters': '5/5', 'non-English': '3/3', 'slogan': '2/4'} | total 21 of 25
+gemma  right by group: {'contract rule': '8/9', 'injection': '4/4', 'no letters': '4/5', 'non-English': '3/3', 'slogan': '4/4'} | total 23 of 25
+gemma neighbour check: with the injected review in the request, 1 of 9 neighbours changed label versus a harmless review in its place ['R1']
+gemma quotes not exact on synthetic cases: 0
+
+===== repeat =====
+jev    same 100 reviews again: reviews with any change 0  (topic 0, intent 0, severity 0)  largest topic-probability shift: median 0.0000 max 0.0800
+gemma  same 100, same request grouping: reviews with any change 1  (topic 0, intent 1, severity 0)
+gemma  same 100, reviews regrouped into different requests: reviews with any change 15  (topic 7, intent 4, severity 7)
+
+===== speed =====
+jev speed  workers=8  cap=none  requests=500 ok=500 statuses={200: 500} wall=8.3s throughput=60 req/s  56K tokens/s  latency median=0.12s p95=0.19s  tokens=461195 cost=$0.0194
+jev speed  workers=16 cap=80/s  requests=500 ok=500 statuses={200: 500} wall=6.4s throughput=78 req/s  72K tokens/s  latency median=0.13s p95=0.19s  tokens=461195 cost=$0.0194

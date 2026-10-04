@@ -1,0 +1,39 @@
+=== Anchor 1: type-I error of the exact test at n=50, equal accuracy 0.80 (must be <= 0.05) ===
+  phi=0.0  size=0.0284
+  phi=0.3  size=0.0236
+  phi=0.5  size=0.0186
+
+=== Anchor 2: Monte Carlo cross-check of the exact power, n=50, 80 vs 70, phi=0.3 ===
+  exact directional power=0.1915   Monte Carlo (200000 reps)=0.1898
+
+=== E1 main: n=50, true accuracy 80% vs 70% ===
+  phi_max (errors of the better one are a subset of the worse one's) = 0.764
+  phi   p10    p01    E[discordant]  power(2-sided)  power(correct dir)  P(obsA>obsB)  P(tie)  P(obsA<obsB)
+  0.000 0.240  0.140   19.00         0.150           0.149               0.853         0.047   0.100
+  0.200 0.203  0.103   15.33         0.176           0.176               0.880         0.045   0.076
+  0.300 0.185  0.085   13.50         0.192           0.191               0.895         0.042   0.062
+  0.500 0.148  0.048    9.83         0.245           0.244               0.933         0.034   0.033
+  0.600 0.130  0.030    8.00         0.288           0.288               0.955         0.027   0.018
+  0.764 0.100  0.000    5.00         0.384           0.384               0.995         0.005   0.000
+
+=== Smallest true difference with >=80% power at n=50 (better classifier fixed at 80%) ===
+  phi=0.0: smallest delta (1-pt grid) = 29 points (80% vs 51%), power=0.815
+  phi=0.3: smallest delta (1-pt grid) = 24 points (80% vs 56%), power=0.822
+  phi=0.5: smallest delta (1-pt grid) = 20 points (80% vs 60%), power=0.824
+
+=== Same, worse classifier fixed at 70% (better = 70% + delta) ===
+  phi=0.0: smallest delta = 23 points (70% vs 93%), power=0.805
+  phi=0.3: smallest delta = 21 points (70% vs 91%), power=0.845
+  phi=0.5: smallest delta = 18 points (70% vs 88%), power=0.835
+
+=== n needed for 80% power, 80% vs 70% ===
+  phi=0.0: first n with power>=0.80: 313;  n from which it stays >=0.80: 313;  power at n=50: 0.149, n=100: 0.310, n=200: 0.593
+  phi=0.2: first n with power>=0.80: 255;  n from which it stays >=0.80: 255;  power at n=50: 0.176, n=100: 0.366, n=200: 0.693
+  phi=0.3: first n with power>=0.80: 223;  n from which it stays >=0.80: 223;  power at n=50: 0.191, n=100: 0.410, n=200: 0.752
+  phi=0.5: first n with power>=0.80: 166;  n from which it stays >=0.80: 166;  power at n=50: 0.244, n=100: 0.553, n=200: 0.881
+  phi=0.6: first n with power>=0.80: 132;  n from which it stays >=0.80: 132;  power at n=50: 0.288, n=100: 0.660, n=200: 0.944
+
+=== n needed for P(observed winner is the truly better one) >= 0.95, 80% vs 70% (no significance test) ===
+  phi=0.0: n=110  P(obsA>obsB)=0.950, tie=0.014
+  phi=0.3: n=80  P(obsA>obsB)=0.951, tie=0.019
+  phi=0.5: n=59  P(obsA>obsB)=0.951, tie=0.024

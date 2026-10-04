@@ -1,0 +1,23 @@
+50 reviews, chars: median=37, max=499, total=3843
+
+=== google/gemma-4-26b-a4b-qat ===
+1 per request, 1 worker            n=20  reqs=20  wall=  12.9s  per_review= 0.64s  in=6225   out=1311   out_tok/s= 101.9  ids_ok=20/20  quote_exact=19/20  failed_reqs=0  finish=[('stop', 20)]  reasoning=0
+10 per request, 1 worker           n=20  reqs=2   wall=  11.2s  per_review= 0.56s  in=1150   out=1233   out_tok/s= 110.1  ids_ok=20/20  quote_exact=20/20  failed_reqs=0  finish=[('stop', 2)]  reasoning=0
+50 per request, 1 worker           n=50  reqs=1   wall=  28.5s  per_review= 0.57s  in=1737   out=3034   out_tok/s= 106.6  ids_ok=50/50  quote_exact=50/50  failed_reqs=0  finish=[('stop', 1)]  reasoning=0
+10 per request, 4 workers          n=40  reqs=4   wall=  10.7s  per_review= 0.27s  in=2229   out=2471   out_tok/s= 231.7  ids_ok=40/40  quote_exact=40/40  failed_reqs=0  finish=[('stop', 4)]  reasoning=0
+   same reviews, 1-per vs 10-per : topic 19/20, intent 20/20, severity 18/20
+   same reviews, 1-per vs 50-per : topic 18/20, intent 19/20, severity 15/20
+   topic spread at 50-per        : [('other', 23), ('playback', 8), ('usability', 8), ('billing', 4), ('catalog', 4), ('access', 3)]
+   intent spread at 50-per       : [('praise', 23), ('complaint', 22), ('request', 2), ('unclear', 2), ('cancellation', 1)]
+   severity spread at 50-per     : [(1, 30), (2, 7), (3, 9), (4, 4)]
+
+=== google/gemma-4-e4b ===
+1 per request, 1 worker            n=20  reqs=20  wall=  15.2s  per_review= 0.76s  in=6145   out=1306   out_tok/s=  85.7  ids_ok=20/20  quote_exact=19/20  failed_reqs=0  finish=[('stop', 20)]  reasoning=0
+10 per request, 1 worker           n=20  reqs=2   wall=  14.0s  per_review= 0.70s  in=1142   out=1235   out_tok/s=  88.4  ids_ok=20/20  quote_exact=20/20  failed_reqs=0  finish=[('stop', 2)]  reasoning=0
+50 per request, 1 worker           n=50  reqs=1   wall=  39.3s  per_review= 0.79s  in=1733   out=3359   out_tok/s=  85.5  ids_ok=50/50  quote_exact=49/50  failed_reqs=0  finish=[('stop', 1)]  reasoning=0
+10 per request, 4 workers          n=40  reqs=4   wall=   9.0s  per_review= 0.22s  in=2213   out=2445   out_tok/s= 272.0  ids_ok=40/40  quote_exact=40/40  failed_reqs=0  finish=[('stop', 4)]  reasoning=0
+   same reviews, 1-per vs 10-per : topic 20/20, intent 18/20, severity 17/20
+   same reviews, 1-per vs 50-per : topic 19/20, intent 19/20, severity 16/20
+   topic spread at 50-per        : [('other', 24), ('playback', 15), ('billing', 5), ('catalog', 4), ('access', 2)]
+   intent spread at 50-per       : [('complaint', 24), ('praise', 24), ('request', 2)]
+   severity spread at 50-per     : [(1, 27), (2, 8), (3, 13), (4, 2)]

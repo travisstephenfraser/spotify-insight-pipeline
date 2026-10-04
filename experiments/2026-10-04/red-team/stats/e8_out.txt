@@ -1,0 +1,28 @@
+Anchor: t critical values (tables: df=10 -> 2.2281, df=49 -> 2.0096, df=120 -> 1.9799): 2.2281 2.0096 1.9799
+
+Anchor: type-I error (both classifiers use the A pmf, true MAE 0.40 vs 0.40), n=50, two-sided t, counting either direction:
+  r=0.0: rejection rate 0.0490 (nominal 0.05)
+  r=0.5: rejection rate 0.0486 (nominal 0.05)
+
+Main result, n=50, 100,000 simulated golden sets per row
+  model       r     sd(d)  analytic power  power(paired t)  power(sign test)  P(obs MAE_A<MAE_B)  P(tie)  P(wrong order)  n for 80% power (analytic)
+  main        0.0   0.938  0.325           0.308            0.219             0.924               0.020   0.056           173
+  main        0.3   0.815  0.411           0.401            0.330             0.952               0.015   0.032           131
+  main        0.6   0.669  0.561           0.564            0.521             0.979               0.009   0.012           88
+    (check: true MAE A=0.40, B=0.60; var A=0.360, var B=0.520; comonotone cov=0.360)
+  heavy-tail  0.0   1.077  0.259           0.251            0.176             0.895               0.022   0.083           228
+  heavy-tail  0.3   0.927  0.332           0.329            0.292             0.928               0.018   0.054           169
+  heavy-tail  0.6   0.748  0.472           0.483            0.491             0.965               0.012   0.023           110
+    (check: true MAE A=0.40, B=0.60; var A=0.480, var B=0.680; comonotone cov=0.500)
+
+Simulated power of the paired t-test by n (main model, 20,000 reps each)
+  r     n=50    n=75    n=100   n=125   n=150   n=175   n=200   n=250 
+  0.0   0.309   0.446   0.559   0.663   0.743   0.803   0.855   0.922 
+  0.3   0.397   0.554   0.680   0.781   0.855   0.905   0.937   0.973 
+  0.6   0.568   0.735   0.849   0.917   0.956   0.978   0.990   0.997 
+
+Single-classifier precision: 95% half-width of one MAE estimate at n=50 = 1.96*sd/sqrt(50)
+  main A: MAE 0.40 +/- 0.166
+  main B: MAE 0.60 +/- 0.200
+  heavy-tail A: MAE 0.40 +/- 0.192
+  heavy-tail B: MAE 0.60 +/- 0.229

@@ -1,0 +1,21 @@
+# Real keys stay on this machine. Only the blank .env.example is committed.
+.env
+.env.*
+!.env.example
+
+# Raw dataset (97 MB). The README links the source and records its checksum.
+spotify_reviews_18months.csv
+
+# Checker outputs that must stay outside grading/
+local-reference.json
+self-check.json
+
+.DS_Store
+__pycache__/
+*.pyc
+
+# Tool caches
+.ruff_cache/
+
+# End-of-day handoff notes stay on this machine
+feed/HANDOFF-*.md

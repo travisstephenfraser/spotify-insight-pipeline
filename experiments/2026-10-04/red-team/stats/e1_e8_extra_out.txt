@@ -1,0 +1,12 @@
+E1 mid-p McNemar (not the exact test; shown as the most favourable common variant), n=50, 80% vs 70%
+  phi=0.000: power=0.196   (size at 80/80, both directions: 0.047)
+  phi=0.300: power=0.259   (size at 80/80, both directions: 0.043)
+  phi=0.500: power=0.333   (size at 80/80, both directions: 0.038)
+  phi=0.600: power=0.398   (size at 80/80, both directions: 0.033)
+  phi=0.764: power=0.569   (size at 80/80, both directions: 0.015)
+
+E8 main model at high shared-difficulty r, n=50, 40,000 reps: paired-t power, P(correct order)
+  r=0.80: power=0.732  P(obs MAE_A<MAE_B)=0.994
+  r=0.87: power=0.810  P(obs MAE_A<MAE_B)=0.997
+  r=0.90: power=0.845  P(obs MAE_A<MAE_B)=0.998
+  r=1.00: power=0.995  P(obs MAE_A<MAE_B)=1.000
