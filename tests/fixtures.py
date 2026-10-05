@@ -209,3 +209,14 @@ def reference_for(rows):
         "analysis_sha256": "x",
         "ingestion": {},
     }
+
+
+def grouped_db(directory, rows=None, **options):
+    """A run taken through classify, verify, membership and issue naming with the stand-ins."""
+    from pipeline import group, standins, verify
+
+    db, _ = classified_db(directory, rows, **options)
+    verify.run(db, "r1", standins.StandinGemma())
+    group.assign(db, "r1")
+    group.name_issues(db, "r1", standins.StandinGemma())
+    return db

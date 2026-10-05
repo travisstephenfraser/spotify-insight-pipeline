@@ -171,3 +171,44 @@ class StandinGemma:
             else:
                 data[name] = f"stand-in {name}"
         return data
+
+
+def memo_responder(system, user, schema):
+    """A memo built by rule from the evidence pack, for `StandinGemma(respond=memo_responder)`.
+
+    It cites only what the pack holds, so it passes the memo check. It is test scaffolding:
+    nothing a stand-in writes is ever submitted.
+    """
+    pack = json.loads(user.split("\n\nYour previous memo", 1)[0])
+    names = {i["issue_id"]: i["name"] for i in pack["issues"]}
+    claim = {(c["issue_id"], c["metric"]): c for c in pack["claims"]}
+
+    def cite(issue_id, metric):
+        c = claim[(issue_id, metric)]
+        return f"{c['value']} [{c['claim_id']}]"
+
+    top = pack["ranking"][0]["issue_id"]
+    lines = [
+        "# Decision memo",
+        "",
+        "## Recommendation",
+        f"Put the next quarter of product effort into {names.get(top, top)} ({top}): it ranks first, with a priority score of {cite(top, 'priority_score')} for {top}.",
+        "",
+        "## Supporting numbers",
+    ]
+    for row in pack["ranking"]:
+        iid = row["issue_id"]
+        lines.append(f"- {iid} has {cite(iid, 'complaint_count')} complaints and a severity sum of {cite(iid, 'severity_sum')} for {iid}.")
+    lines += ["", "## Alternatives"]
+    for row in pack["ranking"][1:]:
+        iid = row["issue_id"]
+        lines.append(f"- {iid} ranks {row['rank']}, with a priority score of {cite(iid, 'priority_score')} for {iid}.")
+    if len(pack["ranking"]) == 1:
+        lines.append("- No other issue has a complaint in this run.")
+    lines += ["", "## Representative reviews"]
+    for iid, quotes in pack["evidence"].items():
+        for q in quotes[:2]:
+            text = q["quote"].replace('"', "'").replace("\n", " ")
+            lines.append(f'- {iid} [review:{q["review_id"]}] "{text}"')
+    lines += ["", "## Limits"] + [f"- {limit}" for limit in pack["run_facts"]["known_limits"]]
+    return {"memo": "\n".join(lines)}
