@@ -130,6 +130,25 @@ def check(header, rows):
     return out
 
 
+def odd_entities(rows):
+    """Rows whose entities cell is not lowercase names split by ';'. Shape only, not blocking."""
+    out = {}
+    for n, r in enumerate(rows, 2):
+        v = r.get("entities", "").strip()
+        if not v:
+            continue
+        parts = [p.strip() for p in v.split(";")]
+        if v != v.lower():
+            out.setdefault("has capital letters", []).append(n)
+        if "," in v:
+            out.setdefault("has a comma", []).append(n)
+        if not all(parts):
+            out.setdefault("has an empty name", []).append(n)
+        if any(p.upper() in ALLOWED["needs_review"] for p in parts):
+            out.setdefault("reads TRUE or FALSE", []).append(n)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
     ap.add_argument("target", help="the repo CSV to fill")
@@ -236,6 +255,8 @@ def main():
         print(f"already filled in the target and left alone: {kept}")
     assert sum(filled.values()), "nothing was filled: the export holds no labels"
 
+    for what, ns in odd_entities(rows).items():
+        print(f"worth a look, not blocking: entities {what} on rows {ns}")
     problems = check(header, rows)
     if problems:
         print(f"\n{len(problems)} format problems (sheet row, column):")
