@@ -1,0 +1,9 @@
+{
+  "jev": {
+    "usd_per_mtok_in": "0.042",
+    "usd_per_mtok_out": "0.042",
+    "source": "https://docs.typesafe.ai/models",
+    "checked": "2026-10-04",
+    "note": "The input rate is the documented one. Whether output tokens are billed is unknown until the usage page is compared with a test batch (spec item 27). Until then they are counted at the input rate, so the ledger errs toward counting too much."
+  }
+}

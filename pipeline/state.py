@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS ledger (
   usd_fixed TEXT, note TEXT, created_utc TEXT NOT NULL             -- usd_fixed: a dollar amount on 'opening' and 'adjust' rows
 );
 CREATE UNIQUE INDEX IF NOT EXISTS ledger_settled ON ledger (request_id) WHERE kind IN ('actual','kept');
+CREATE INDEX IF NOT EXISTS ledger_by_request ON ledger (request_id, kind);
 CREATE TABLE IF NOT EXISTS verify (
   run TEXT NOT NULL, review_id TEXT NOT NULL, outcome TEXT NOT NULL,   -- 'predicted' or 'failed'
   topic TEXT, intent TEXT, severity INTEGER, reason TEXT, request_id TEXT,
@@ -92,6 +93,14 @@ class ResumeRefused(Exception):
 
 class DirtyTree(Exception):
     pass
+
+
+class DuplicateRequest(Exception):
+    pass
+
+
+class AlreadySettled(Exception):
+    """This request already has its outcome. A request is settled exactly once."""
 
 
 class Locked(Exception):
@@ -310,3 +319,111 @@ def close_crashed_sessions(db, run):
         (run,),
     )
     return cur.rowcount
+
+
+# ---- The save protocol (spec section 4, "How a request is saved") ----
+
+
+def begin_attempt(db, ledger, *, request_id, run, role, review_ids, model, label_config, session_id, reserve_tokens):
+    """Commit the intent to send one request, with its reservation. No commit, no send.
+
+    `ledger` is None for the local roles, which spend no Jev money. Raises the ledger's
+    CapReached, writing nothing, when the reservation would pass the cap.
+    """
+    try:
+        with tx(db):
+            if ledger is not None:
+                ledger.reserve(request_id, run, reserve_tokens)
+            try:
+                db.execute(
+                    "INSERT INTO calls (request_id, run, role, review_ids_json, model, label_config, outcome, started_utc, "
+                    "session_id) VALUES (?,?,?,?,?,?,'pending',?,?)",
+                    (request_id, run, role, json.dumps(list(review_ids)), model, label_config, now_utc(), session_id),
+                )
+            except sqlite3.IntegrityError:
+                raise DuplicateRequest(request_id) from None
+    except BaseException:
+        if ledger is not None:
+            ledger.reload()
+        raise
+
+
+def finish_attempt(
+    db, request_id, *, outcome, input_tokens=None, output_tokens=None, http_status=None, error=None, seconds,
+    result=None, ledger=None,
+):  # fmt: skip
+    """Save everything one response brought, in one transaction.
+
+    The call row and the charge are always saved. With `result` (a validated answer) the
+    result row is saved too, and the original and every copy of its text become completed.
+    """
+    try:
+        with tx(db):
+            call = db.execute("SELECT * FROM calls WHERE request_id=?", (request_id,)).fetchone()
+            if call is None or call["outcome"] != "pending":
+                raise AlreadySettled(request_id)
+            db.execute(
+                "UPDATE calls SET outcome=?, input_tokens=?, output_tokens=?, usage_known=?, http_status=?, error=?, "
+                "seconds=? WHERE request_id=?",
+                (outcome, input_tokens, output_tokens, int(input_tokens is not None), http_status, error, seconds, request_id),
+            )
+            if ledger is not None:
+                ledger.settle(request_id, input_tokens, output_tokens)
+            if result is not None:
+                (review_id,) = json.loads(call["review_ids_json"])
+                review = db.execute(
+                    "SELECT text_key FROM reviews WHERE run=? AND review_id=?", (call["run"], review_id)
+                ).fetchone()
+                db.execute(
+                    "INSERT INTO results (run, text_key, topic, intent, severity, sentiment, entities_json, evidence_quote, "
+                    "needs_review, min_top_probability, raw_json, model) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (
+                        call["run"], review["text_key"], result["topic"], result["intent"], result["severity"],
+                        result["sentiment"], json.dumps(result["entities"], ensure_ascii=False), result["evidence_quote"],
+                        int(result["needs_review"]), result["min_top_probability"],
+                        json.dumps(result["raw"], ensure_ascii=False), result["model"],
+                    ),
+                )  # fmt: skip
+                db.execute(
+                    "UPDATE reviews SET status='completed', completed_session=? WHERE run=? AND text_key=? AND status='pending'",
+                    (call["session_id"], call["run"], review["text_key"]),
+                )
+    except BaseException:
+        if ledger is not None:
+            ledger.reload()
+        raise
+
+
+def recover_orphans(db, run, *, ledger=None):
+    """Close the calls a dead process left open. Returns how many, by role.
+
+    Each becomes a failed call with usage unknown, and its reservation stays counted as
+    spent. No review's status changes: every stage finds its own unfinished work.
+    """
+    counts = {}
+    with tx(db):
+        for call in db.execute("SELECT request_id, role FROM calls WHERE run=? AND outcome='pending'", (run,)).fetchall():
+            db.execute(
+                "UPDATE calls SET outcome='failed', usage_known=0, error=? WHERE request_id=?",
+                ("the process ended before a response was saved", call["request_id"]),
+            )
+            if ledger is not None:
+                ledger.settle(call["request_id"])
+            counts[call["role"]] = counts.get(call["role"], 0) + 1
+    if ledger is not None:
+        ledger.reload()
+    return counts
+
+
+def return_to_pending(db, run, review_id):
+    """A review whose attempts all failed for now. It stays pending and is tried again later."""
+    db.execute("UPDATE reviews SET attempts = attempts + 1 WHERE run=? AND review_id=?", (run, review_id))
+
+
+def quarantine(db, run, review_id, reason):
+    """The original and every copy of its text. A copy keeps its pointer; export leaves it off."""
+    db.execute(
+        "UPDATE reviews SET status='quarantined', reason=? WHERE run=? AND status='pending' AND text_key = "
+        "(SELECT text_key FROM reviews WHERE run=? AND review_id=?)",
+        (reason, run, run, review_id),
+    )

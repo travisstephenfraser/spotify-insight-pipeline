@@ -100,3 +100,40 @@ class FakeClock:
 
     def advance(self, seconds):
         self.now += seconds
+
+
+def prepared_db(directory, rows=None, *, run="r1", verify_size=5000):
+    """A state file with one run prepared from a synthetic CSV (20 rows: 3 empty, 4 copies)."""
+    from pipeline import prepare, state
+
+    db = state.connect(directory / "state.sqlite")
+    path = directory / f"{run}.csv"
+    write_csv(path, rows if rows is not None else synthetic_rows(20, empties=3, copies=4))
+    with state.tx(db):
+        new_run(db, run)
+        prepare.prepare(db, run, path, seed=SEED, verify_seed="verify-v1", verify_size=verify_size)
+    return db
+
+
+def write_billing(path, rate_in="0.042", rate_out="0.042"):
+    import json
+
+    path.write_text(json.dumps({"jev": {"usd_per_mtok_in": rate_in, "usd_per_mtok_out": rate_out}}))
+    return path
+
+
+def result_for(text, **changes):
+    """A valid classify result for `text`, in the shape the classify loop hands to finish_attempt."""
+    return {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 3,
+        "sentiment": -0.5,
+        "entities": [],
+        "evidence_quote": text.strip(),
+        "needs_review": False,
+        "min_top_probability": 0.9,
+        "raw": {"answers": {}},
+        "model": "jev-1.13.0",
+        **changes,
+    }
