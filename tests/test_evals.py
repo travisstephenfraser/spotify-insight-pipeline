@@ -153,12 +153,12 @@ class OpeningSpend(unittest.TestCase):
 
         with mock.patch.dict(os.environ, {"TYPESAFE_API_KEY": "fake-key-for-tests-0123456789"}):
             for _ in range(2):
-                with common.session(self.args(), "test") as paid:
+                with redirect_stdout(io.StringIO()), common.session(self.args(), "test") as paid:
                     self.assertEqual(paid.ledger.spent_usd(), sum(cli.OPENING_SPEND))
         self.assertEqual(self.opening_rows(), 2)  # one measured row and one estimated row, written once
 
     def test_a_stand_in_eval_records_no_opening_spend(self):
-        with common.session(self.args(go=False, standin=True), "test") as paid:
+        with redirect_stdout(io.StringIO()), common.session(self.args(go=False, standin=True), "test") as paid:
             self.assertEqual(paid.ledger.spent_usd(), 0)
 
 
