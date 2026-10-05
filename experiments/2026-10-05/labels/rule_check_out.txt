@@ -1,0 +1,4 @@
+rule: intent unclear, praise or request means severity 1 (contract, severity table)
+blind sheet: 39 labeled rows; the rule would change 8 (unclear 8, praise 0, request 0); sheet rows [4, 8, 11, 22, 24, 25, 35, 36]
+development sheet: 29 labeled rows; the rule would change 0 (unclear 0, praise 0, request 0); sheet rows []
+golden 50: 50 labeled rows; the rule would change 4 (unclear 4, praise 0, request 0)

@@ -146,7 +146,10 @@ Earlier steps of the same pass: 10-review test batch run at low effort with Trav
 - **Each rater against him, 38 real reviews:** Fable 7 on all three (topic 26, intent 31, severity 16); Astra 7 (topic 23, intent 32, severity 13). His severity is below Fable's on 15 and above on 7; below Astra's on 16 and above on 9.
 - **A pattern in his labels:** all 8 boycott reviews he called `unclear` carry severity 2. The contract's severity 1 covers "neutral/unclear content" and the labeling guide gives a boycott slogan severity 1. Four of the 11 agreed-check differences are this alone; set aside, the agreed checks would read 8 of 15. The labels stay as frozen.
 - **Planted case R1** (paying user, music stops): expected `playback`, `complaint`, 3; his label is `billing`, `complaint`, 2.
-- **Not checked:** whether the golden 50 carries the same severity pattern. That would be a count-only script over the frozen file and needs Travis's go.
+- **Ruling by Travis, 2026-10-05 (spec item 32): labels stay frozen, scores shown two ways.** Every score against hand labels is reported against the labels as written, and again with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. He raised tuning the sheets after seeing the result; that was set aside because he had by then seen the raters' answers.
+- **Count-only check, run with his go** (`rule_check.py`, validation log entry 19): the rule would change 8 of 39 blind-sheet labels, 0 of 29 development labels and 4 of 50 golden labels, all `unclear`. With it applied the agreed checks read 8 of 15 and the disputed rows Fable 4, Astra 5, neither 14.
+- **Not covered by any rule:** his habit of giving severity 2 where the raters give 3 on complaints. It is disclosed as it stands. He said on 2026-10-05 that on review he agrees with the raters' severity.
+- **To raise at spec item 4:** which labels the cut-off is tuned against, now that a label both raters share equals his on 4 of 15 (8 by rule). Item 24 was decided before this was known.
 
 Raw evidence for every number above is in `experiments/2026-10-04/` and `experiments/2026-10-05/` (throwaway scripts and saved responses, not code to reuse).
 

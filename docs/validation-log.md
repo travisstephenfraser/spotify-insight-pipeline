@@ -34,6 +34,7 @@ Update 2026-10-05: still design stage. Both hand-labeled files are frozen (entri
 | 16 | Blind human check of the raters | Travis, by hand | 39 reviews | Hand label equals the raters' shared answer on 4 of 15 agreed reviews (topic 12, intent 12, severity 5); on the 23 disputed it equals Fable's on 3, Astra's on 3, neither on 17 | none |
 | 17 | Second independent review of the spec | A reviewer from another maker, given one brief file and none of the earlier conclusions | 13 factual claims | All 13 confirmed on recheck; three mislabeled numbers and several gaps fixed | not metered |
 | 18 | Label freeze | Format check by code; label values never shown | 39 and 50 rows | Both files committed and hashed before any model answer for their rows; nine blank golden cells filled after a first check | none |
+| 19 | The contract's fixed severity rule against the hand labels | Code only; counts alone for the golden file | 39, 29 and 50 labels | The rule would change 8, 0 and 4 labels; with it applied the blind check reads 8 of 15 | none |
 
 Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
@@ -183,10 +184,23 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Evidence:** the two commits; `experiments/2026-10-05/labels/import_numbers.py`.
 - **Limits:** the Numbers documents are not in the repo, only their hashes. The order of events rests on commit times and this log. The golden labels have not been compared with anything, and nothing has checked them against the labeling guide's rules.
 
+### 19. The contract's fixed severity rule against the hand labels
+
+- **What:** a count of hand labels whose intent is `unclear`, `praise` or `request` and whose severity is above 1. The contract's severity 1 is "No reported problem: praise, neutral/unclear content, or a pure feature request", so such a label has severity 1 by rule.
+- **Why:** entry 16 found the pattern on the blind sheet. The golden 50 was labeled the same morning by the same person.
+- **Independence:** code only. No model answer enters. For the golden file the script prints counts, never a row number or a value.
+- **Result:** the rule would change 8 of 39 labels on the blind sheet (all `unclear`, the eight boycott rows of entry 16), 0 of 29 on the development sheet, and 4 of 50 on the golden file (all `unclear`).
+- **Known-answer test:** before it reads the golden file the script must reproduce the eight blind-sheet rows, which were read by eye from entry 16's output before the script existed. It refuses a golden file whose hash is not the frozen one.
+- **Entry 16 read again with the rule applied to the hand labels:** agreed checks 8 of 15 on all three fields (4 as written), severity 8 (5). Disputed rows: Fable's on 4, Astra's on 5, neither on 14 (3, 3 and 17). Fable 12 of 38 on all three, severity 20 (7 and 16). Astra 13 of 38, severity 19 (7 and 13). Neither rater has a label that breaks the rule on these 39 rows.
+- **Ruling by Travis, 2026-10-05:** the labels stay as frozen. Every score against hand labels is reported two ways: against the labels as written, and with this rule applied to them by code (spec section 12 item 32).
+- **Evidence:** `experiments/2026-10-05/labels/rule_check.py`, `rule_check_out.txt`, `score_adjudication_out.txt`.
+- **Limits:** the ruling came after Travis saw the raters' answers on the blind sheet. The rule is the contract's wording and takes no model answer, but the choice to apply it was made with those answers in view. It covers one kind of departure: complaints given 2 where the raters give 3 are untouched. It says nothing on whether the intent on those rows is right.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
 - **Both scores, always.** Where labels were revised after seeing a model, the before and after scores are reported together.
+- **Two readings of every hand-label score.** Hand labels stay as frozen. Scores are shown against them as written and with the contract's fixed severity rule applied to them by code.
 - **Golden 50 is scored once**, on the final setup, and never used to choose an engine, a prompt or a cut-off.
 - **Held-back halves.** The boycott sample and the development rows are split by hash, so wording is tuned on one half and scored once on the other.
 - **Agreement is not accuracy.** Engine agreement is reported split by complaints against the rest.

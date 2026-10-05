@@ -307,7 +307,7 @@ The brief names these (its lines 149, 185 to 192 and 196 to 198). Each is checke
 - planted slogan and injection cases against the final wording (results in `evals/`);
 - development-label scores for Jev and for Gemma at the 100 gate, per field;
 - the two outside raters (section 12 item 30): already run on the development, boycott and planted reviews; run on the golden texts only after the golden labels are frozen, for an agreement figure and a count of ambiguous cases;
-- the golden 50, once, after the full run. The report holds: topic and intent agreement; exact severity agreement and mean error, signed and unsigned; sentiment mean error; per-topic counts and confusion tables; the number of ambiguous cases; `needs_review` scored as a prediction (how many wrong labels it caught, how many right ones it flagged); the exact-copy quote check; and the list of disagreements. Travis inspects whether each quote supports its label and whether any entity is unsupported. The script reads the label columns; they never reach a prompt or the assistant's context.
+- the golden 50, once, after the full run. The report holds: topic and intent agreement; exact severity agreement and mean error, signed and unsigned; sentiment mean error; per-topic counts and confusion tables; the number of ambiguous cases; `needs_review` scored as a prediction (how many wrong labels it caught, how many right ones it flagged); the exact-copy quote check; and the list of disagreements. Every score against hand labels is shown two ways (section 12 item 32): against the labels as frozen, and with the contract's fixed severity rule applied to them by code. Travis inspects whether each quote supports its label and whether any entity is unsupported. The script reads the label columns; they never reach a prompt or the assistant's context.
 
 **Known weaknesses of the labels (open, section 12 items 19, 20, 23 and 24):**
 
@@ -315,6 +315,7 @@ The brief names these (its lines 149, 185 to 192 and 196 to 198). Each is checke
 - The same 29 rows are used to tune wording, to pick the cut-off and to compare engines. Nothing is held back.
 - The planted slogan and injection cases were written by the assistant, who also tunes the wording against them. The outside raters matched that answer key on 24 and 25 of 25, and a real boycott sample with a held-back half now exists.
 - One person labels. There is no second labeler to measure how firm the labels are. The instructor's private sample is the only independent check.
+- The blind check on 2026-10-05 (*measured*, `docs/validation-log.md` entries 16 and 19): on the 15 reviews where the two raters agree, the hand label equals their shared answer on 4, or 8 with the contract's fixed severity rule applied. A label both raters share does not stand in for the hand label, least of all on severity. The hand severity departs from that rule on 8 of 39 blind-sheet rows and 4 of 50 golden rows.
 
 **Guards against a measure that reads itself (raise, never warn):**
 
@@ -354,7 +355,7 @@ Order of work: the wording trial, then the 100 gate (cost pilot, all stages), 50
 
 ## 12. Proposed items that need Travis's ruling
 
-Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Rows marked Decided or Done carry his ruling; the rest are open.
+Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Rows marked Decided or Done carry his ruling; the rest are open.
 
 | # | Item | Proposed | Section |
 |---|---|---|---|
@@ -389,6 +390,7 @@ Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. I
 | 29 | Provider-side limit | Travis checks whether the TypeSafe console offers a spending limit and sets it | 7 |
 | 30 | Outside raters | **Decided and run 2026-10-04.** Claude Fable 5.1 and GPT-6 Astra label reviews blind as third-party raters, under a $10 cap per provider. They see the review text and the contract's definitions word for word, and nothing from Jev, Gemma or Travis. Their labels tune and mark disputed rows; they never support an accuracy claim. The golden 50 is frozen before either sees those texts. Results are in `docs/validation-log.md` | 10 |
 | 31 | Code changes between sessions | **Decided 2026-10-04: refuse.** A run records the code's git commit. A resume under a different commit is refused unless it is allowed by name and logged. Left for the implementation plan: compare the whole package, or only the code that turns answers into labels | 4 |
+| 32 | Scores shown two ways | **Decided 2026-10-05.** Hand labels stay as frozen. Every score against them is reported twice: against the labels as written, and with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. On the blind sheet the rule changes 8 of 39 hand labels, all boycott reviews labeled `unclear` with severity 2. On the golden 50 it changes 4, counted without showing a row or a value. The labeler's habit of giving severity 2 where both raters give 3 on complaints is covered by no rule and is disclosed as it stands | 10 |
 
 ## 13. Independent review, 2026-10-04
 

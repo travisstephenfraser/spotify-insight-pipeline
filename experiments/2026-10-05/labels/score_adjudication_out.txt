@@ -16,6 +16,13 @@ all three fields: you match Fable 3, Astra 3, neither 17
 Fable: all three 7 of 38 | topic 26, intent 31, severity 16 | your severity minus theirs: {-2: 2, -1: 13, 0: 16, 1: 7}
 Astra: all three 7 of 38 | topic 23, intent 32, severity 13 | your severity minus theirs: {-2: 3, -1: 13, 0: 13, 1: 9}
 
+== second reading: the contract's fixed rule applied to your labels by code ==
+rule: intent unclear, praise or request means severity 1. It changes 8 of your labels (sheet rows [4, 8, 11, 22, 24, 25, 35, 36]). Rater labels that break it: Fable 0, Astra 0
+agreed checks: all three 8 of 15 (was 4) | severity 8 (was 5)
+disputed rows: you match Fable 4, Astra 5, neither 14 (was 3, 3, 17)
+Fable: all three 12 of 38 (was 7) | severity 20 (was 16)
+Astra: all three 13 of 38 (was 7) | severity 19 (was 13)
+
 == planted case R1 (expected answer written by the assistant) ==
 expected topic ['playback'], intent ['complaint'], severity [3] | yours billing/complaint/2 (differs) | Fable playback/complaint/4 | Astra playback/complaint/3
 

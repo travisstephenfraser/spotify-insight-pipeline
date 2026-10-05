@@ -12,7 +12,8 @@ The two hand-labeled files were imported from Numbers, frozen, and the blind she
 |---|---|
 | `import_numbers.py` | Exports a copy of a Numbers document as CSV, fills the repo CSV by review ID, and runs the format check. It prints row numbers, column names and counts, never a label value. Review text always comes from the repo. It writes nothing unless the check is clean |
 | `score_adjudication.py` | Scores `evals/adjudication_sheet.csv` against the two outside raters. It refuses a sheet that is not committed |
-| `score_adjudication_out.txt` | The score as printed, row by row |
+| `score_adjudication_out.txt` | The score as printed, row by row, with the second reading |
+| `rule_check.py`, `rule_check_out.txt` | Counts hand labels that the contract's fixed severity rule would change. Counts only for the golden file |
 
 Freeze record:
 
@@ -32,5 +33,16 @@ The blind sheet, 39 reviews labeled by Travis without seeing a rater's answer:
 | Planted case R1 | Expected `playback`, `complaint`, 3. His label: `billing`, `complaint`, 2 |
 
 All 8 boycott reviews he called `unclear` carry severity 2, where the contract's severity 1 covers "neutral/unclear content". Four of the 11 agreed-check differences are this alone. The labels stay as frozen.
+
+Ruling by Travis the same day: every score against hand labels is shown two ways, as written and with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1).
+
+| Measure | As written | With the rule |
+|---|---|---|
+| Labels the rule changes: blind sheet, development sheet, golden 50 | | 8 of 39, 0 of 29, 4 of 50 |
+| Agreed checks, all three fields | 4 of 15 | 8 of 15 |
+| Agreed checks, severity | 5 of 15 | 8 of 15 |
+| Disputed rows: Fable's, Astra's, neither | 3, 3, 17 | 4, 5, 14 |
+| Fable against him, all three and severity | 7 and 16 of 38 | 12 and 20 of 38 |
+| Astra against him, all three and severity | 7 and 13 of 38 | 13 and 19 of 38 |
 
 Tests of the two scripts ran on made-up labels in a scratch folder and are not saved here. What they showed is in the validation log.

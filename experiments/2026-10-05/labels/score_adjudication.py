@@ -21,6 +21,9 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "experiments/2026-10-04/outside-raters"))
 import raters  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).parent))
+from rule_check import by_rule  # noqa: E402
+
 F = ("topic", "intent", "severity")
 SHEET = ROOT / "evals/adjudication_sheet.csv"
 KEY = ROOT / "evals/adjudication_key.json"
@@ -171,6 +174,51 @@ def main():
             f"{tag}{name}: all three {sum(same(H[k], L[k]) for k in real)} of {len(real)}"
             f" | topic {per['topic']}, intent {per['intent']}, severity {per['severity']}"
             f" | your severity minus theirs: {dict(sorted(gap.items()))}"
+        )
+
+    # Second reading, ruled by Travis on 2026-10-05: the labels stay as frozen, and every
+    # score is also shown with the contract's fixed severity rule applied to them by code.
+    H2 = {
+        k: {**h, "severity": by_rule(h["intent"], h["severity"])} for k, h in H.items()
+    }
+    moved = [n for n, r in rows if H2[r["review_id"]] != H[r["review_id"]]]
+    # A rule that rewrites most labels would lift every score: stop, do not report it.
+    assert len(moved) < len(rows) / 2, "the rule changed most of the labels"
+    broke = {
+        name: sum(
+            by_rule(L[k]["intent"], L[k]["severity"]) != L[k]["severity"] for k in order
+        )
+        for name, L in (("Fable", A), ("Astra", O))
+    }
+    print(
+        f"\n{tag}== second reading: the contract's fixed rule applied to your labels by code =="
+    )
+    print(
+        f"{tag}rule: intent unclear, praise or request means severity 1."
+        f" It changes {len(moved)} of your labels (sheet rows {moved})."
+        f" Rater labels that break it: Fable {broke['Fable']}, Astra {broke['Astra']}"
+    )
+    hit2 = [k for k in agreed if same(H2[k], A[k])]
+    print(
+        f"{tag}agreed checks: all three {len(hit2)} of {len(agreed)} (was {len(hit)})"
+        f" | severity {sum(same(H2[k], A[k], ('severity',)) for k in agreed)}"
+        f" (was {sum(same(H[k], A[k], ('severity',)) for k in agreed)})"
+    )
+    side2 = Counter(
+        "fable" if same(H2[k], A[k]) else "astra" if same(H2[k], O[k]) else "neither"
+        for k in disputed
+    )
+    print(
+        f"{tag}disputed rows: you match Fable {side2['fable']}, Astra {side2['astra']},"
+        f" neither {side2['neither']}"
+        f" (was {side['fable']}, {side['astra']}, {side['neither']})"
+    )
+    for name, L in (("Fable", A), ("Astra", O)):
+        print(
+            f"{tag}{name}: all three {sum(same(H2[k], L[k]) for k in real)} of {len(real)}"
+            f" (was {sum(same(H[k], L[k]) for k in real)})"
+            f" | severity {sum(same(H2[k], L[k], ('severity',)) for k in real)}"
+            f" (was {sum(same(H[k], L[k], ('severity',)) for k in real)})"
         )
 
     # Planted case. Known answer from validation log entry 13: Astra matches the expected
