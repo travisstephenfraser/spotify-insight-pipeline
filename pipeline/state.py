@@ -113,8 +113,12 @@ def now_utc():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def connect(path):
-    """Open the state file, creating the schema if it is new. Write-ahead mode, rows by name."""
+def connect(path, *, synchronous="FULL"):
+    """Open the state file, creating the schema if it is new. Write-ahead mode, rows by name.
+
+    `synchronous` FULL waits for the disk on every commit, so a saved response survives a power cut.
+    Tests pass OFF: a killed process still loses nothing, and they run many times faster.
+    """
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(
         path, timeout=30, isolation_level=None, check_same_thread=False
@@ -122,6 +126,8 @@ def connect(path):
     db.row_factory = sqlite3.Row
     db.execute("PRAGMA journal_mode=WAL")
     db.execute("PRAGMA busy_timeout=30000")
+    assert synchronous in ("FULL", "NORMAL", "OFF"), synchronous
+    db.execute(f"PRAGMA synchronous={synchronous}")
     db.executescript(SCHEMA)
     return db
 

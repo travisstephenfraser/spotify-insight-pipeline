@@ -5,6 +5,7 @@ original, and the run order and the verify sample are fixed here, before any mod
 """
 
 import csv
+import json
 from pathlib import Path
 
 from pipeline import hashing
@@ -17,6 +18,23 @@ SUPPLIED = {
     "distinct_texts": 484189,
     "missing_app_version": 159701,
 }
+
+
+MANIFEST = Path(__file__).resolve().parents[1] / "feed/Final Assignment - Spotify Reviews Dataset/manifest.json"
+
+
+def supplied_hashes():
+    """SHA-256 of every file the course supplied: the full file and the samples cut from it."""
+    hashes = {SUPPLIED["sha256"]}
+    try:
+        files = json.loads(MANIFEST.read_text(encoding="utf-8"))["files"]
+    except (OSError, ValueError, KeyError):
+        return hashes
+    return hashes | {entry["sha256"] for entry in files.values()}
+
+
+def is_supplied(sha256):
+    return sha256 in supplied_hashes()
 
 
 class BadInput(Exception):

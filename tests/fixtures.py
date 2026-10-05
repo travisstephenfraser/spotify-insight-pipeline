@@ -106,7 +106,7 @@ def prepared_db(directory, rows=None, *, run="r1", verify_size=5000):
     """A state file with one run prepared from a synthetic CSV (20 rows: 3 empty, 4 copies)."""
     from pipeline import prepare, state
 
-    db = state.connect(directory / "state.sqlite")
+    db = state.connect(directory / "state.sqlite", synchronous="OFF")
     path = directory / f"{run}.csv"
     write_csv(path, rows if rows is not None else synthetic_rows(20, empties=3, copies=4))
     with state.tx(db):

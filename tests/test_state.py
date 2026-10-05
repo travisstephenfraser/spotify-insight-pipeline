@@ -227,3 +227,13 @@ class Lock(TmpCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Durability(TmpCase):
+    def test_the_default_waits_for_the_disk_on_every_commit(self):
+        self.assertEqual(self.connect().execute("PRAGMA synchronous").fetchone()[0], 2)
+
+    def test_a_test_can_ask_for_no_waiting(self):
+        db = state.connect(self.path, synchronous="OFF")
+        self.addCleanup(db.close)
+        self.assertEqual(db.execute("PRAGMA synchronous").fetchone()[0], 0)

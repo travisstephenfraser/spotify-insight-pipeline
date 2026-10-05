@@ -79,3 +79,17 @@ class Script(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Log(unittest.TestCase):
+    def test_each_text_sent_is_also_written_to_the_log_file_when_one_is_given(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "sent.log"
+            labeler = standins.ReplayJev(SAVED, log_path=log)
+            ask(labeler, "one\ntwo lines")
+            ask(labeler, "three")
+            self.assertEqual([json.loads(line) for line in log.read_text().splitlines()], ["one\ntwo lines", "three"])

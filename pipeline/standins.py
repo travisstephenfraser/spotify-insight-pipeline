@@ -39,7 +39,7 @@ def _first(rules, low, default):
 class ReplayJev:
     """A labeler: `label(text, request) -> jev.Reply`, or raises jev.Temporary or jev.Fatal."""
 
-    def __init__(self, path=None, *, script=None, latency=0.0, sleep=time.sleep):
+    def __init__(self, path=None, *, script=None, latency=0.0, sleep=time.sleep, log_path=None):
         self._saved = {}
         if path is not None:
             for line in Path(path).read_text(encoding="utf-8").splitlines():
@@ -48,6 +48,7 @@ class ReplayJev:
                     self._saved[row["request"]["state"]] = row["response"]
         self._script = {text: list(steps) for text, steps in (script or {}).items()}
         self._latency, self._sleep = latency, sleep
+        self._log_path = log_path  # one JSON line per text sent, written before the answer
         self._lock = threading.Lock()
         self.sent = []  # every text sent, in order: tests assert a completed text is never sent again
 
@@ -55,6 +56,9 @@ class ReplayJev:
         with self._lock:
             self.sent.append(text)
             step = self._script[text].pop(0) if self._script.get(text) else None
+            if self._log_path:
+                with open(self._log_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(text) + "\n")
         if step is not None and step not in STEPS:
             raise ValueError(f"unknown script step: {step!r}")
         if self._latency:
