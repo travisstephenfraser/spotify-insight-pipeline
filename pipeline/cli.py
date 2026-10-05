@@ -205,7 +205,7 @@ def cmd_run(db, a):
             raise Refused(f"run {a.run} exists; drop --new to resume it")
         if not a.input:
             raise Refused("--new needs --input PATH.csv")
-        setup = jev.load_setup(a.prompts, 0.70 if a.cutoff is None else a.cutoff)
+        setup = jev.load_setup(a.prompts, 0.70 if a.cutoff is None else a.cutoff, prompt_name=a.prompt_file or "enrich-v1.json")
         if real and not a.go:
             rows = prepare.read_rows(a.input)
             return _would_spend(db, a, len({r["review_text"] for r in rows if r["review_text"].strip()}))
@@ -221,7 +221,7 @@ def cmd_run(db, a):
                 db, a.run, input_path=str(Path(a.input).resolve()), input_sha256=input_sha, seed=a.seed,
                 verify_seed=VERIFY_SEED, verify_size=a.verify_size, sample_seed=SAMPLE_SEED, code_commit=commit,
                 code_hash=code_hash, label_config=setup.label_config, hashes=setup.hashes(),
-                configs={"standin": a.standin, "warm_from": a.warm_from},
+                configs={"standin": a.standin, "warm_from": a.warm_from, "prompt_file": setup.prompt_file.name},
             )  # fmt: skip
             counts = prepare.prepare(db, a.run, a.input, seed=a.seed, verify_seed=VERIFY_SEED, verify_size=a.verify_size)
         print(
@@ -236,7 +236,8 @@ def cmd_run(db, a):
         if _is_standin(row) != a.standin:
             raise Refused(f"run {a.run} is a {'stand-in' if _is_standin(row) else 'real'} run; resume it the same way it was started")
         saved_cutoff = float(json.loads(row["hashes_json"])["cutoff"])
-        setup = jev.load_setup(a.prompts, saved_cutoff if a.cutoff is None else a.cutoff)
+        saved_prompt = json.loads(row["configs_json"]).get("prompt_file", "enrich-v1.json")
+        setup = jev.load_setup(a.prompts, saved_cutoff if a.cutoff is None else a.cutoff, prompt_name=a.prompt_file or saved_prompt)
         if real and not a.go:
             left = db.execute("SELECT COUNT(*) FROM reviews WHERE run=? AND status='pending' AND cache_source_id IS NULL", (a.run,)).fetchone()[0]
             return _would_spend(db, a, left)
@@ -331,6 +332,7 @@ def parser():
     r.add_argument("--allow-code", help="resume although the code changed, naming the new code hash")
     r.add_argument("--accept-guard", action="append", help="accept a named guard on an input that is not a supplied file")
     r.add_argument("--prompts", default=str(ROOT / "prompts"))
+    r.add_argument("--prompt-file", help="the enrich wording, a file in the prompts folder (default enrich-v1.json); part of label_config")
     r.add_argument("--standin-latency", type=float, default=0.0, help=argparse.SUPPRESS)
     r.add_argument("--standin-log", help=argparse.SUPPRESS)
 

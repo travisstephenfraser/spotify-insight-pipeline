@@ -237,3 +237,13 @@ class Durability(TmpCase):
         db = state.connect(self.path, synchronous="OFF")
         self.addCleanup(db.close)
         self.assertEqual(db.execute("PRAGMA synchronous").fetchone()[0], 0)
+
+
+class LockFolder(TmpCase):
+    def test_the_lock_makes_the_state_files_folder_when_it_is_not_there_yet(self):
+        """A fresh clone has no runs/ folder; the first command must not fail on that."""
+        path = self.dir / "runs" / "state.sqlite"
+        lock = state.RunLock(path)
+        lock.acquire()
+        self.addCleanup(lock.release)
+        self.assertTrue(path.parent.is_dir())

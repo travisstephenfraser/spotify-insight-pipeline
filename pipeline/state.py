@@ -153,6 +153,7 @@ class RunLock:
         self.held = False
 
     def acquire(self):
+        self.file.parent.mkdir(parents=True, exist_ok=True)
         for _ in range(2):
             try:
                 fd = os.open(self.file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)

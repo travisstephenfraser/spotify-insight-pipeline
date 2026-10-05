@@ -139,6 +139,19 @@ class PilotReplay(CliCase):
         )
 
 
+class PromptFile(CliCase):
+    def test_a_run_is_created_with_the_wording_it_names_and_resumes_with_it(self):
+        code, text = self.cli("run", "--run", "v2", "--new", "--input", self.csv, "--standin", "--stop-after", "5", "--verify-size", "15", "--prompt-file", "enrich-v2.json")
+        self.assertEqual(code, 3, text)
+        row = self.db().execute("SELECT * FROM runs WHERE run='v2'").fetchone()
+        self.assertEqual(row["label_config"], "jev-1.13.0/prompt-v2/schema-v1/cut-0.70")
+        self.assertIn("prompt:enrich-v2.json", json.loads(row["hashes_json"]))
+        code, text = self.cli("run", "--run", "v2", "--standin")
+        self.assertEqual(code, 0, text)
+        configs = {c["label_config"] for c in self.db().execute("SELECT label_config FROM calls WHERE run='v2' AND role='enrich'")}
+        self.assertEqual(configs, {"jev-1.13.0/prompt-v2/schema-v1/cut-0.70"})
+
+
 class StandInGuard(CliCase):
     def test_two_stand_ins_that_always_agree_trip_the_agreement_guard_and_it_can_be_accepted_by_name(self):
         code, text = self.cli("run", "--run", "g", "--new", "--input", self.csv, "--standin")
