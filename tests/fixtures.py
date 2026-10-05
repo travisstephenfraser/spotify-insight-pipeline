@@ -220,3 +220,32 @@ def grouped_db(directory, rows=None, **options):
     group.assign(db, "r1")
     group.name_issues(db, "r1", standins.StandinGemma())
     return db
+
+
+def full_run(directory, rows=None, *, stop_after=8, labeler=None, verify_size=10, memo=True):
+    """Every stage with the stand-ins, classify stopped once and resumed. Returns (db, input csv path)."""
+    from decimal import Decimal
+
+    from pipeline import classify, group, jev, ledger, limits, standins, verify
+    from pipeline import memo as memo_stage
+
+    directory.mkdir(parents=True, exist_ok=True)
+    db = prepared_db(directory, rows if rows is not None else synthetic_rows(30, empties=2, copies=5), verify_size=verify_size)
+    labeler = labeler or standins.ReplayJev(PROBE / "simple.jsonl")
+
+    def classify_once(**options):
+        return classify.run(
+            db, "r1", labeler, ledger=ledger.Ledger(db, write_billing(directory / "billing.json"), cap_usd=Decimal("25")),
+            limiter=limits.Limiter(requests_per_second=100_000, tokens_per_second=10**9),
+            setup=jev.load_setup(ROOT / "prompts", 0.7), backoff=(0, 0, 0), **options,
+        )  # fmt: skip
+
+    if stop_after:
+        classify_once(stop_after=stop_after)
+    classify_once()
+    verify.run(db, "r1", standins.StandinGemma())
+    group.assign(db, "r1")
+    group.name_issues(db, "r1", standins.StandinGemma())
+    if memo:
+        memo_stage.write(db, "r1", standins.StandinGemma(respond=standins.memo_responder))
+    return db, directory / "r1.csv"
