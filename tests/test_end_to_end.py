@@ -119,6 +119,26 @@ class Interrupted(CliCase):
         self.assertIn("checker status: pass", text)
 
 
+class PilotReplay(CliCase):
+    def test_the_100_pilot_reviews_replayed_give_the_ranking_recorded_on_2026_10_04(self):
+        """Known answer from outside this code: CLAUDE.md records 52 complaints or cancellations among Jev's
+        saved answers, with usability 38, other 29, playback 22 and billing 20 by severity sum."""
+        pilot = fixtures.DATA / "cost_100.csv"
+        code, text = self.cli("run", "--run", "pilot", "--new", "--input", pilot, "--standin", "--stop-after", "50")
+        self.assertEqual(code, 3, text)
+        code, text = self.cli("run", "--run", "pilot", "--standin")
+        self.assertEqual(code, 0, text)
+        self.assertIn("52 members", text)
+        out = self.dir / "grading"
+        code, text = self.cli("export", "--run", "pilot", "--out", out)
+        self.assertEqual(code, 0, text)
+        lines = (out / "ranking.csv").read_text().splitlines()[1:5]
+        self.assertEqual(
+            [(line.split(",")[1], line.split(",")[3]) for line in lines],
+            [("issue-usability", "38"), ("issue-other", "29"), ("issue-playback", "22"), ("issue-billing", "20")],
+        )
+
+
 class StandInGuard(CliCase):
     def test_two_stand_ins_that_always_agree_trip_the_agreement_guard_and_it_can_be_accepted_by_name(self):
         code, text = self.cli("run", "--run", "g", "--new", "--input", self.csv, "--standin")
