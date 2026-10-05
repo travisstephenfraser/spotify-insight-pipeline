@@ -225,17 +225,18 @@ def _set_final(db, run, key, text, model):
     )
 
 
-def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_path=PROMPT):
+def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_path=PROMPT, warm_from=None):
     """Write the memo for the run and return it. Raises MemoFailed after two memos that fail the check."""
     pack = evidence_pack(db, run, per_issue=per_issue)
     if not pack["ranking"]:
         raise NothingToWrite("no complaint or cancellation in this run, so there is nothing to rank or recommend")
     label_config = config(client, per_issue)
-    key = group.artifact_key(ROLE, label_config, pack)
-    saved = db.execute("SELECT output_json, model FROM artifacts WHERE key=?", (key,)).fetchone()
+    content = group.artifact_key(ROLE, label_config, pack)
+    key = f"{run}:{content}"
+    saved = group.cached(db, run, content, warm_from)
     if saved:
         text = json.loads(saved["output_json"])["memo"]
-        _set_final(db, run, key, text, saved["model"])
+        _set_final(db, run, saved["key"], text, saved["model"])
         return text
 
     state.recover_orphans(db, run, roles=(ROLE,))

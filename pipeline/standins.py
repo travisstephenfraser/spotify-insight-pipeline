@@ -12,7 +12,7 @@ from pathlib import Path
 
 from pipeline import jev
 
-STEPS = ("temporary", "fatal", "wrong_model", "invalid")
+STEPS = ("temporary", "not_sent", "rejected", "fatal", "wrong_model", "invalid")
 
 # First match wins, in the contract's precedence order.
 INTENT_RULES = (
@@ -65,6 +65,10 @@ class ReplayJev:
             self._sleep(self._latency)
         if step == "temporary":
             raise jev.Temporary("scripted temporary failure")
+        if step == "not_sent":
+            raise jev.Temporary("scripted connection failure", sent=False)
+        if step == "rejected":
+            raise jev.Rejected("scripted refusal of this request", 400)
         if step == "fatal":
             raise jev.Fatal("scripted fatal response")
         response = self._saved.get(text) or self._rule(text, request)

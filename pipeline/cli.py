@@ -124,10 +124,10 @@ def _warm(db, a, gemma_client):
     )
     state.close_session(db, session, "finished", clock)
     group.assign(db, run)
-    named = group.name_issues(db, run, gemma_client)
+    named = group.name_issues(db, run, gemma_client, warm_from=source)
     if named.ended_how == "finished":
         session = state.open_session(db, run, "memo", 1, clock)
-        memo.write(db, run, gemma_client)
+        memo.write(db, run, gemma_client, warm_from=source)
         state.close_session(db, session, "finished", clock)
     calls = db.execute("SELECT COUNT(*) FROM calls WHERE run=?", (run,)).fetchone()[0]
     db.execute(
@@ -167,6 +167,8 @@ def _stages(db, a, setup, labeler, gemma_client, limiter):
             f"spent ${led.spent_usd():.4f} of ${cap}"
         )
         if out.ended_how != "finished":
+            if out.ended_how == "outage":
+                print("Many requests in a row failed with no success between, so nothing new was sent. Check the network and the provider, then run the same command.")
             if out.stuck:
                 print(f"{len(out.stuck)} review(s) kept failing and are still pending. See: python3 -m pipeline status --run {a.run}")
             return NOT_FINISHED
@@ -198,6 +200,8 @@ def _stages(db, a, setup, labeler, gemma_client, limiter):
 
 def cmd_run(db, a):
     real = not a.standin
+    if not 1 <= a.workers <= classify.MAX_WORKERS:
+        raise Refused(f"--workers takes 1 to {classify.MAX_WORKERS}: the design allows at most {classify.MAX_WORKERS} requests at once")
     commit, code_hash, _ = state.code_fingerprint(ROOT)
     exists = db.execute("SELECT 1 FROM runs WHERE run=?", (a.run,)).fetchone()
     if a.new:
@@ -302,6 +306,14 @@ def cmd_export(db, a):
     return OK if result["status"] == "pass" else FAILED_CHECK
 
 
+def cmd_adjust(db, a):
+    """A correction to the spend ledger, found by comparing it with the provider's usage page."""
+    led = ledger.Ledger(db, a.billing, cap_usd=Decimal(a.cap))
+    led.adjust(Decimal(a.usd), a.note)
+    print(f"ledger adjusted by ${Decimal(a.usd):.4f} ({a.note}). Spent now: ${led.spent_usd():.4f} of ${a.cap}")
+    return OK
+
+
 def cmd_rank(a):
     rows = rank.from_files(a.grading)
     print(f"ranking.csv rebuilt from {a.grading}: {len(rows)} issues")
@@ -350,6 +362,10 @@ def parser():
     e.add_argument("--evidence", help="also write the run evidence to this folder")
     e.add_argument("--checker", default=str(CHECKER))
 
+    j = sub.add_parser("adjust", parents=[common], help="correct the spend ledger after reading the provider's usage page")
+    j.add_argument("--usd", required=True, help="dollars to add (negative to take away)")
+    j.add_argument("--note", required=True, help="why: what the usage page showed")
+
     k = sub.add_parser("rank", parents=[common], help="rebuild ranking.csv from committed files; no model, no state file")
     k.add_argument("--grading", default=str(ROOT / "grading"))
     return p
@@ -368,11 +384,14 @@ def main(argv=None):
     try:
         db = state.connect(a.state)
         try:
-            handler = {"run": cmd_run, "status": cmd_status, "quarantine-stuck": cmd_quarantine_stuck, "export": cmd_export}[a.command]
+            handler = {"run": cmd_run, "status": cmd_status, "quarantine-stuck": cmd_quarantine_stuck, "export": cmd_export, "adjust": cmd_adjust}[a.command]
             return handler(db, a)
-        except (Refused, state.ResumeRefused, state.NoSuchRun, state.DirtyTree, prepare.BadInput, prepare.GuardFailed, export.NotReady) as e:
+        except (Refused, state.ResumeRefused, state.NoSuchRun, state.DirtyTree, prepare.BadInput, prepare.GuardFailed, export.NotReady, ValueError) as e:
             what = f"there is no run named {e}" if isinstance(e, state.NoSuchRun) else str(e)
             print(f"refused: {what}")
+            if isinstance(e, state.ResumeRefused) and "code" in e.names:
+                # The run refuses code it was not started with. Its owner may allow the new code by its hash.
+                print(f"If the change is meant, resume with: --allow-code {state.code_fingerprint(ROOT)[1]}")
             return REFUSED
         finally:
             db.close()

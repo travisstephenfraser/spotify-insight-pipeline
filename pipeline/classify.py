@@ -18,6 +18,8 @@ from pipeline import jev, labels, prepare, state
 from pipeline import ledger as ledger_module
 
 ATTEMPTS = 4  # tries per round on temporary errors
+MAX_WORKERS = 16  # the design's ceiling on requests in flight
+BREAKER_FLOOR = 8  # failures in a row, with no success between, after which no new review is admitted
 BACKOFF = (
     0.5,
     2.0,
@@ -44,7 +46,7 @@ class GuardFailed(Exception):
 
 @dataclass
 class Outcome:
-    ended_how: str  # finished, time_box, stop_after, interrupted, cap, fatal, no_success_60s, stuck
+    ended_how: str  # finished, time_box, stop_after, interrupted, cap, fatal, no_success_60s, outage, stuck
     completed: int
     pending: int
     quarantined: int
@@ -80,6 +82,8 @@ def _worker(labeler, limiter, jobs, done):
             out = ("reply", labeler.label(job.text, job.request))
         except jev.Temporary as e:
             out = ("temporary", e)
+        except jev.Rejected as e:
+            out = ("rejected", e)
         except jev.Fatal as e:
             out = ("fatal", e)
         except Exception as e:  # a bug in a client must halt the run, not spin it
@@ -127,6 +131,9 @@ def run(
     tiebreak = 0
     new_completions = 0
     stopping = ended_how = None
+    # An outage must not walk through the file booking a failed call for every review. After this many failures
+    # in a row with no success between, only requests already begun are retried; nothing new is admitted.
+    since_success, breaker = 0, max(2 * workers, BREAKER_FLOOR)
 
     def new_job(row, round_number=1):
         """The job for one original, or None after quarantining a review Jev cannot take."""
@@ -143,11 +150,11 @@ def run(
             round=round_number,
         )
 
-    def next_job():
+    def next_job(admit_new):
         nonlocal source, later
         if retries and retries[0][0] <= clock():
             return heapq.heappop(retries)[2]
-        while True:
+        while admit_new:
             row = next(source, None)
             if row is None:
                 # Everything else is done: give the reviews that failed a whole round one more round.
@@ -161,6 +168,7 @@ def run(
             job = row if isinstance(row, _Job) else new_job(row)
             if job is not None:
                 return job
+        return None
 
     def finish(
         request_id,
@@ -170,13 +178,14 @@ def run(
         status=None,
         seconds=0.0,
         result=None,
+        not_sent=False,
     ):
         state.finish_attempt(
             db, request_id, outcome=outcome, seconds=seconds, error=error,
             input_tokens=reply.input_tokens if reply else None,
             output_tokens=reply.output_tokens if reply else None,
             http_status=reply.http_status if reply else status,
-            result=result, ledger=ledger,
+            result=result, ledger=ledger, not_sent=not_sent,
         )  # fmt: skip
 
     def retry(job, delay=0.0):
@@ -195,7 +204,7 @@ def run(
                 stopping = "stop_after"
 
         while stopping is None and len(inflight) < workers:
-            job = next_job()
+            job = next_job(since_success < breaker)
             if job is None:
                 break
             request_id = uuid.uuid4().hex
@@ -213,6 +222,9 @@ def run(
         if not inflight:
             if stopping:
                 ended_how = stopping
+                break
+            if not retries and since_success >= breaker:
+                ended_how = "outage"  # what failed stays pending; the same command resumes
                 break
             if not retries:
                 ended_how = "stuck" if stuck or later else "finished"
@@ -265,6 +277,7 @@ def run(
                 )
                 new_completions += 1
                 last_success = clock()
+                since_success = 0
         elif kind == "temporary":
             status = getattr(payload, "status", None)
             finish(
@@ -273,7 +286,9 @@ def run(
                 error=f"{type(payload).__name__}: {payload}"[:500],
                 status=status,
                 seconds=seconds,
+                not_sent=not getattr(payload, "sent", True),
             )
+            since_success += 1
             if status == 429:
                 limiter.on_429()
             if clock() - last_success >= NO_SUCCESS_SECONDS:
@@ -289,6 +304,19 @@ def run(
                 (later if job.round == 1 else stuck).append(
                     job if job.round == 1 else job.review_id
                 )
+        elif kind == "rejected":
+            # The server refused this one request as sent. Trying it again now would get the same answer, so the
+            # review waits for the second round and is then listed as stuck. Other reviews go on.
+            finish(
+                request_id,
+                "failed",
+                error=f"{type(payload).__name__}: {payload}"[:500],
+                status=getattr(payload, "status", None),
+                seconds=seconds,
+            )
+            since_success += 1
+            state.return_to_pending(db, run, job.review_id)
+            (later if job.round == 1 else stuck).append(job if job.round == 1 else job.review_id)
         else:  # fatal: 401, 402, 403, or a client error we do not understand
             finish(
                 request_id,

@@ -357,7 +357,7 @@ def begin_attempt(db, ledger, *, request_id, run, role, review_ids, model, label
 
 def finish_attempt(
     db, request_id, *, outcome, input_tokens=None, output_tokens=None, http_status=None, error=None, seconds,
-    result=None, ledger=None,
+    result=None, ledger=None, not_sent=False,
 ):  # fmt: skip
     """Save everything one response brought, in one transaction.
 
@@ -375,7 +375,8 @@ def finish_attempt(
                 (outcome, input_tokens, output_tokens, int(input_tokens is not None), http_status, error, seconds, request_id),
             )
             if ledger is not None:
-                ledger.settle(request_id, input_tokens, output_tokens)
+                # A request that never left this machine cost nothing: its reservation is released, not kept.
+                ledger.settle(request_id, *((0, 0) if not_sent else (input_tokens, output_tokens)))
             if result is not None:
                 (review_id,) = json.loads(call["review_ids_json"])
                 review = db.execute(

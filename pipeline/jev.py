@@ -4,10 +4,12 @@ Jev returns choices and probabilities, never text. Code supplies the quote (the 
 Jev picked), the entities (feature words found in the text) and the review flag.
 """
 
+import errno
 import hashlib
 import http.client
 import json
 import re
+import socket
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -23,9 +25,10 @@ BYTES_PER_TOKEN = 2.4  # a request body measured 2.46 to 2.93 bytes per input to
 
 
 class _ClientError(Exception):
-    def __init__(self, message, status=None):
+    def __init__(self, message, status=None, *, sent=True):
         super().__init__(message)
         self.status = status  # the HTTP status, or None when no response came back
+        self.sent = sent  # False only when the request certainly never left this machine
 
 
 class Temporary(_ClientError):
@@ -33,7 +36,11 @@ class Temporary(_ClientError):
 
 
 class Fatal(_ClientError):
-    """401, 402, 403, any other refusal of the request as sent, or a wrong model. The run halts."""
+    """401, 402, 403, or a wrong model: the key, the account or the model is the problem. The run halts."""
+
+
+class Rejected(_ClientError):
+    """Any other 4xx: the server refused this one request as sent. It counts against the review, not the run."""
 
 
 class TooLarge(Exception):
@@ -75,13 +82,21 @@ def _sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def _two_decimals(cutoff):
+    """label_config names the cut-off to two decimals, so the cut-off itself may carry no more."""
+    value = float(cutoff)
+    if round(value, 2) != value or not 0 <= value <= 1:
+        raise ValueError(f"the cut-off takes a number from 0 to 1 with at most two decimals, not {cutoff}")
+    return value
+
+
 def load_setup(prompts_dir, cutoff, *, prompt_name="enrich-v1.json", features_name="features-v1.txt"):
     prompts_dir = Path(prompts_dir)
     prompt = json.loads((prompts_dir / prompt_name).read_text(encoding="utf-8"))
     return Setup(
         prompt=prompt,
         features=feature_words.load(prompts_dir / features_name),
-        cutoff=float(cutoff),
+        cutoff=_two_decimals(cutoff),
         label_config=f"{prompt['model']}/{prompt['version']}/{prompt['schema']}/cut-{float(cutoff):.2f}",
         prompt_file=prompts_dir / prompt_name,
         features_file=prompts_dir / features_name,
@@ -172,6 +187,17 @@ def scrub(text, api_key):
     return BEARER.sub("Bearer [removed]", text)
 
 
+NEVER_CONNECTED = (errno.ECONNREFUSED, errno.ENETUNREACH, errno.EHOSTUNREACH, errno.ENETDOWN, errno.EADDRNOTAVAIL)
+
+
+def _never_sent(error):
+    """True when the failure happened before a connection existed: refused, unreachable, or the name did not resolve."""
+    cause = getattr(error, "reason", error)
+    if isinstance(cause, socket.gaierror):
+        return True
+    return isinstance(cause, OSError) and not isinstance(cause, TimeoutError) and cause.errno in NEVER_CONNECTED
+
+
 class Client:
     """The real labeler: one HTTPS request per review to TypeSafe. Nothing here retries."""
 
@@ -184,6 +210,14 @@ class Client:
         return f"jev.Client(url={self.url!r}, timeout={self.timeout})"
 
     def label(self, text, request):
+        try:
+            return self._label(request)
+        except _ClientError:
+            raise
+        except Exception as e:  # nothing leaves the client unscrubbed, whatever went wrong inside it
+            raise Fatal(scrub(f"{type(e).__name__}: {e}", self._key)[:500]) from None
+
+    def _label(self, request):
         http_request = urllib.request.Request(
             self.url,
             data=body_bytes(request),
@@ -194,11 +228,16 @@ class Client:
                 status, raw = response.status, response.read()
         except urllib.error.HTTPError as e:
             with e:  # the error carries the response body; close it once read
-                detail = scrub(e.read().decode("utf-8", "replace")[:300], self._key)
-            kind = Temporary if e.code == 429 or e.code >= 500 else Fatal
+                detail = scrub(e.read().decode("utf-8", "replace"), self._key)[:300]  # scrub first, then cut
+            if e.code == 429 or e.code >= 500:
+                kind = Temporary
+            elif e.code in (401, 402, 403):
+                kind = Fatal
+            else:
+                kind = Rejected
             raise kind(f"HTTP {e.code}: {detail}", e.code) from None
         except (urllib.error.URLError, http.client.HTTPException, OSError) as e:  # timeouts and network trouble
-            raise Temporary(scrub(f"{type(e).__name__}: {e}", self._key)) from None
+            raise Temporary(scrub(f"{type(e).__name__}: {e}", self._key)[:500], sent=not _never_sent(e)) from None
         try:
             body = json.loads(raw)
             for _ in range(2):  # tolerate an envelope around the answer

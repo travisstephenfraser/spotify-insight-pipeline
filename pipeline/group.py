@@ -55,9 +55,23 @@ def config(client, quotes_per_issue):
 
 
 def artifact_key(role, config_string, payload):
-    """Names and memos are cached by what went in: the same input under the same setup is never asked twice."""
+    """A hash of what went in. Within one run, the same input under the same setup is never asked twice."""
     blob = json.dumps({"role": role, "config": config_string, "input": payload}, ensure_ascii=False, sort_keys=True)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def cached(db, run, content_hash, warm_from=None):
+    """A saved name or memo for this input: this run's own, or the source run's for a warm pass.
+
+    Every run starts cold (spec section 4). Another run's artifact is never reused, or a rerun
+    of the same file would make no naming or memo call and export with those roles missing.
+    """
+    for owner in (run, warm_from):
+        if owner is not None:
+            row = db.execute("SELECT key, output_json, model FROM artifacts WHERE key=?", (f"{owner}:{content_hash}",)).fetchone()
+            if row:
+                return row
+    return None
 
 
 def quotes_for(db, run, issue_id, limit, sample_seed):
@@ -83,7 +97,7 @@ def _checked(data):
     return {"name": name.strip(), "description": description.strip()}
 
 
-def name_issues(db, run, client, *, quotes_per_issue=30, clock=time.monotonic, prompt_path=PROMPT):
+def name_issues(db, run, client, *, quotes_per_issue=30, clock=time.monotonic, prompt_path=PROMPT, warm_from=None):
     """Name every issue that has members. Safe to call again: saved names are reused."""
     issue_ids = [r[0] for r in db.execute("SELECT DISTINCT issue_id FROM membership WHERE run=? ORDER BY issue_id", (run,))]
     if not issue_ids:
@@ -114,8 +128,9 @@ def name_issues(db, run, client, *, quotes_per_issue=30, clock=time.monotonic, p
             "definition": labels.TOPIC_DEFINITIONS.get(topic, ""),
             "quotes": quotes_for(db, run, issue_id, quotes_per_issue, run_row["sample_seed"]),
         }
-        key = artifact_key(ROLE, label_config, payload)
-        saved = db.execute("SELECT output_json, model FROM artifacts WHERE key=?", (key,)).fetchone()
+        content = artifact_key(ROLE, label_config, payload)
+        key = f"{run}:{content}"
+        saved = cached(db, run, content, warm_from)
         if saved:
             save(issue_id, json.loads(saved["output_json"]), saved["model"])
             out.cached += 1

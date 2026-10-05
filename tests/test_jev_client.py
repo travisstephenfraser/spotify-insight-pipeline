@@ -88,7 +88,7 @@ class Good(ClientCase):
 class Errors(ClientCase):
     def test_each_status_maps_to_the_right_error(self):
         cases = {429: jev.Temporary, 500: jev.Temporary, 502: jev.Temporary, 503: jev.Temporary, 529: jev.Temporary,
-                 401: jev.Fatal, 402: jev.Fatal, 403: jev.Fatal, 400: jev.Fatal, 404: jev.Fatal}  # fmt: skip
+                 401: jev.Fatal, 402: jev.Fatal, 403: jev.Fatal, 400: jev.Rejected, 404: jev.Rejected}  # fmt: skip
         for status, error in cases.items():
             self.server.status, self.server.body = status, json.dumps({"error": "nope"})
             with self.subTest(status=status), self.assertRaises(error) as caught:
