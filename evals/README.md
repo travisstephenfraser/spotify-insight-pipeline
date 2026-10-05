@@ -26,7 +26,7 @@ The golden label columns are never read into a prompt, an example, a cut-off or 
 | `compare_check.py` | Changes labels on purpose in a copy and checks the comparison flags each one | No |
 | `feature_words.py` | Counts candidate feature words over the full file and drafts `prompts/features-v1.txt` | No |
 
-Every paid call goes through the same spend ledger as the pipeline, so the $25 cap covers it. `--standin` runs a script with the stand-in labeler and saves nothing here.
+Every paid call goes through the same spend ledger as the pipeline, so the $35 cap covers it. `--standin` runs a script with the stand-in labeler and saves nothing here.
 
 ## Results
 

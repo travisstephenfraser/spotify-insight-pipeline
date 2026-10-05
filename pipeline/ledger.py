@@ -18,12 +18,18 @@ class CapReached(Exception):
     """Spent plus reserved plus this reservation would pass the cap. Nothing was written."""
 
 
+# The cap on total Jev spend for the project, in dollars. Travis set $25 on 2026-10-04 and raised it to $35
+# on 2026-10-05. Every command's default reads this one number. The calculator runs without this package, so
+# it keeps its own copy (cost/assumptions.csv and calc.project's default); tests/test_cap.py holds them equal.
+CAP_USD = Decimal("35")
+
+
 class AlreadyOpened(Exception):
     pass
 
 
 class Ledger:
-    def __init__(self, db, billing_path, cap_usd=Decimal("25")):
+    def __init__(self, db, billing_path, cap_usd=CAP_USD):
         self.db = db
         self.cap = Decimal(cap_usd)
         rates = json.loads(Path(billing_path).read_text(encoding="utf-8"))["jev"]

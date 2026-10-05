@@ -9,7 +9,7 @@ retry_rate_conservative,0.05,Extra attempts per request in the conservative case
 text_copies,2,How many times a byte of review text appears in a request: once as the review and once more when it is split into sentences. An assumption
 max_requests_per_second,75,The limiter's ceiling. Sustained speed is unmeasured until the 10000 gate
 max_workers,16,Most requests in flight at once
-spending_limit_usd,25,The cap on total Jev spend
+spending_limit_usd,35,The cap on total Jev spend
 fallback_fraction,0,Share of reviews sent to a stronger model. Zero by design: there is no fallback model
 output_token_cap_verify,200,max_tokens on a verify call
 output_token_cap_group,300,max_tokens on a naming call

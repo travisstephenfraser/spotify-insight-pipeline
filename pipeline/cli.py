@@ -384,7 +384,7 @@ def parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--state", help="the state file (default runs/state.sqlite; runs/standin.sqlite for a --standin run)")
     common.add_argument("--billing", default=str(ROOT / "pipeline/billing.json"))
-    common.add_argument("--cap", default="25", help="the cap on total Jev spend in dollars")
+    common.add_argument("--cap", default=str(ledger.CAP_USD), help=f"the cap on total Jev spend in dollars (default {ledger.CAP_USD})")
     p = argparse.ArgumentParser(prog="python3 -m pipeline", description=(__doc__ or "").split("\n")[0])
     sub = p.add_subparsers(dest="command", required=True)
 

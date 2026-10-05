@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from pipeline import export, jev, standins, state
+from pipeline import export, jev, ledger, standins, state
 from tests import fixtures
 
 
@@ -130,7 +130,7 @@ class GoodExport(ExportCase):
         summary = json.loads((self.evidence / "run_summary.json").read_text())
         self.assertEqual(summary["statuses"], {"completed": 28, "quarantined": 2})
         self.assertEqual(summary["resume"]["boundary_session"], self.result["boundary_session"])
-        self.assertEqual(summary["spend"]["cap_usd"], "25")
+        self.assertEqual(summary["spend"]["cap_usd"], str(ledger.CAP_USD))
         self.assertEqual({s["stage"] for s in summary["sessions"]}, {"classify", "verify", "group", "memo"})
         self.assertEqual(len(read_jsonl(self.evidence / "verify_predictions.jsonl")), 10)
         self.assertEqual(len(read_jsonl(self.evidence / "quarantine.jsonl")), 2)

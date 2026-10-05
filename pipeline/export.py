@@ -13,7 +13,7 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
-from pipeline import hashing, memo, rank, state, verify
+from pipeline import hashing, ledger, memo, rank, state, verify
 
 VERSION = "a5-audit-v1"
 GZIPPABLE = (
@@ -176,7 +176,7 @@ def _checker(python, checker_path, *args):
 
 def export(
     db, run, out_dir, *, checker_path, input_path, gzip_over=50_000_000, size_limit=95_000_000,
-    evidence_dir=None, work_dir=None, cap_usd=Decimal("25"), log=None, python=sys.executable,
+    evidence_dir=None, work_dir=None, cap_usd=ledger.CAP_USD, log=None, python=sys.executable,
 ):  # fmt: skip
     """Write the grading folder for a finished run, run the supplied checker, and return what it said."""
     say = log or (lambda *_: None)

@@ -147,7 +147,7 @@ def add_arguments(ap):
     ap.add_argument("--state", default=str(ROOT / "runs/state.sqlite"), help="the state file whose ledger these calls are charged to")
     ap.add_argument("--prompt-file", default="enrich-v1.json")
     ap.add_argument("--cutoff", type=float, default=0.70)
-    ap.add_argument("--cap", default="25")
+    ap.add_argument("--cap", default=str(ledger.CAP_USD))
 
 
 @contextlib.contextmanager

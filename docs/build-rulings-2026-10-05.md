@@ -218,3 +218,7 @@ One reviewer with none of the build's context read the whole branch, read-only: 
 - **Ruling 92.** *(The reviewer set aside: prompt wording, the feature list, the cut-off, the gate pass marks, the sampling design)* These are Travis's, drafted or proposed under his delegation and confirmed by him at each gate. *Cost if wrong: none from the build.*
 - **Ruling 93.** *(The reviewer set aside: the interim README and the tests' internals)* The README is interim by Ruling 74 and is rewritten against the rubric after the full run. The tests were not reviewed as evidence, so the suite passing is the author's check only. *Cost if wrong: a test that asserts the wrong thing hides a defect until a gate; each gate is judged on the supplied checker and known answers, not on the suite.*
 - **Ruling 94.** *(The reviewer set aside: whether the instructor's final check uses the full file as its analysis file)* Unknown and not among the questions already drafted for the instructor. Both the 10,000 gate and the full run are exported, so either can be submitted. *Cost if wrong: the wrong export is in `grading/` at submission; worth adding to the instructor questions.*
+
+## After the review
+
+- **Not a ruling of the executor's.** Travis raised the cap on total Jev spend from $25 to $35 on 2026-10-05 (spec item 34). Where a line above says $25, read $35. The number is now held once in the ledger's code, and a test holds the calculator's copy equal to it. The suite stands at 465 tests, 1 skipped.

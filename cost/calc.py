@@ -165,7 +165,7 @@ def projection_inputs(inputs):
 
 def project(
     measured, *, rows, nonempty, distinct, verify, issues, text_volume, retry_rate, conservative_retry_rate=Decimal("0.05"),
-    text_copies=Decimal(2), max_rps=Decimal(75), cap=Decimal(25), rates=(), local=(), scaled=False,
+    text_copies=Decimal(2), max_rps=Decimal(75), cap=Decimal(35), rates=(), local=(), scaled=False,
 ):  # fmt: skip
     """Full-run estimates. Each stage from its own work count; the memo once. Every figure here is an estimate."""
     cold = measured["cold"]["stages"]
