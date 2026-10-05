@@ -35,6 +35,7 @@ Update 2026-10-05: still design stage. Both hand-labeled files are frozen (entri
 | 17 | Second independent review of the spec | A reviewer from another maker, given one brief file and none of the earlier conclusions | 13 factual claims | All 13 confirmed on recheck; three mislabeled numbers and several gaps fixed | not metered |
 | 18 | Label freeze | Format check by code; label values never shown | 39 and 50 rows | Both files committed and hashed before any model answer for their rows; nine blank golden cells filled after a first check | none |
 | 19 | The contract's fixed severity rule against the hand labels | Code only; counts alone for the golden file | 39, 29 and 50 labels | The rule would change 8, 0 and 4 labels; with it applied the blind check reads 8 of 15 | none |
+| 20 | Outside review of the implementation plan | A reviewer given the plan; report pasted in by Travis | 7 issues, 5 smaller points | All 7 hold and are fixed; the 5 smaller points are taken, one in a different form | not metered |
 
 Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
@@ -195,6 +196,17 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Ruling by Travis, 2026-10-05:** the labels stay as frozen. Every score against hand labels is reported two ways: against the labels as written, and with this rule applied to them by code (spec section 12 item 32).
 - **Evidence:** `experiments/2026-10-05/labels/rule_check.py`, `rule_check_out.txt`, `score_adjudication_out.txt`.
 - **Limits:** the ruling came after Travis saw the raters' answers on the blind sheet. The rule is the contract's wording and takes no model answer, but the choice to apply it was made with those answers in view. It covers one kind of departure: complaints given 2 where the raters give 3 are untouched. It says nothing on whether the intent on those rows is right.
+
+### 20. Outside review of the implementation plan
+
+- **What:** a reviewer read `docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md` at commit `cd0c04e` and reported seven issues it rated as blocking and five smaller corrections. Travis pasted the report into the session.
+- **Independence:** the report does not name the reviewer. It says it changed no file, made no provider call and opened no protected label. No session log came with it, so that is the reviewer's own statement, not something checked here.
+- **How each claim was checked:** claims about the plan's wording were read against the cited lines. The checker claims were read against `check_submission.py`. Two claims about data were rerun with separate code.
+- **Result:** all seven issues hold. Three would have cost a gate or corrupted a run: the wording gate asked for three of four planted slogans to be `unclear` when only two expect it (S3 expects `cancellation`, S4 `complaint`); crash recovery as written could return an already classified review to `pending` after a crash in verify; and the 500 and 10,000 gates asked for a checker pass on a run that was never stopped, which the checker flags. The other four: a commit plus a "dirty" mark does not identify uncommitted code; ledger dollars recomputed from an editable rate file let a rate edit shrink past spend; offline replay had no saved source for its clocks; a copy's pointer to its original could be cleared on a retry.
+- **Data claims rerun:** of the 100 saved Jev answers, 25 hold a fifth question named `evidence` and none holds `quote`; all 100 tone scores are floats and 90 are fractional, from 0.0 to 4.0. The plan had renamed the question and typed the score as a whole number.
+- **Taken in a different form:** the reviewer proposed turning guards into inspection flags for inputs other than the supplied file. Guards still raise for every input; another input can be restarted with the guard accepted by name, which is logged. A guard that only warns produces no event when it matters.
+- **Evidence:** `docs/plan-review-2026-10-05.md` (the report as pasted, then the outcome of each point), `experiments/2026-10-05/plan-review/check_claims.py` and `check_claims_out.txt`, the plan's diff, and spec section 12 item 33.
+- **Limits:** nothing is built, so no claim was tested by running pipeline code. The reviewer's reproduction of the fingerprint collision was not rerun; the claim is true by construction. The fixes were written by the plan's author and have not been reviewed in turn.
 
 ## Rules adopted because of these checks
 

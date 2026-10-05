@@ -95,7 +95,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 | `verify` | per run and review: Gemma's topic, intent and severity, and the request ID |
 | `issues`, `membership` | issue ID, name, description; one row per issue and review pair |
 | `artifacts` | each group and memo input and output, keyed by a hash of the input plus the model, settings and prompt version |
-| `ledger` | every reservation and actual charge in billed units (tokens), with the request ID. Dollars are computed from the rates file |
+| `ledger` | every reservation and actual charge in billed units (tokens), with the request ID and the billing rates in force when the row was written. Past spend never moves when a rate file is edited; a correction is a new row (item 33) |
 
 **How a request is saved:**
 
@@ -250,7 +250,7 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 ## 8. Cost calculator (`cost/`)
 
 - **Two commands.** Offline replay is the default and needs no key. The paid pilot is a separate command that must be asked for by name. Importing or opening the calculator starts nothing.
-- **Replay reads committed files only:** `pilot_calls.jsonl`, `usage.csv` and `rates.csv`. It never opens the state file.
+- **Replay reads committed files only:** `pilot_calls.jsonl`, `usage.csv` and `rates.csv`. It never opens the state file. `usage.csv` holds each stage's and each run's clock seconds, the warm run's included, written once by the pilot's evidence step (item 33).
 - **Pilot:** `cost_100.csv` unchanged, a new run, one worker, all six stages. Then a warm pass under its own run ID that points at the cold run's saved results: zero new enrich and verify calls, and zero group and memo calls because those are cached by their inputs. The warm pass saves a record that says zero calls were made.
 - **Report:** the input checksum and the 100 IDs; per stage: provider, model, effort setting, prompt and schema version, batch size, workers, completed and failed, unique texts, cache hits, requests and attempts, tokens, rate with its unit, currency and dated source link, cost, seconds. Also cost per 1,000 rows, cost per completed record, throughput, cold and warm time, and the scaling decision.
 - **Time** comes from the monotonic clock in the `sessions` table, per stage, never from summed request times.
@@ -325,7 +325,7 @@ The brief names these (its lines 149, 185 to 192 and 196 to 198). Each is checke
 - verifier agreement of exactly 100%;
 - a cost report with zero tokens.
 
-These thresholds are placeholders. Section 12 item 25 proposes bands tied to the previous gate and a test that each guard fires.
+These thresholds are placeholders. Section 12 item 25 proposes bands tied to the previous gate and a test that each guard fires. A guard always raises. For the supplied file and its nested gate files there is no way past one. For any other input the run can be restarted with the guard accepted by name, which is logged (item 33).
 
 **Human only:** the golden labels, the interrupt-and-resume recording, reading the final memo.
 
@@ -356,7 +356,7 @@ Order of work: the wording trial, then the 100 gate (cost pilot, all stages), 50
 
 ## 12. Proposed items that need Travis's ruling
 
-Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Rows marked Decided or Done carry his ruling. On 2026-10-05 he approved item 17 and told the assistant to rule on every row still open without checking in; those rows are marked Delegated, and he reads them in a summary report. No row is open.
+Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Item 33 came out of a reading of the implementation plan by an outside reviewer the same day. Rows marked Decided or Done carry his ruling. On 2026-10-05 he approved item 17 and told the assistant to rule on every row still open without checking in; those rows are marked Delegated, and he reads them in a summary report. No row is open.
 
 | # | Item | Proposed | Section |
 |---|---|---|---|
@@ -392,6 +392,7 @@ Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. I
 | 30 | Outside raters | **Decided and run 2026-10-04.** Claude Fable 5.1 and GPT-6 Astra label reviews blind as third-party raters, under a $10 cap per provider. They see the review text and the contract's definitions word for word, and nothing from Jev, Gemma or Travis. Their labels tune and mark disputed rows; they never support an accuracy claim. The golden 50 is frozen before either sees those texts. Results are in `docs/validation-log.md` | 10 |
 | 31 | Code changes between sessions | **Decided 2026-10-04: refuse.** A run records the code's git commit. A resume under a different commit is refused unless it is allowed by name and logged. Left for the implementation plan: compare the whole package, or only the code that turns answers into labels | 4 |
 | 32 | Scores shown two ways | **Decided 2026-10-05.** Hand labels stay as frozen. Every score against them is reported twice: against the labels as written, and with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. On the blind sheet the rule changes 8 of 39 hand labels, all boycott reviews labeled `unclear` with severity 2. On the golden 50 it changes 4, counted without showing a row or a value. The labeler's habit of giving severity 2 where both raters give 3 on complaints is covered by no rule and is disclosed as it stands | 10 |
+| 33 | Corrections from the plan review | **Delegated 2026-10-05.** Four changes that an outside reading of the implementation plan showed were needed, each checked before it was made. (a) Item 31: the code is identified by a hash of the package's source files, because a commit plus a "dirty" mark cannot tell two uncommitted edits apart; a real run needs a clean tree. (b) Each ledger row keeps the billing rates in force when it was written, so editing a rate file cannot shrink past spend and reopen room under the cap; operational rates are kept apart from the calculator's editable ones. (c) `usage.csv` carries each stage's and each run's clock seconds, so offline replay has its times without the state file. (d) A guard still raises for every input, but an input other than the supplied file can be restarted with the guard accepted by name and logged, because a small one-sided CSV can truly be one topic | 4, 8, 10 |
 
 ## 13. Independent review, 2026-10-04
 

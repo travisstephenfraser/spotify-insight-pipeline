@@ -1,0 +1,8 @@
+planted slogan cases, accepted intent:
+  S1: ['unclear']  'Boycott Spotify'
+  S2: ['unclear']  '#BoycottSpotify #CancelSpotify'
+  S3: ['cancellation']  'Boycott Spotify. I cancelled my premium today.'
+  S4: ['complaint']  'Boycott this app, it crashes every time I open it'
+accepted intents across the four: {'unclear': 2, 'cancellation': 1, 'complaint': 1}
+saved Jev answers: 100; fifth question by name: {'evidence': 25}
+tone scores: types {'float': 100} | fractional 90 | lowest 0.0 | highest 4.0

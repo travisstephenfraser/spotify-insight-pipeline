@@ -93,13 +93,14 @@ CREATE TABLE runs (
   run TEXT PRIMARY KEY, created_utc TEXT NOT NULL,
   input_path TEXT NOT NULL, input_sha256 TEXT NOT NULL, seed TEXT NOT NULL,
   verify_seed TEXT NOT NULL, verify_size INTEGER NOT NULL, sample_seed TEXT NOT NULL,
-  code_commit TEXT NOT NULL, label_config TEXT NOT NULL,
+  code_commit TEXT NOT NULL, code_hash TEXT NOT NULL,   -- code_hash: SHA-256 over the path and bytes of every pipeline/*.py
+  label_config TEXT NOT NULL,
   hashes_json TEXT NOT NULL,      -- content hash of each prompt, schema, word list, splitter, and the cut-off
   configs_json TEXT NOT NULL      -- verify, group and memo model, settings and prompt version
 );
 CREATE TABLE sessions (
   session_id INTEGER PRIMARY KEY, run TEXT NOT NULL, stage TEXT NOT NULL, workers INTEGER NOT NULL,
-  started_utc TEXT NOT NULL, started_mono REAL NOT NULL, ended_mono REAL, ended_how TEXT
+  started_utc TEXT NOT NULL, started_mono REAL NOT NULL, last_mono REAL, ended_mono REAL, ended_how TEXT
 );
 CREATE TABLE reviews (
   run TEXT NOT NULL, review_id TEXT NOT NULL,
@@ -130,9 +131,12 @@ CREATE TABLE calls (
 );
 CREATE TABLE ledger (
   id INTEGER PRIMARY KEY, request_id TEXT NOT NULL, run TEXT NOT NULL,
-  kind TEXT NOT NULL CHECK (kind IN ('opening','reserve','actual','kept')),
-  input_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL DEFAULT 0, created_utc TEXT NOT NULL
+  kind TEXT NOT NULL CHECK (kind IN ('opening','reserve','actual','kept','adjust')),
+  input_tokens INTEGER NOT NULL, output_tokens INTEGER NOT NULL DEFAULT 0,
+  usd_per_mtok_in TEXT NOT NULL, usd_per_mtok_out TEXT NOT NULL,   -- the rates in force when the row was written
+  usd_fixed TEXT, note TEXT, created_utc TEXT NOT NULL             -- usd_fixed: a dollar amount on 'opening' and 'adjust' rows
 );
+CREATE UNIQUE INDEX ledger_settled ON ledger (request_id) WHERE kind IN ('actual','kept');
 CREATE TABLE verify (
   run TEXT NOT NULL, review_id TEXT NOT NULL, outcome TEXT NOT NULL,   -- 'predicted' or 'failed'
   topic TEXT, intent TEXT, severity INTEGER, reason TEXT, request_id TEXT,
@@ -188,12 +192,13 @@ A call row with outcome `pending` is the intent row of spec section 4: it is com
 **Interfaces, produces:**
 - `state.connect(path) -> sqlite3.Connection` (creates the schema above; WAL; `busy_timeout` 30 s; rows by name)
 - `state.RunLock(path)` with `acquire()` and `release()`; raises `state.Locked(pid)`
-- `state.create_run(db, name, *, input_path, input_sha256, seed, verify_seed, verify_size, sample_seed, code_commit, label_config, hashes: dict[str, str], configs: dict) -> None`
-- `state.check_resume(db, name, *, input_sha256, seed, code_commit, hashes, allow_commit: str | None = None) -> None`; raises `state.ResumeRefused(names: list[str])`
+- `state.create_run(db, name, *, input_path, input_sha256, seed, verify_seed, verify_size, sample_seed, code_commit, code_hash, label_config, hashes: dict[str, str], configs: dict) -> None`
+- `state.check_resume(db, name, *, input_sha256, seed, code_hash, hashes, allow_code: str | None = None) -> None`; raises `state.ResumeRefused(names: list[str])`
 - `state.open_session(db, run, stage, workers, clock) -> int`, `state.close_session(db, session_id, ended_how, clock) -> None`
-- `state.code_commit() -> str` (`git rev-parse HEAD`, with `-dirty` when the tree has changes)
+- `state.code_fingerprint(root) -> tuple[str, str, bool]`: the git commit, the `code_hash` (SHA-256 over the sorted relative path and the bytes of every `*.py` under `pipeline/`), and whether the tree is clean under `pipeline/` and `prompts/`. Resume compares `code_hash`, so two different uncommitted edits can never look the same. A real run (not `--standin`) refuses to start or resume on a tree that is not clean, so the commit it records is the code that ran. This settles what spec item 31 left for the plan: the whole package is compared.
+- `state.close_crashed_sessions(db, run) -> int` (a session with no end is closed as `crashed` at its last heartbeat; the writer updates `sessions.last_mono` on every commit)
 
-- [ ] Tests: schema is created once and reopening keeps data; `create_run` twice raises; `check_resume` passes when nothing changed and names each differing item (input, seed, each hash key) when something did; a different commit is refused, and passes only when `allow_commit` equals the new commit (the override is written to the run's log row); a second `RunLock.acquire()` raises `Locked` with the PID; a lock file holding a dead PID is cleared with a message.
+- [ ] Tests: schema is created once and reopening keeps data; `create_run` twice raises; `check_resume` passes when nothing changed and names each differing item (input, seed, each hash key) when something did; editing a file under `pipeline/` twice without committing gives two different `code_hash` values, and each is refused on resume; the resume passes only when `allow_code` equals the new hash, and the override is logged; a real run on a tree with uncommitted changes under `pipeline/` or `prompts/` is refused while a stand-in run is not; a session left open by a killed process is closed as `crashed` at its last heartbeat; a second `RunLock.acquire()` raises `Locked` with the PID; a lock file holding a dead PID is cleared with a message.
 - [ ] Run, implement, run.
 - [ ] Commit.
 
@@ -205,10 +210,11 @@ A call row with outcome `pending` is the intent row of spec section 4: it is com
 - `prepare.prepare(db, run, input_path, *, seed, verify_seed, verify_size=5000) -> dict` returning counts: `rows`, `empty`, `distinct_texts`, `copies`, `missing_app_version`, `verify_sample`, `supplied_file: bool`
 - `prepare.SUPPLIED = {"sha256": "1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6", "rows": 660622, "empty": 13, "distinct_texts": 484189, "missing_app_version": 159701}`
 
-Rules: read with `csv.DictReader(strict=True)` and `utf-8-sig`; no trimming. `run_order` is the rank by `order_key(seed, review_id)`. Among reviews with byte-identical nonempty text the first in run order is the original; the rest get `cache_source_id`. The verify sample is the `verify_size` nonempty reviews with the lowest `order_key(verify_seed, review_id)`, or all of them when the run is smaller.
+Rules: the run row and every review row are written in one transaction, so a crash during prepare leaves no run at all and `--new` can simply be repeated. Read with `csv.DictReader(strict=True)` and `utf-8-sig`; no trimming. `run_order` is the rank by `order_key(seed, review_id)`. Among reviews with byte-identical nonempty text the first in run order is the original; the rest get `cache_source_id`. The verify sample is the `verify_size` nonempty reviews with the lowest `order_key(verify_seed, review_id)`, or all of them when the run is smaller.
 
 - [ ] Tests on synthetic CSVs: every row lands in `reviews`; whitespace-only text is `quarantined` with reason `empty_review_text`; copies point at the first in run order and the original points at nothing; counts add up (`pending + quarantined == rows`); the verify sample is fixed and has the right size.
 - [ ] Review Focus 1: a byte-order mark, CRLF and extra columns are accepted; a missing column and a repeated ID each raise with a plain message; a one-row file and a 10-row file work, and the verify sample is the whole run.
+- [ ] Crash test: an error raised halfway through prepare leaves no `runs` row and no `reviews` row; the same `--new` then works.
 - [ ] Guard test: when the file's SHA-256 is the supplied one, wrong counts raise. Simulate by patching `SUPPLIED` to a synthetic file's hash with a wrong row count. For any other input the result says `supplied_file: False`.
 - [ ] Known-answer test (slow, skipped unless `RUN_FULL=1`): the real 97 MB file gives 660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions.
 - [ ] Run, implement, run. Commit.
@@ -220,30 +226,30 @@ Rules: read with `csv.DictReader(strict=True)` and `utf-8-sig`; no trimming. `ru
 **Interfaces, produces:**
 - `labels.TOPICS`, `labels.INTENTS` (tuples, contract order)
 - `labels.SEVERITY = {"no_problem": 1, "annoyance": 2, "degraded": 3, "blocked": 4, "serious_harm": 5}`
-- `labels.sentiment_from_tone(score: int) -> float` (`score / 2 - 1`; raises `labels.InvalidAnswer` outside 0 to 4, never clamps)
+- `labels.sentiment_from_tone(score: float) -> float` (`score / 2 - 1`; Jev's score is a real number from 0 to 4 and 90 of the 100 saved ones are fractional; raises `labels.InvalidAnswer` when it is not a finite number or lies outside 0 to 4, never clamps)
 - `labels.validate(text: str, record: dict) -> None`; raises `labels.InvalidAnswer(reason)`
 - `labels.by_rule(intent: str, severity: int) -> int` (the contract's fixed rule; evaluation only, never applied to a pipeline label)
 
-- [ ] Tests: each strict type from the checker's schema line is enforced (`severity` as `True`, `3.0` or `"3"` is rejected; `needs_review` as `1` is rejected; `sentiment` `nan` or `1.5` is rejected; an `entities` entry of `" "` is rejected); a quote that is not an exact substring is rejected; a blank quote is rejected; tone 0 to 4 maps to -1, -0.5, 0, 0.5, 1 and tone 5 raises.
+- [ ] Tests: each strict type from the checker's schema line is enforced (`severity` as `True`, `3.0` or `"3"` is rejected; `needs_review` as `1` is rejected; `sentiment` `nan` or `1.5` is rejected; an `entities` entry of `" "` is rejected); a quote that is not an exact substring is rejected; a blank quote is rejected; tone scores 0, 1.37 and 4 map to -1, about -0.315 and 1; a score of 4.01, -0.1, `nan`, `True` or a string raises.
 - [ ] Cross-check test: build a record `labels.validate` accepts and one it rejects for each reason, export each through a one-row `records.jsonl`, and assert the checker's `audit` agrees (valid, `invalid_schema` or `unsupported_quote`).
 - [ ] Run, implement, run. Commit.
 
 ### Task 5: Ledger and the save protocol
 
-**Files:** Create `pipeline/ledger.py`, extend `pipeline/state.py`, create `tests/test_ledger.py`, `tests/test_save_protocol.py`, `cost/rates.csv`.
+**Files:** Create `pipeline/ledger.py`, extend `pipeline/state.py`, create `tests/test_ledger.py`, `tests/test_save_protocol.py`, `pipeline/billing.json`.
 
 **Interfaces, produces:**
-- `ledger.Ledger(db, rates_path, cap_usd=Decimal("25"))`
+- `ledger.Ledger(db, billing_path, cap_usd=Decimal("25"))`
 - `Ledger.would_pass_cap(reserve_tokens: int) -> bool`, `Ledger.spent_usd() -> Decimal`, `Ledger.reserved_usd() -> Decimal`
-- `Ledger.opening(usd_measured, usd_estimated)` (written once: the probe spend)
+- `Ledger.opening(usd_measured, usd_estimated)` (written once: the probe spend) and `Ledger.adjust(usd: Decimal, note: str)` (a correction found by reconciling with the provider's usage page)
 - `state.begin_attempt(db, ledger, *, request_id, run, role, review_ids, model, label_config, session_id, reserve_tokens) -> None` (one transaction: the `pending` call row and the `reserve` ledger row; raises `ledger.CapReached` and writes nothing if the cap would be passed)
 - `state.finish_attempt(db, request_id, *, outcome, input_tokens=None, output_tokens=None, http_status=None, error=None, seconds, result: dict | None = None) -> None` (one transaction: the call row, the `actual` or `kept` ledger row, and, when `result` is given, the `results` row plus `completed` on the original and every copy with `completed_session`)
-- `state.recover_orphans(db, run) -> int` (each `pending` call becomes `failed` with usage unknown, its reservation is `kept`, its review returns to `pending`)
-- `state.return_to_pending(db, run, review_id)`, `state.quarantine(db, run, review_id, reason)` (copies follow their original and carry no cache pointer)
+- `state.recover_orphans(db, run) -> dict[str, int]` (each `pending` call becomes `failed` with usage unknown and its reservation is `kept`; the counts are by role). It never changes a review's status. A review with an orphaned `enrich` call was still `pending`; a review named on an orphaned `verify`, `group` or `memo` call keeps the status it had. Each stage finds its own unfinished work on restart: classify from `reviews.status`, verify from sampled reviews with no `verify` row, group and memo from the `artifacts` cache.
+- `state.return_to_pending(db, run, review_id)` (raises the attempt count and touches nothing else) and `state.quarantine(db, run, review_id, reason)` (the original and every copy become `quarantined` with the same reason). `cache_source_id` is set once at prepare and is never cleared in the state file, so a copy always knows its original through any number of retries. Export leaves the pointer off a quarantined record.
 
-Dollars are computed from tokens and `rates.csv` at read time; the ledger stores billed units only.
+Every ledger row stores the billing rates in force when it was written, so spend already made never moves when a rate file is edited, and lowering a rate cannot reopen room under the cap. The operational rates live in `pipeline/billing.json` and apply to rows written from then on. `cost/rates.csv` is the calculator's editable copy for replay and projection; the ledger never reads it. A correction is a new `adjust` row with a note, never a recomputation. A request is settled exactly once: the unique index refuses a second `actual` or `kept` row.
 
-- [ ] Tests: reserve then actual leaves spent equal to the actual and reserved at zero; an attempt with no usage keeps its full reservation as spent; `begin_attempt` refuses when spent plus reserved plus the next reservation would pass the cap and writes no row; `finish_attempt` with a result completes the original and its copies in one transaction (kill between is simulated by raising inside the transaction and asserting nothing changed); `recover_orphans` turns a `pending` call into a failed one with `usage_known` 0 and returns the review to `pending`; a quarantined original takes its copies with it.
+- [ ] Tests: reserve then actual leaves spent equal to the actual and reserved at zero; an attempt with no usage keeps its full reservation as spent; `begin_attempt` refuses when spent plus reserved plus the next reservation would pass the cap and writes no row; `finish_attempt` with a result completes the original and its copies in one transaction (kill between is simulated by raising inside the transaction and asserting nothing changed); `recover_orphans` turns a `pending` call into a failed one with `usage_known` 0 and changes no review's status, shown with an orphaned `verify` call on a completed review that stays `completed`; a quarantined original takes its copies with it and each copy still holds its `cache_source_id`; a second `finish_attempt` on one request raises and leaves the ledger unchanged; editing `pipeline/billing.json` and `cost/rates.csv` after a charge leaves `spent_usd()` unchanged, and an `adjust` row moves it by exactly its amount.
 - [ ] Run, implement, run. Commit.
 
 ## Phase 2: classify
@@ -262,7 +268,7 @@ Dollars are computed from tokens and `rates.csv` at read time; the ledger stores
 
 **Interfaces, produces:**
 - `splitter.pieces(text: str) -> list[str]` (each piece an exact substring; ported from `pieces()` in `experiments/2026-10-04/tool-choice/jev_spike.py`)
-- `jev.build_request(text: str, prompt: dict) -> dict` (questions `topic`, `intent`, `severity`, `tone`, plus `quote` when there is more than one piece; option order shuffled repeatably from the text)
+- `jev.build_request(text: str, prompt: dict) -> dict` (questions `topic`, `intent`, `severity`, `tone`, plus `evidence` when there is more than one piece, the name the probe and its 25 saved multi-sentence answers use; option order shuffled repeatably from the text)
 - `jev.to_record(text: str, answer: dict, *, features: list[str], cutoff: float, label_config: str) -> dict` (raises `labels.InvalidAnswer`)
 - `jev.entities(text: str, features: list[str]) -> list[str]` (whole lowercase words found in the text)
 - `jev.MODEL = "jev-1.13.0"`
@@ -295,7 +301,8 @@ Rules (spec 6.1): originals are taken in run order; one writer thread owns the d
 
 - [ ] Tests with `ReplayJev`: 30 synthetic reviews with copies all complete and every copy is completed with its original; a scripted temporary error is retried and succeeds; four in a row return the review to `pending` and never quarantine it; a scripted invalid answer twice quarantines with `invalid_model_output` and its copies follow; a wrong model halts with no status changed; a text that raises `jev.TooLarge` is quarantined with reason `request_over_limit` and is never sent; `stop_after=10` ends with at least 10 new completions and work pending, and a second `run` finishes without sending any completed text again (assert on the stand-in's call log); the cap stops admission before the request that would pass it; 16 workers give the same final labels as 1.
 - [ ] Review Focus 4: an injected clock jumps 2 hours while requests are in flight; they time out, the session ends as `no_success_60s`, nothing completed is lost, and the next `run` finishes.
-- [ ] Guard tests, one planted failure each (spec section 10, item 25): over 500 stand-in reviews, a labeler that gives one topic to more than 95% raises; `needs_review` all true or all false raises.
+- [ ] Copy test: a text with two copies fails its four attempts, returns to `pending`, and succeeds on the next run. The original then has one succeeded call, both copies are `completed` with their pointer intact, and the stand-in's log shows the text sent only for the original.
+- [ ] Guard tests, one planted failure each (spec section 10, item 25): over 500 stand-in reviews, a labeler that gives one topic to more than 95% raises; `needs_review` all true or all false raises. A guard that raises names itself. For the supplied file and its three nested gate files (known by the hashes in `manifest.json`) there is no way past it. Any other input can be restarted with `--accept-guard NAME`, which is written to the run summary: a small or one-sided fresh CSV can truly be 100% one topic. Nothing is downgraded to a warning. Test both: the supplied hash refuses the flag, another input accepts it and logs it.
 - [ ] Crash test: a subprocess is killed mid-run with `SIGKILL`; on restart `recover_orphans` runs first, the ledger shows the kept reservations, and the run finishes with no completed ID sent twice.
 - [ ] Run, implement, run. Commit.
 
@@ -315,11 +322,12 @@ Rules (spec 6.1): originals are taken in run order; one writer thread owns the d
 **Files:** Create `pipeline/gemma.py`, `tests/test_gemma.py`. Extend `pipeline/standins.py` with `StandinGemma`.
 
 **Interfaces, produces:**
-- `gemma.Client(base_url="http://localhost:1234/v1", model=..., timeout=120)` with `check() -> None` (raises `gemma.ServerProblem` if the server does not answer or the expected model is not loaded) and `ask(system: str, user: str, schema: dict) -> gemma.Reply` (`data: dict`, `model: str`, `input_tokens`, `output_tokens`).
+- `gemma.Client(base_url="http://localhost:1234/v1", model=..., timeout=120)` with `check() -> None` (raises `gemma.ServerProblem` if the server does not answer or the expected model is not loaded) and `ask(system: str, user: str, schema: dict, *, max_tokens: int) -> gemma.Reply` (`data: dict`, `model: str`, `input_tokens`, `output_tokens`).
+- Every role sets its own bounds, kept in that stage's config and in its cache key: verify sends one review of at most 20,000 characters and asks for at most 200 output tokens; group sends at most 30 quotes and asks for at most 300; memo sends at most 5 quotes for each of at most 8 issues and asks for at most 1,500. A quote over 500 characters is left out of a naming or memo pack and the next one is taken; it is never cut, because a cut quote is not an exact piece of the review.
 - Token counts are `None` when the server reports no usage; the call is then saved with `usage_known` 0.
 - Every call sends `temperature` 0, `reasoning_effort` `"none"` and a `json_schema` response format. A response naming another model raises `ServerProblem`. Returned strings are checked for leaked template tokens and raise `gemma.InvalidOutput`.
 
-- [ ] Tests against a local `http.server` thread: the request body carries the three settings; a wrong model in the model list fails `check()`; a wrong `model` on a response raises `ServerProblem`; a string containing a template token raises `InvalidOutput`; a refused connection raises `ServerProblem`.
+- [ ] Tests against a local `http.server` thread: the request body carries the three settings; a wrong model in the model list fails `check()`; a wrong `model` on a response raises `ServerProblem`; a string containing a template token raises `InvalidOutput`; a refused connection raises `ServerProblem`; a reply cut off at `max_tokens` raises `InvalidOutput`.
 - [ ] Run, implement, run. Commit. **No real Gemma call is made in this task.**
 
 ### Task 12: Verify
@@ -330,8 +338,9 @@ Rules (spec 6.1): originals are taken in run order; one writer thread owns the d
 
 `prompts/verify-v1.md` carries the contract's label section word for word, taken at build time by the same function the outside raters used, with its hash recorded.
 
-- [ ] Tests with `StandinGemma`: the request for a review is byte-identical whether or not Jev's result exists (the blind test of item 25); every sampled review ends with a prediction or a recorded failure; an invalid answer is retried once and then recorded as `failed`; a `ServerProblem` halts the stage and records no failure; agreement of exactly 100% on 50 or more reviews raises; `compare_check.py` changes labels in a copy of saved results and the comparison flags each one.
+- [ ] Tests with `StandinGemma`: the request for a review is byte-identical whether or not Jev's result exists (the blind test of item 25); every sampled review ends with a prediction or a recorded failure; an invalid answer is retried once and then recorded as `failed`; a `ServerProblem` halts the stage and records no failure; agreement of exactly 100% on 50 or more reviews raises, under the same `--accept-guard` rule as the classify guards; `compare_check.py` changes labels in a copy of saved results and the comparison flags each one.
 - [ ] Review Focus 5: a review over `max_chars` is recorded as a verify failure with reason `too_long` and is not sent.
+- [ ] Crash test: the process is killed mid-verify. On restart no completed review returns to `pending`, the stand-in Jev's call log stays empty, the orphaned verify call is `failed` with usage unknown, and verify finishes the sample.
 - [ ] Run, implement, run. Commit.
 
 ### Task 13: Group, rank, memo
@@ -345,7 +354,7 @@ Rules (spec 6.1): originals are taken in run order; one writer thread owns the d
 - `rank.from_files(grading_dir) -> None` (rewrites `ranking.csv` from `records.jsonl` or its gzip and `membership.csv`; no state file, no model)
 - `memo.claims(ranking) -> list[dict]`, `memo.evidence_pack(db, run, *, per_issue=5) -> dict`, `memo.write(db, run, client) -> str`, `memo.check(text: str, pack: dict) -> list[str]` (the list of problems; empty means it passes)
 
-- [ ] Rank tests: the ranking equals the checker's `calculated_ranking` on a synthetic run, string for string; a mean of `2.0000005` rounds half-up to `2.000001`; ties order by issue ID; a member missing from the records, or one that is not a complaint or cancellation, raises; `from_files` run twice in a clean copy gives byte-identical files.
+- [ ] Rank tests: on a synthetic run each ranking field equals `str()` of the same field in the checker's `calculated_ranking` (its counts and rank are ints and its mean is a string; this is the comparison the checker makes); a mean of `2.0000005` rounds half-up to `2.000001`; ties order by issue ID; a member missing from the records, or one that is not a complaint or cancellation, raises; `from_files` run twice in a clean copy gives byte-identical files.
 - [ ] Group tests: no praise, request or unclear review is a member; each complaint is in exactly one issue; a warm call with the same inputs makes no new request; an input with no complaints makes no naming call and says so.
 - [ ] Memo tests: a memo citing an unknown issue ID, review ID or claim ID fails the check; a number beside a claim ID that differs from the claim fails; a claim ID and its issue ID must share a sentence; a recommendation that names neither rank 1 nor a reason fails; a revenue or churn figure fails; a quote containing an instruction is passed as quoted data and the memo still checks; one retry carries the listed errors.
 - [ ] Run, implement, run. Commit.
@@ -358,7 +367,7 @@ Rules (spec 6.1): originals are taken in run order; one writer thread owns the d
 
 **Interfaces, produces:** `export.export(db, run, out_dir, *, checker_path, input_path, gzip_large=True, evidence_dir=None) -> dict` (the checker's status and flags). It refuses while any review is `pending`, writes every file in "Export rules" above, runs the supplied checker's `profile`, `reference` and `check` as subprocesses, keeps `local-reference.json` and `self-check.json` outside `out_dir`, and prints the status and every flag. With `evidence_dir` it also writes the run manifest, `run_log.jsonl`, `run_summary.json`, `quarantine.jsonl`, every verifier prediction, each group and memo input and output, and `memo.md`.
 
-- [ ] Tests on a synthetic run driven through the real stages with stand-ins and one stop: the checker returns `pass` with no flags and coverage 1.0; the boundary is the first session that left an original unlabeled; a run with no stop is reported as having no boundary before the checker runs; a failed call exports zeros and `usage_known: false`; a run where one nonempty review is quarantined exports and reports `review_required`; both forms of a JSONL file never coexist; a file over the size limit set for the test is named as needing a release asset.
+- [ ] Tests on a synthetic run driven through the real stages with stand-ins and one stop: the checker's `status` is `pass`, its `issue_counts` is empty, and `coverage.labelable_completion_fraction`, `coverage.accounted_fraction` and `working_coverage_point_candidate` are each 1.0 (`valid_completion_fraction` stays under 1.0 whenever a text is empty, by design, so it is not asserted); the boundary is the first session that left an original unlabeled; a run with no stop is reported as having no boundary before the checker runs; a failed call exports zeros and `usage_known: false`; a run where one nonempty review is quarantined exports and reports `review_required`; a quarantined copy is exported with no `cache_source_id`; both forms of a JSONL file never coexist; a file over the size limit set for the test is named as needing a release asset.
 - [ ] Mutation tests, one per flag the checker can raise on our files: break one thing in a good export (a copy with a different label, a quarantined ID in a checkpoint, a `resume` call naming a `before` ID, a decimal token count, a mean with five decimals) and assert the named flag appears. This proves the test would notice a regression.
 - [ ] Run, implement, run. Commit.
 
@@ -370,7 +379,7 @@ Rules (spec 6.1): originals are taken in run order; one writer thread owns the d
 
 ```sh
 python3 -m pipeline run --run NAME --new --input PATH.csv [--stop-after N] [--max-hours H] [--workers N] [--cutoff X] [--warm-from RUN] [--standin] [--go]
-python3 -m pipeline run --run NAME [--allow-commit SHA]
+python3 -m pipeline run --run NAME [--allow-code HASH] [--accept-guard NAME]
 python3 -m pipeline status --run NAME
 python3 -m pipeline quarantine-stuck --run NAME --reason api_failure_after_retries --yes
 python3 -m pipeline export --run NAME
@@ -390,28 +399,31 @@ python3 -m pipeline rank
 
 ### Task 16: Calculator
 
-**Files:** Create `cost/calc.py`, `cost/__main__.py`, `cost/local_compute.csv`, `cost/README.md`, `tests/test_cost.py`.
+**Files:** Create `cost/calc.py`, `cost/evidence.py`, `cost/__main__.py`, `cost/rates.csv`, `cost/local_compute.csv`, `cost/README.md`, `tests/test_cost.py`.
 
 **Interfaces, produces:**
-- `calc.measured(calls: list[dict], rates: list[dict], sessions: list[dict]) -> dict` (per stage: requests, attempts, tokens, cost, seconds from the session clock; cold and warm apart)
+- `evidence.write(db, cold_run, warm_run, out_dir) -> None`: the one step that reads the state file. It writes `pilot_records.jsonl`, `pilot_calls.jsonl` (cold and warm, each with its run ID) and `usage.csv`. `usage.csv` has one row per run ID and stage (requests, attempts, succeeded, failed, input tokens, output tokens, calls with usage unknown, workers, and `seconds` from that stage's session clock) and one `end_to_end` row per run ID. A run's end-to-end seconds are the sum of its sessions' seconds, each measured on one process's monotonic clock; idle time between a stop and a resume is left out and the report says so. The warm run's rows carry its seconds and zero calls.
+- `calc.measured(calls: list[dict], rates: list[dict], usage: list[dict]) -> dict` (per stage: requests, attempts, tokens, cost, and seconds read from `usage.csv`; cold and warm apart)
 - `calc.project(measured: dict, *, rows=660_622, nonempty=660_609, distinct=484_189, verify=5_000, issues=8, text_volume: dict, retry_rate: float) -> dict` (each stage from its own work count; the memo added once; a base and a conservative case; a warning when a case passes the cap)
-- `python3 -m cost replay` (default; reads only `pilot_calls.jsonl`, `usage.csv`, `rates.csv`, `local_compute.csv`) and `python3 -m cost pilot --go` (paid; refuses without `--go`)
+- `python3 -m cost replay` (default; reads only `pilot_calls.jsonl`, `usage.csv`, `rates.csv`, `local_compute.csv`) and `python3 -m cost pilot --go` (paid; refuses without `--go`; runs the cold run and the warm run through `python3 -m pipeline`, then `evidence.write`)
 
-- [ ] Tests on made-up pilot files: doubling every API rate doubles the API subtotal and leaves local cost and measured time unchanged; changing the projected row count leaves the measured results unchanged; costs are not rounded before either test; replay never opens the state file and never imports a client (assert on `sys.modules`); a report with zero tokens raises; API spend, local compute and unknown costs are three separate totals and an unknown stays marked unknown.
+- [ ] Tests on made-up pilot files: doubling every API rate doubles the API subtotal and leaves local cost and measured time unchanged; changing the projected row count leaves the measured results unchanged; costs are not rounded before either test; replay never opens the state file and never imports a client (assert on `sys.modules`); a report with zero tokens raises; API spend, local compute and unknown costs are three separate totals and an unknown stays marked unknown; `evidence.write` on a finished stand-in cold and warm pair gives a warm `end_to_end` row with seconds above zero and zero requests; a stage's seconds equal its session clock and not the sum of its request times (16 overlapping one-second stand-in requests give about one second); replay in a clean copy of the repo, with no state file and no `.env`, reproduces the report byte for byte.
 - [ ] Run, implement, run. Commit.
 
 ## Phase 6: evaluation tools and the gate runbook
 
 ### Task 17: Evaluation scripts
 
-**Files:** Create `evals/planted_cases.py`, `evals/wording_trial.py`, `evals/cutoff_table.py`, `evals/score_golden.py`, `tests/test_evals.py`.
+**Files:** Create `evals/planted_cases.py`, `evals/wording_trial.py`, `evals/holdout_score.py`, `evals/cutoff_table.py`, `evals/score_golden.py`, `tests/test_evals.py`.
 
 - `planted_cases.py`: the 25 cases from `experiments/2026-10-04/tool-choice/three_tests.py`, moved here with their expected answers, run through a labeler and scored.
-- `wording_trial.py`: runs candidate intent wordings over the planted slogan cases and the boycott `tune` half only; refuses to read a `holdout` row; paid, so it needs `--go`.
+- `wording_trial.py`: runs the probe's intent wording and each candidate over the planted slogan cases and the boycott `tune` half only; refuses to read a `holdout` row; paid, so it needs `--go`.
+- `holdout_score.py`: scores the 30 boycott `holdout` reviews and the 25 planted cases once with the frozen wording, case by case; refuses a second run unless told; paid, so it needs `--go`.
+- Every paid call these scripts make goes through `ledger.Ledger` on the same state file as the pipeline, so the $25 cap covers them and `begin_attempt` can refuse them.
 - `cutoff_table.py`: for each candidate cut-off on the cut-off half, the count flagged and the differences caught, against every reference side by side (the raters' shared label, Travis's label as written, Travis's with `labels.by_rule`), with the rater-disputed rows as a group of their own (spec item 4).
 - `score_golden.py`: the report in spec section 10, both readings (item 32). It prints counts and row IDs of disagreements only, and refuses to run twice on one run unless told.
 
-- [ ] Tests on made-up labels: `cutoff_table` reproduces the four rows of the 2026-10-04 table in `CLAUDE.md` from the saved pilot answers (known answer); `score_golden` gives the built-in counts on a made-up golden file and its second reading changes only rows whose intent is `unclear`, `praise` or `request`; `wording_trial` raises on a `holdout` row.
+- [ ] Tests on made-up labels: `cutoff_table` reproduces the four rows of the 2026-10-04 table in `CLAUDE.md` from the saved pilot answers (known answer); `score_golden` gives the built-in counts on a made-up golden file and its second reading changes only rows whose intent is `unclear`, `praise` or `request`; `wording_trial` raises on a `holdout` row; `holdout_score` refuses a second run; a paid eval call with the cap already reached is refused before it is sent.
 - [ ] Run, implement, run. Commit.
 
 ### Task 18: README and submission checks
@@ -424,19 +436,22 @@ python3 -m pipeline rank
 
 ## Gates (each needs Travis's go; pass marks are shown with the request)
 
-The marks below are proposed under the delegation of 2026-10-05. Travis confirms or changes them when each go is asked for. Any mark missed blocks the next go.
+The marks below are proposed under the delegation of 2026-10-05. Travis confirms or changes them when each go is asked for. Any mark missed blocks the next go. Every gate run is stopped once and resumed, because an uninterrupted run has no boundary and the checker answers with `resume_snapshot_mismatch` and `resume_call_evidence`.
 
 | Gate | What runs | Pass marks |
 |---|---|---|
-| Wording trial | The probe's intent wording and each candidate on the 4 planted slogans and the 30 boycott `tune` reviews; the usage page read before and after | Planted slogans: at least 3 of 4 `unclear` (2 of 4 with the probe wording). `tune` half: the chosen wording's intent equals the raters' shared answer on at least as many rows as the probe wording's. The usage page is compared with input tokens times the rate; that settles whether output tokens are billed, and `rates.csv` is set to match before the 100 gate |
-| 100 | `cost_100.csv`, one worker, all six stages, stopped once with `--stop-after 50`, then a warm pass | 100 of 100 completed, none quarantined; checker `pass`; warm pass makes 0 calls; every response names `jev-1.13.0`; Jev spend under $0.01 (measured $0.0039 on the probe); both calculator tests pass; Travis has read the feature list and the memo and named a provisional cut-off |
-| 500 | `checkpoint_500.csv`, up to 16 workers | 500 of 500 completed; checker `pass`; the nested 100 keep their labels; 429 responses under 1% of requests; cost per review within 20% of the 100 gate |
-| 10,000 | `analysis_10000.csv` | All completed; checker `pass`; the nested 500 keep their labels; sustained speed at least 50 per second with no fatal response; temporary failures under 1% of attempts; spend so far plus the projected full pass under $24 |
-| Full run | The full file, stopped once by hand on camera, then resumed | Wording and cut-off frozen first; usage page reconciled; checker `pass` with coverage 1.0, or the shortfall reported |
+| Wording trial | The probe's intent wording and each candidate on the 4 planted slogans and the 30 boycott `tune` reviews; the usage page read before and after | Each planted slogan matches its own accepted answer: S1 and S2 `unclear`, S3 `cancellation`, S4 `complaint`. The probe wording got 2 of 4, reading S2 and S4 as `cancellation`. On the `tune` half the chosen wording's intent equals the raters' shared answer on at least as many rows as the probe wording's. No planted case the probe got right becomes wrong. The usage page is compared with input tokens times the rate; that settles whether output tokens are billed, and `pipeline/billing.json` is set to match before the 100 gate |
+| Holdout, once | After the wording is frozen: the 30 boycott `holdout` reviews and the 25 planted cases, scored once with `holdout_score.py` | No pass mark. The result is recorded as it falls, each injection case with its own outcome, and is never used to change the wording |
+| 100 | `cost_100.csv`, one worker, all six stages, stopped once with `--stop-after 50`, resumed with the same command, exported, then a warm pass | 100 of 100 completed, none quarantined; checker `status` is `pass` with empty `issue_counts`; at least one original completes after the stop; warm pass makes 0 calls; every `enrich` response names `jev-1.13.0` and every Gemma response names the loaded Gemma model; Jev spend under $0.01 (measured $0.0039 on the probe); the verify report's four counts are read and predictions plus failures equal the sample; both calculator tests pass; Travis has read the feature list and the memo and named a provisional cut-off |
+| 500 | `checkpoint_500.csv`, up to 16 workers, stopped once with `--stop-after 250`, resumed with the same command, then exported | 500 of 500 completed; checker `status` is `pass` with empty `issue_counts`; at least one original completes after the stop; the nested 100 keep their labels; 429 responses under 1% of requests; cost per review within 20% of the 100 gate; verify failures listed and read |
+| 10,000 | `analysis_10000.csv`, stopped once with `--stop-after 5000`, resumed with the same command, then exported | All completed; checker `status` is `pass` with empty `issue_counts`; at least one original completes after the stop; the nested 500 keep their labels; sustained speed at least 50 per second with no fatal response; temporary failures under 1% of attempts; spend so far plus the projected full pass under $24; verify failures listed and read |
+| Full run | The full file, stopped once by hand on camera, then resumed with the same command and exported | Wording and cut-off frozen first; usage page reconciled; checker `status` is `pass` with empty `issue_counts` and `labelable_completion_fraction` 1.0, or the shortfall reported |
 
 After the full run: `score_golden.py` once, the calculator refreshed, the README, the reread for anything personal, and the repo made public.
 
 ## Self-review
+
+- **Outside review, 2026-10-05:** seven issues and five smaller corrections, each checked against this file, the fixtures and the checker before anything changed. All seven are fixed above. Report and outcome: `docs/plan-review-2026-10-05.md`.
 
 - **Spec coverage:** sections 4 (Tasks 2, 5), 5 (Task 3), 6.1 (Tasks 6 to 10), 6.2 (Tasks 11, 12), 6.3 to 6.6 (Task 13), 7 (Tasks 5, 8), 8 (Task 16), 9 (Tasks 14, 15, 18), 10 (tests in every task, Task 17), 11 (Task 15). Section 12 items with their own work: 5 (Task 6), 7 (the `stuck` outcome and `quarantine-stuck`), 18 (`--stop-after` and Ctrl-C), 25 (the blind request test, the planted failure per guard, the nested labels at each gate), 28 (the gate table), 32 (`score_golden.py`).
 - **Not covered by a task, on purpose:** sub-issues (spec 6.4, not built in this version); a second business ranking.
