@@ -174,7 +174,7 @@ Measured in a throwaway probe on 2026-10-04 (50 reviews, single runs): Gemma 26B
 
 ## What the build established (2026-10-05)
 
-Every decision the executor made on Travis's behalf during the build is in `docs/build-rulings-2026-10-05.md` (94 rulings, each with what it costs if wrong, plus the review's findings and the one left open). The facts worth keeping:
+Every decision the executor made on Travis's behalf during the build is in `docs/build-rulings-2026-10-05.md` (94 rulings, each with what it costs if wrong, plus the review's findings and the one left open). The summary written for Travis is `feed/exec-summary-build-2026-10-05.html` (not committed). The facts worth keeping:
 
 - A stand-in run through every stage, stopped once and resumed, exports and the supplied checker returns `pass` with no flags. Eight deliberate breaks of a good export are each named by the checker.
 - Replaying Jev's 100 saved pilot answers through the pipeline reproduces the recorded ranking (52 members; usability 38, other 29, playback 22, billing 20) and the measured cost ($0.0039 per 100).
