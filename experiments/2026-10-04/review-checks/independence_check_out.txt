@@ -1,0 +1,39 @@
+Independence check of the second spec review (docs/independent-spec-review-2026-10-04.md)
+Read from the reviewer tool's own session log on 2026-10-04. The log stays on the laptop:
+~/.codex/sessions/2026/10/04/rollout-2026-10-04T17-55-02-01a1098e-99bc-7ec2-aea7-293c75efd422.jsonl
+
+Reviewer: Codex desktop app, model gpt-6.1-sol, effort xhigh, working directory the repository root.
+No AGENTS.md exists in the repository, its parent folders or ~/.codex, so nothing project-specific was auto-loaded.
+
+The whole prompt from Travis:
+  Role: You are to provide an critical independent review of a spec.
+  Context: <repo>/docs/independent-review-brief.md
+  Task: Review this file first and only this file, follow these instructions explicitly.
+  Do not read any CLAUDE.md file in the directory as they were bias your task.
+A second message, after the review: "print to md".
+
+Commands the reviewer ran: 21.
+  Opened: the brief; check_submission.py; GRADING_CONTRACT.md; COST_CALCULATOR.md; the dataset README and manifest;
+  the assignment brief lines 1 to 225; evals/golden_labeling_guide.md; evals/dev_sets.json; scripts and printed
+  outputs under experiments/2026-10-04/ (tool-choice, outside-raters, red-team); simple.jsonl; the full CSV.
+  Ran: its own counts over the full CSV and simple.jsonl; the checker on a five-row made-up export in a temp folder.
+  Wrote: its report (commands 19 to 21), after "print to md".
+
+Excluded names appearing in any command:
+  CLAUDE.md                  only inside the report text it wrote ("CLAUDE.md was not read")
+  docs/superpowers           none
+  docs/spec-review-2026-10-04.md   none (the only "spec-review" matches are its own report's file name)
+  docs/validation-log.md     none
+  docs/red-team-plan-*.html  none
+  feed/HANDOFF-*             none
+  .env                       none
+  the three label sheets     none
+  evals/adjudication_key.json  none
+  outside-raters/*.jsonl     none
+Repo-wide searches (rg or grep over the whole tree): none.
+
+Distinctive text from each excluded file, searched for anywhere in the log (tool output included):
+  CLAUDE.md, the full spec's section 13, the first review record, the validation log, the red-team report,
+  the handoff, the rater answer files, and the two passages removed from Part B: none found.
+  The words "agreed_check" and "planted_differs" appear because compare_raters.py, an allowed file, contains them.
+  No value from .env appears in the log.

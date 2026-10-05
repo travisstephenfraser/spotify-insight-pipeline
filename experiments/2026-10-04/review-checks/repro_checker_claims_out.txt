@@ -1,0 +1,9 @@
+0 control (stop with an original pending)            status pass             flags {}  coverage 1.0
+1 resume finishes only a copy                        status review_required  flags {'resume_call_evidence': 1}  coverage 1.0
+1b pending original at the stop ends quarantined     status review_required  flags {'resume_call_evidence': 1, 'unfinished_classification': 1}  coverage 0.88
+2 failed attempt, token counts left out              status review_required  flags {'invalid_usage': 2}  coverage 1.0
+2b failed attempt, zeros plus usage_known false      status pass             flags {}  coverage 1.0
+                                                     checker's token totals: in 70 out 35 (the marker field is ignored)
+3 one nonempty review quarantined                    status review_required  flags {'unfinished_classification': 1}  coverage 0.88
+4 no complaints, no naming call                      status review_required  flags {'missing_claims': 1, 'missing_model_roles': 1}  coverage 1.0
+4b no complaints, but a naming call is logged        status review_required  flags {'missing_claims': 1}  coverage 1.0

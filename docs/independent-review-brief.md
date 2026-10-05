@@ -6,7 +6,7 @@ Point a fresh reviewer at this one file. It holds the instructions (Part A) and 
 
 - Use a model from a different maker than the design's author if you can. The author worked with Claude.
 - Run it somewhere the repository's `CLAUDE.md` is not loaded automatically. That file is the authors' decision log and contains their conclusions.
-- When the report is done, compare it with `docs/spec-review-2026-10-04.md`. A hole found by both is close to certain. A hole found only here is the reason this review was worth running.
+- When the report is done, compare it with `docs/spec-review-2026-10-04.md` and `docs/independent-spec-review-2026-10-04.md`. A hole found by both is close to certain. A hole found only here is the reason this review was worth running.
 
 ---
 
@@ -63,6 +63,7 @@ Saved evidence. Part B quotes numbers marked *measured*. These files are where t
 | `docs/superpowers/specs/` | The full design file, which includes a summary of earlier reviews. Part B is the copy to review |
 | `docs/spec-review-2026-10-04.md`, `docs/validation-log.md`, `docs/red-team-plan-2026-10-04.html` | Earlier reviews and the authors' summary of them |
 | `feed/HANDOFF-*.md` | Session notes with conclusions |
+| `docs/independent-spec-review-2026-10-04.md`, `experiments/2026-10-04/review-checks/independence_check_out.txt` | An earlier review's report and a note about it. The other files in `review-checks/` are saved outputs and may be read |
 
 ### Hard rules
 
@@ -117,7 +118,7 @@ No summary of the design and no closing praise. Stop after the report.
 
 ## Part B. The design under review
 
-*This copy was made on 2026-10-04 from the design file whose SHA-256 begins `fdf8f1d74ed85818`. Taken out: a status note about earlier reviews, a pointer to the authors' decision log, one paragraph and one list in which the authors state weaknesses they already know, pointers to earlier review files, and the final section, which summarized an earlier review. Two source notes were reworded to name the measurement, not the review that made it. Section numbers are unchanged, and the design text is otherwise word for word.*
+*This copy was made from the design file whose SHA-256 begins `a886636d3cde958a`. Taken out: a status note about earlier reviews, a pointer to the authors' decision log, one paragraph and one list in which the authors state weaknesses they already know, pointers to earlier review files, and the final section, which summarized earlier reviews. One source note was reworded to name the measurement, not the review that made it. Section numbers are unchanged, and the design text is otherwise word for word.*
 
 **Spotify Insight Pipeline: design spec**
 
@@ -197,9 +198,9 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 
 **Decided:** state lives in one SQLite file; a run saves after every request and resumes with the same command; runs are time-boxed (`--max-hours`).
 
-**Proposed:** the one file holds every run. The spend ledger sits in the same file and covers all runs, which is how the $25 cap spans the gates and the full run. The ledger starts with the $0.053 already spent on probes (*measured*, `experiments/2026-10-04/README.md`).
+**Proposed:** the one file holds every run. The spend ledger sits in the same file and covers all runs, which is how the $25 cap spans the gates and the full run. The ledger starts with the Jev spend already made on probes: $0.0485 *measured*, plus about $0.005 *estimated* for two tests whose usage was not logged (`experiments/2026-10-04/README.md`).
 
-**Proposed:** every command names its run (`--run NAME`; `--new` creates one). At creation the run saves the input's SHA-256, the seed, and a content hash of each prompt, the schema, the feature-word list, the sentence splitter and the cut-off. A resume compares all of them and refuses on any difference, so one `label_config` can never cover two different setups. One process at a time holds a lock on the state file.
+**Proposed:** every command names its run (`--run NAME`; `--new` creates one). At creation the run saves the input's SHA-256, the seed, and a content hash of each prompt, the schema, the feature-word list, the sentence splitter and the cut-off. A resume compares all of them and refuses on any difference, so one `label_config` can never cover two different setups. **Decided, item 31:** the run also records the code's git commit, and a resume under a different commit is refused unless it is allowed by name and logged. Code that turns answers into labels can change results without changing any of those files. One process at a time holds a lock on the state file.
 
 **Proposed:** each run starts cold. A run reuses only its own saved results (that is what resume is). The one exception is the warm pilot, a second run pointed at the cold pilot's results on purpose. The full run does not reuse results from the 100, 500 or 10,000 gates. Re-labeling those reviews costs about $0.41 (*estimate*). In return the final export contains only full-run calls, and the open instructor question about reusing early-run calls no longer matters.
 
@@ -220,9 +221,17 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 **How a request is saved:**
 
 1. Before sending, the run commits an intent row: request ID, review, session and reservation. No commit, no send.
-2. After the answer passes validation, the result, the finished call row and the actual charge are saved in one transaction.
+2. When a response arrives, its reported usage and the finished call row are saved at once, before the answer is checked. A valid answer's result is saved in the same transaction. A paid response that fails validation therefore still has its charge in the ledger.
 3. If the process dies between the two, the intent has no result. On restart it becomes a failed call with usage unknown, its reservation stays counted as spent, and the review goes back to `pending`. So a crash can cost one paid request per in-flight worker, 16 at most, and each is visible in the log.
 4. If the writer cannot commit, the run admits no new work. The file uses write-ahead logging and a busy timeout, and the queue to the writer is bounded.
+
+**What the ledger counts for each outcome:**
+
+| Outcome of an attempt | Counted as spent |
+|---|---|
+| A response with usage, valid or not | The reported usage at the rates file's prices |
+| Sent, but no usage came back (error status, timeout, dropped connection, crash) | The full reservation, until Travis reconciles it against the provider's usage page |
+| Never sent (cap reached, held by the limiter) | Nothing |
 
 ### 5. Stage 1: prepare (code)
 
@@ -230,8 +239,8 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 - **Hashing:** `source_sha256` uses the checker's `row_sha`. The pipeline keeps its own copy of that function, and a test asserts both give the same hash on real rows.
 - **Empty text:** `review_text.strip()` is empty. Status becomes `quarantined`, reason exactly `empty_review_text`. Never sent to a model.
 - **Everything else is labeled.** That includes the 12,268 reviews with no letter or digit and the reviews whose text is the literal `None`.
-- **Duplicates:** reviews with byte-identical text share one result. The first in run order is the original and gets the model call. Each copy keeps its own row and points to the original with `cache_source_id`. Copies are counted separately in every total.
-- **Run order:** ascending SHA-256 of `seed:review_id`. The seed comes from `manifest.json` (`berkeley-fall-2026-assignment-5-v1`) and can be set for other inputs. Any finished stretch of a run is a fair sample of the file.
+- **Duplicates:** reviews with byte-identical text share one result. The first in run order is the original and gets the model call. Each copy keeps its own row and points to the original with `cache_source_id`. A copy is marked completed in the same transaction as its original. Copies are counted separately in every total.
+- **Run order:** ascending SHA-256 of `seed:review_id`. The seed comes from `manifest.json` (`berkeley-fall-2026-assignment-5-v1`) and can be set for other inputs. So the order of sending is random with respect to the file. The reviews finished at a given moment are close to a random sample but not exactly one: failed requests wait, and copies finish with their originals. Anything reported as a sample uses a list fixed in advance, with every row on it accounted for.
 - **Verify sample:** picked here, before any model call (section 6.2).
 - **Output:** the `reviews` table and `grading/ingestion.json` (from the checker's `profile`).
 - **Guards that raise, when the input is the supplied file:** 660,622 rows, 13 empty texts, 484,189 distinct nonempty texts, 159,701 missing app versions, no repeated IDs, file SHA-256 `1fc85de6...2fcef6`. For any other input these are skipped and the run says so.
@@ -266,14 +275,14 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 - *Temporary error (429, 5xx, network, timeout):* wait and retry with growing delays and jitter, **Proposed** up to 4 attempts. If all fail, the review goes back to `pending` and is tried again later in the run or in the next session. A temporary error never quarantines a review.
 - *Fatal response (401, 402, 403, or an answer whose `model` is not the pinned one):* the run halts at once and changes no review's status. A changed model version is Travis's call.
 - *Invalid answer (a normal response that fails validation):* retry once (the brief's limit). If it fails again, the review is `quarantined` with reason `invalid_model_output` and counts as not classified. Its copies are quarantined with the same reason and carry no cache pointer.
-- *Request over Jev's documented limits (255 options, 32,000 tokens):* quarantined with a reason. Nothing is cut short silently. A full-file count found a maximum of 164 sentence pieces, so none is expected.
+- *Request over Jev's documented limits (255 options, 32,000 tokens):* quarantined with a reason. Nothing is cut short silently. Over the full file the probe's splitter gives at most 39 pieces per review (*measured*, `experiments/2026-10-04/review-checks/count_sentence_pieces_out.txt`; an earlier splitter gave 164), so none is expected.
 - Every attempt is its own row in `calls` with a unique `request_id`.
 
 **Finished means finished:** a review is marked `completed` only after its answer passes validation. A completed review is never sent again.
 
 **Stop:** nothing pending; or the time box ends; or the next reservation would pass the cap; or a fatal response; or the failure stop (**Proposed**: no request has succeeded for 60 seconds while requests are being sent). Stopping means admit no new work, let in-flight requests finish, save.
 
-**Resume evidence:** the checker needs a `before` checkpoint that is non-empty and strictly smaller than `after`. The full pass is about 1.8 hours (*estimate*), so it would finish inside one session unless it is stopped. So the full run is stopped once on purpose with work still pending, and that stop is what the recording shows. Every completion is saved with its session ID, so nothing depends on a clean shutdown. At export, code finds the boundary: the end of the first session that saved at least one new (non-copy) completion while reviews were still pending. Calls up to the boundary are `initial`. Later calls are `resume`. `checkpoint_before` is the completed list at the boundary. If a run has no such boundary, export says so plainly, because the checker will flag it.
+**Resume evidence:** the checker needs a `before` checkpoint that is non-empty and strictly smaller than `after`. The full pass is about 1.8 hours (*estimate*), so it would finish inside one session unless it is stopped. So the full run is stopped once on purpose with work still pending, and that stop is what the recording shows. Every completion is saved with its session ID, so nothing depends on a clean shutdown. At export, code finds the boundary: the end of the first session that saved at least one new (non-copy) completion while at least one original text was still unlabeled, provided at least one original is labeled after it. A pending copy does not count, and neither does a pending original that ends quarantined: the checker needs a succeeded `resume` call for a new review that is not a copy (*measured* on a made-up export, `experiments/2026-10-04/review-checks/repro_checker_claims_out.txt`). Calls up to the boundary are `initial`. Later calls are `resume`. `checkpoint_before` is the completed list at the boundary. If a run has no such boundary, export says so plainly, because the checker will flag it.
 
 #### 6.2 Verify (Gemma 26B, role `verify`)
 
@@ -283,11 +292,11 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 
 **Call settings (from the probe):** LM Studio at `localhost:1234/v1`, `temperature` 0, `reasoning_effort` `none`, `response_format` of type `json_schema`. Code checks returned strings for leaked template tokens.
 
-**Proposed:** one request at a time in the pilot, up to four at once in later runs (0.27 s per review *measured* at four, single run of 50).
+**Proposed:** one request at a time in the pilot. More at once only after it is measured. One review per request with one worker took 0.64 s per review (*measured*, 20 reviews, `speed_test_out.txt`). The 0.27 s figure used earlier in this project came from 10 reviews per request with four workers on 40 reviews, a setup since dropped, so the speed of four workers at one review per request is unmeasured.
 
 **Before the first request:** the stage checks that the server answers and that the expected model is loaded. It checks the `model` field on every response.
 
-**Output:** every verifier prediction, saved, and `evals/verify_report`: agreement per field, a confusion table, and the disagreeing review IDs with both answers.
+**Output:** every verifier prediction, saved, and `evals/verify_report`. The report always shows four counts: reviews in the declared sample, predictions made, verify failures, and sampled reviews Jev could not label. Agreement per field and the confusion table are computed on the pairs where both engines answered and are labeled that way, beside the share of the sample those pairs cover. Otherwise hard reviews that fail verification would drop out and raise the agreement figure. The report also lists the disagreeing review IDs with both answers.
 
 **Proposed:** a disagreement is reported but does not change `needs_review`. This is a choice, not a checker rule. The checker only requires a copy to carry the same label fields as its original. Keeping the flag a function of the text and `label_config` alone makes that automatic and gives the flag one meaning for sampled and unsampled reviews.
 
@@ -304,9 +313,9 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 **Decided:** every completed `complaint` or `cancellation` review joins exactly one issue, the one for its topic. `allow_multi_issue` stays `false`.
 
 - **Issue IDs, Proposed:** `issue-access`, `issue-billing`, and so on. They are stable and sort in a fixed order for ties.
-- **Naming:** one Gemma call per issue that has members. **Proposed:** it reads up to 30 quotes with their review IDs and returns a short name and a one-sentence description. The quotes are picked by a third seed among the issue's originals. Run order is not used here, because it would put the golden 50 texts first. Code checks length and that both are non-blank.
+- **Naming:** one Gemma call per issue that has members. **Proposed:** it reads up to 30 quotes with their review IDs and returns a short name and a one-sentence description. The quotes are picked by a third seed among the issue's originals. Run order is not used here, because it would put the golden 50 texts first. Code checks length and that both are non-blank. As in verify, the stage checks the loaded model before the first call and the `model` field on every response, and saves the reported model with each name.
 - Names and descriptions never change membership or ranking.
-- **Failure:** retry once, then fall back to the topic name and the contract's definition, and log it. If no naming call succeeds, the stage stops, because the checker needs one succeeded `group` call. An input with no complaints has no issues and no naming call; the run reports that.
+- **Failure:** retry once, then fall back to the topic name and the contract's definition, and log it. If no naming call succeeds, the stage stops, because the checker needs one succeeded `group` call. An input with no complaints has no issues and no naming call; the run reports that. The checker cannot pass such an input whatever the pipeline does, because it requires at least one claim (*measured* on a made-up export). The README says so.
 - **Cached by input:** the same sample under the same model, settings and prompt version reuses the saved name, so a warm run makes no new call.
 - **Output:** `issues` and `membership` tables, saved as `issues.json` and `grading/membership.csv`.
 
@@ -339,7 +348,7 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 
 **Failure:** one retry with the errors listed. If it fails again the stage stops with no final memo, and Travis decides what to do. An export with no memo is flagged for a missing role and missing claims.
 
-**Cached by input:** the same ranked table and evidence pack under the same model, settings and prompt version reuse the saved memo, so a warm run makes no new call. A change of memo model is a new key.
+**Cached by input:** the same ranked table and evidence pack under the same model, settings and prompt version reuse the saved memo, so a warm run makes no new call. A change of memo model is a new key. The stage checks the loaded model before the call and the `model` field on the response, and saves the reported model with the memo.
 
 **People:** Travis reads the pilot memo at the 100 gate and rules on the memo model. He inspects the final argument, and any edit he makes goes through the same code check. `grading/claims.csv` holds the claims the final memo cites.
 
@@ -350,12 +359,12 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 **Decided:** $25 cap on total Jev spend. Workers share one rate limiter and one ledger. Before each request the run reserves its worst-case cost. It stops admitting work when spent plus reserved plus the next reservation would pass the cap.
 
 - **Rate:** $0.042 per million input tokens (docs.typesafe.ai/models, checked 2026-10-04, as used in the probe). Jev also reports about 215 output tokens per response (*measured*, `simple.jsonl`). Whether those are billed is unknown. `rates.csv` carries an output-token row, and spend is checked against the TypeSafe usage page at every gate.
-- **Reservation, Proposed:** the request body's size in bytes, counted as tokens. A request body is 2.46 to 2.93 bytes per input token (*measured* on the 100 pilot requests), so this always overstates.
+- **Reservation, Proposed:** the request body's size in bytes, counted as tokens. A request body is 2.46 to 2.93 bytes per input token (*measured* on the 100 pilot requests), so it overstated the input cost of every request seen so far. That is evidence, not a proof, and it says nothing about output tokens, whose billing is unknown (item 27). The rule is confirmed or replaced after the test batch.
 - **Limiter:** requests per second (75) and tokens per second, both under the documented 80 and 100,000. **Proposed:** the token limiter estimates tokens as bytes divided by 2.4. Using raw bytes would hold the run to about 41 requests per second.
 - **After a 429, Proposed:** the shared rate halves at most once per 10-second window and climbs back slowly.
 - **The ledger is local.** It cannot see provider billing it was not told about, and the spec knows of no limit on TypeSafe's side. Travis checks the console for one.
 - **What $25 covers (*estimates* from $0.0039 per 100 reviews *measured*):** the gates, about $0.41 together, and the full pass, about $19, which labels the gate reviews again. With the $0.05 already spent, about $5 is left for retries and the wording trial. A second full pass or sub-issues needs Travis to raise the cap.
-- **Time (*estimates*):** full Jev pass about 1.8 hours at 75 per second; Gemma on 5,000 about 23 to 48 minutes. Sustained Jev speed is unmeasured until the 10,000 gate.
+- **Time (*estimates*):** full Jev pass about 1.8 hours at 75 per second; Gemma on 5,000 about 53 minutes with one request at a time (from 0.64 s per review *measured* on 20). Sustained Jev speed is unmeasured until the 10,000 gate, and Gemma's speed with more than one request at once is unmeasured.
 
 ### 8. Cost calculator (`cost/`)
 
@@ -385,11 +394,24 @@ Code writes these from the full run's state:
 
 Export refuses to run while any review is still `pending`. Otherwise it always writes the folder, runs the supplied checker, and reports the status and every flag. It does not hide a `review_required` result. This happens before memo numbers are treated as final, since one bad record changes the ranking. `local-reference.json` and `self-check.json` stay outside `grading/`.
 
-**Open, Travis to rule:** a failed call has no token counts. The checker flags a missing count, and the project rule says an unknown is never silently zero. The two choices are in section 12.
+**Decided, item 13:** a failed call has no token counts. It is exported with zeros and `usage_known: false`, because the checker flags a missing count. The zeros are not silent: the marker is on every such call, the README counts them, and the usage totals are called incomplete.
 
 #### Run evidence (committed, large files as release assets)
 
 The brief asks for these beside the grading folder: a run manifest (source checksum, code version, prompts, model IDs, settings, outputs), `run_log.jsonl`, `run_summary.json` (stage timing, statuses, attempts, failures, usage, charges or labeled estimates, the spending limit, resume evidence), `quarantine.jsonl` with reasons and attempt counts, every verifier prediction, each group and memo input and output, and `memo.md`. All are written from the state file by the export command, so a reader never needs the state file itself.
+
+#### README and submission checks
+
+The brief names these (its lines 149, 185 to 192 and 196 to 198). Each is checked off before submission:
+
+- Setup and run commands, the Python version, the prompts, a blank `.env.example`, and `.gitignore` rules that keep `.env` out. `git ls-files -- .env '.env.*'` shows only the example.
+- How to start the local model server, and which model it must serve.
+- A results summary: source, completed and quarantined counts, exact-text reuse, golden agreement, verifier disagreement, full-run cost and time, with measured values kept apart from estimates.
+- The architecture diagram: the six stages, where code ends and a model begins, each role's input and output, and the stop and retry paths.
+- One real review traced from its source ID through labeling, verification, issue membership and ranking to a memo claim. Also one failed or ambiguous case, with what was done about it.
+- The golden comparison, the verifier procedure, the planted-error and injection outcomes, and the interrupt-and-resume evidence.
+- A clean-clone test: setup, calculator replay and ranking regeneration all work with no key.
+- Every evidence link opens while signed out. Large files are release assets.
 
 ### 10. Tests and evaluation
 
@@ -456,12 +478,12 @@ Rows marked Decided or Done carry Travis's ruling. The rest are open.
 | 5 | Feature-word list | Contents to be agreed | 6.1 |
 | 6 | Prompt wording | Start from the probe's wording; slogan change drafted together and tried before the 100 gate | 6.1 |
 | 7 | Retries and stops | 4 attempts on temporary errors, then back to pending; after a 429 the rate halves at most once per 10 seconds; stop when nothing has succeeded for 60 seconds | 6.1, 7 |
-| 8 | Verify sample | Second seed; fixed at prepare time; 5,000 or the whole run if smaller; up to four Gemma requests at once after the pilot | 6.2 |
+| 8 | Verify sample | Second seed; fixed at prepare time; 5,000 or the whole run if smaller; more than one Gemma request at once only after its speed is measured | 6.2 |
 | 9 | Disagreement and `needs_review` | Disagreement is reported only; it does not change the flag. A choice, not a checker rule | 6.2 |
 | 10 | Issue IDs and naming input | `issue-<topic>`; up to 30 quotes per naming call, picked by a third seed | 6.3 |
 | 11 | Memo evidence pack | Up to 5 quotes per issue, most severe first | 6.6 |
-| 12 | Reservation rule | Request bytes counted as tokens | 7 |
-| 13 | Failed calls with unknown tokens | (a) write 0 plus a field `usage_known: false` and report the count in the README, or (b) leave the counts out and accept the checker flag | 9 |
+| 12 | Reservation rule | Request bytes counted as tokens. Any attempt that was sent and returned no usage keeps its full reservation as spent until reconciled | 4, 7 |
+| 13 | Failed calls with unknown tokens | **Decided 2026-10-04: zeros with a marker.** A failed call with no usage is exported with `input_tokens` 0, `output_tokens` 0 and `usage_known: false`. The README gives the count of such calls and calls the usage totals incomplete. Tested on a made-up export: this passes, and the checker adds the zeros into its totals with no mark; leaving the counts out raises two `invalid_usage` flags per call | 9 |
 | 14 | Dependencies and layout | Standard library only; the folders and commands shown | 11 |
 | 15 | Key name | **Done 2026-10-04.** `.env` now uses `TYPESAFE_API_KEY`, the brief's name | |
 | 16 | Instructor questions | Still worth sending: is one issue per topic acceptable, and where are side experiments reported. The reuse question is moot under item 1 | |
@@ -472,10 +494,11 @@ Rows marked Decided or Done carry Travis's ruling. The rest are open.
 | 21 | Verifier report depth | Agreement split by complaint and cancellation against the rest, and per topic; the sample ranked on Gemma's labels beside Jev's, to show whether the order holds | 6.2 |
 | 22 | Verifier wording | Gemma gets the contract's definitions word for word, not the paraphrase written for Jev, so the two share less | 6.2 |
 | 23 | Slogan and injection cases | **Decided 2026-10-04.** 60 real boycott reviews picked by hash (`evals/boycott_60.csv`), 30 to tune on and 30 held back to score once. Two outside raters label them first; Travis labels blind only where they differ, plus a check sample. The raters matched the planted cases' answer key on 24 and 25 of 25 | 10 |
-| 24 | Cut-off evidence | **Decided 2026-10-04.** The outside raters label all 150 development rows blind. Travis hand-labels the rows where they differ plus 15 agreed rows picked by hash. The rows are then split by hash into a wording half and a cut-off half | 6.1, 10 |
+| 24 | Cut-off evidence | **Decided 2026-10-04.** The outside raters label all 150 development rows blind. Travis hand-labels the rows where they differ plus 15 agreed rows picked by hash. The 121 rows labeled this way are then split by hash into a wording half and a cut-off half. The 29 rows labeled earlier stay out of the cut-off half, as item 20 rules. Every label records whether it came from Travis or from rater agreement | 6.1, 10 |
 | 25 | Guards | Bands around the previous gate's values in place of fixed thresholds; a test that verifier requests are identical with and without Jev's answers present; one planted failure per guard; the nested 100 must get identical labels at every gate | 10 |
 | 26 | Memo check | Claim ID and issue ID in the same sentence; the recommendation names rank 1 or says why not; run facts recomputed from exported files; some quotes picked by hash beside the most severe | 6.6 |
 | 27 | Output tokens and the limiter | **Decided 2026-10-04: settle it with a test batch.** Send a small known batch, then compare the usage page with input tokens times the rate. Until then output-token billing stays marked unknown. Still proposed: the token limiter uses bytes divided by 2.4, and `rates.csv` carries an output-token row | 7 |
 | 28 | Gate pass marks | Before each gate runs, name the numbers that would block the next go | 11 |
 | 29 | Provider-side limit | Travis checks whether the TypeSafe console offers a spending limit and sets it | 7 |
 | 30 | Outside raters | **Decided and run 2026-10-04.** Claude Fable 5.1 and GPT-6 Astra label reviews blind as third-party raters, under a $10 cap per provider. They see the review text and the contract's definitions word for word, and nothing from Jev, Gemma or Travis. Their labels tune and mark disputed rows; they never support an accuracy claim. The golden 50 is frozen before either sees those texts. Saved outputs are in `experiments/2026-10-04/outside-raters/` | 10 |
+| 31 | Code changes between sessions | **Decided 2026-10-04: refuse.** A run records the code's git commit. A resume under a different commit is refused unless it is allowed by name and logged. Left for the implementation plan: compare the whole package, or only the code that turns answers into labels | 4 |

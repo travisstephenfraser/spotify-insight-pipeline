@@ -30,6 +30,7 @@ Status on 2026-10-04: design stage. No pipeline code exists and no full run has 
 | 14 | Real boycott reviews | Hash-picked sample, two raters | 60 reviews | 52 or 53 `unclear`, 6 or 7 `complaint`, 1 `cancellation` | in 11 |
 | 15 | Jev and Gemma against the raters' shared answer | Two outside raters | 92 reviews | Jev 79, Gemma 77 on all three fields | in 11 |
 | 16 | Blind human check of the raters | Travis, by hand | 39 reviews | **Pending** | none |
+| 17 | Second independent review of the spec | A reviewer from another maker, given one brief file and none of the earlier conclusions | 13 factual claims | All 13 confirmed on recheck; three mislabeled numbers and several gaps fixed | not metered |
 
 Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
@@ -148,6 +149,18 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Freeze:** the filled sheet is committed and hashed before any rater answer for those rows is shown.
 - **Files:** `evals/adjudication_sheet.csv`, `evals/adjudication_key.json`.
 
+### 17. Second independent review of the spec
+
+- **What:** the spec was reviewed again, this time by a model from a different maker (Codex, `gpt-6.1-sol`). It was pointed at one file, `docs/independent-review-brief.md`, which holds the instructions and a copy of the spec with the first review's summary and the authors' known-weakness lists removed.
+- **Independence, checked and not assumed:** the reviewer's own session log shows the prompt it was given (the brief's path and an instruction not to read the project notes) and all 21 commands it ran. None opened the project notes, the full spec, the first review, this log, the red-team report, a label sheet, the blind-sheet key, a rater answer file or `.env`, and no text from any of them appears in the log. No instruction file exists that its tool would load by itself.
+- **Result:** 13 factual claims. Each was rechecked by quoting the source line or by running the test again with separate code. All 13 held:
+  - four claims about what the checker flags, rebuilt on a six-row made-up export (a control passes; each variant gives the reported flag);
+  - three numbers in the spec that were mislabeled: a Gemma speed measured at 10 reviews per request and presented as one per request; probe spend called measured when part was estimated; a sentence-piece maximum from an older splitter (164, now 39);
+  - six gaps in the design text: the resume rule, what the ledger records for failed and invalid responses, the verifier report's denominators, model checks on the naming and memo calls, a contradiction between two label rulings, and code changes between sessions.
+- **Severity:** the reviewer rated eight findings as blockers. On recheck none stops the design. The statements are true; the ratings run high, which fits a reviewer told that a finding is a success.
+- **What it caught that the first review missed:** the Gemma speed label. The first reviewers were given the project notes, which carried the same wrong figure. This one was not, and read the saved output. That is the case for using a different maker and withholding the authors' account.
+- **Evidence:** `docs/independent-spec-review-2026-10-04.md` (the report), `experiments/2026-10-04/review-checks/` (the independence check, the checker reproduction, the recount), and the spec's section 13.
+- **Limits:** the brief that framed the review was written by the spec's author, so the reviewer's attention followed the author's four passes. The recheck was also done by the author. The reviewer could not open the label files, so it could not test anything about the labels themselves.
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.

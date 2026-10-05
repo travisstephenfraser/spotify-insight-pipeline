@@ -17,14 +17,20 @@ Numbers below were copied from terminal output at run time. Raw model responses 
 
 ### Measured
 
-Local Gemma speed, single runs, 50 reviews:
+Local Gemma speed, single runs, as printed in `speed_test_out.txt`:
 
-| Model | Requests at once | Seconds per review |
-|---|---|---|
-| Gemma 4 26B-A4B QAT 4-bit | 1 | 0.57 |
-| Gemma 4 26B-A4B QAT 4-bit | 4 | 0.27 |
-| Gemma 4 E4B | 1 | 0.75 |
-| Gemma 4 E4B | 4 | 0.22 |
+| Model | Reviews per request | Requests at once | Reviews | Seconds per review |
+|---|---|---|---|---|
+| Gemma 4 26B-A4B QAT 4-bit | 1 | 1 | 20 | 0.64 |
+| Gemma 4 26B-A4B QAT 4-bit | 10 | 1 | 20 | 0.56 |
+| Gemma 4 26B-A4B QAT 4-bit | 50 | 1 | 50 | 0.57 |
+| Gemma 4 26B-A4B QAT 4-bit | 10 | 4 | 40 | 0.27 |
+| Gemma 4 E4B | 1 | 1 | 20 | 0.76 |
+| Gemma 4 E4B | 10 | 1 | 20 | 0.70 |
+| Gemma 4 E4B | 50 | 1 | 50 | 0.79 |
+| Gemma 4 E4B | 10 | 4 | 40 | 0.22 |
+
+Corrected 2026-10-04 after the second independent review. The table used to give 0.57 and 0.27 for 26B under "requests at once" without saying those runs sent 50 and 10 reviews per request. One review per request with four workers was never timed.
 
 Jev (`jev-1.13.0`, direct API, one request at a time) on the 100 pilot reviews:
 
@@ -130,6 +136,16 @@ Saved Jev and Gemma answers on the 100 pilot reviews, against the answer the two
 One edit was made to the saved responses before committing. OpenAI returned an encrypted reasoning blob with most answers (192 of 245). The blobs cannot be read, and random text inside one looked like an API key to a secret scan, so each was replaced with a note of its length. Labels, usage and cost fields were checked to be unchanged, and `raters.py` now drops the blobs when it saves.
 
 `evals/adjudication_sheet.csv` is the blind sheet for Travis: 39 reviews in hash order with blank label columns. `evals/adjudication_key.json` records which are which: 23 where the raters differ (19 of the 121 unlabeled development reviews, 4 of the 60 boycott reviews), 1 planted case, and 15 hash-picked reviews where they agree.
+
+## review-checks/
+
+Checks made on 2026-10-04 to verify the second independent review (`docs/independent-spec-review-2026-10-04.md`) before acting on it. No model call.
+
+| File | What it is |
+|---|---|
+| `independence_check_out.txt` | What the reviewer's own session log shows: the prompt it was given, the 21 commands it ran, and that no excluded file or its text reached it |
+| `repro_checker_claims.py`, `repro_checker_claims_out.txt` | The reviewer's four checker claims rebuilt with separate code on a six-row made-up export. A control passes; each variant gives the flag the reviewer reported |
+| `count_sentence_pieces.py`, `count_sentence_pieces_out.txt` | Most sentence pieces per review over the full file with the probe's splitter: 39 |
 
 ## red-team/
 
