@@ -16,6 +16,17 @@ TOPICS = (
     "support",
     "other",
 )
+# The contract's definition of each topic, word for word.
+TOPIC_DEFINITIONS = {
+    "access": "Login, signup, password or account access",
+    "usability": "Navigation, controls, layout, queue/playlist management, ad interruptions",
+    "playback": "Playback failure, crashes, lag, connection failures, audio quality, resource use",
+    "downloads": "Downloading, saved music, offline listening, disappearing downloads",
+    "catalog": "Missing songs/artists, search/discovery, recommendations, lyrics availability",
+    "billing": "Price, charges, subscriptions, paywalls, premium entitlement; explicitly premium-only controls go here",
+    "support": "Contacting support and the support response",
+    "other": "General praise/criticism, unrelated content, or no supported specific topic",
+}
 # The contract's precedence order: take the first one that fits.
 INTENTS = ("cancellation", "complaint", "request", "praise", "unclear")
 # Jev is asked for a named severity, never a digit.
