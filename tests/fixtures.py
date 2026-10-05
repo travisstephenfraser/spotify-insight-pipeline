@@ -169,3 +169,20 @@ def probe_records():
         records = simple_records()
         gc.collect()
     return records
+
+
+def classified_db(directory, rows=None, *, verify_size=10, labeler=None, cutoff=0.7):
+    """A prepared run taken through classify with the stand-in Jev. Returns (db, outcome)."""
+    from decimal import Decimal
+
+    from pipeline import classify, jev, ledger, limits, standins
+
+    directory.mkdir(parents=True, exist_ok=True)
+    db = prepared_db(directory, rows if rows is not None else synthetic_rows(30, empties=2, copies=5), verify_size=verify_size)
+    outcome = classify.run(
+        db, "r1", labeler or standins.ReplayJev(PROBE / "simple.jsonl"),
+        ledger=ledger.Ledger(db, write_billing(directory / "billing.json"), cap_usd=Decimal("25")),
+        limiter=limits.Limiter(requests_per_second=100_000, tokens_per_second=10**9),
+        setup=jev.load_setup(ROOT / "prompts", cutoff), backoff=(0, 0, 0),
+    )  # fmt: skip
+    return db, outcome

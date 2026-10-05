@@ -108,7 +108,7 @@ def run(
 ):  # fmt: skip
     """Classify until nothing is pending or a stop condition is met. Safe to call again to resume."""
     state.close_crashed_sessions(db, run)
-    state.recover_orphans(db, run, ledger=ledger)
+    state.recover_orphans(db, run, ledger=ledger, roles=("enrich",))
     session = state.open_session(db, run, "classify", workers, clock)
     started = last_success = last_beat = clock()
 
@@ -348,6 +348,11 @@ def check_guards(db, run, *, accept=()):
         )
         if bad
     ]
+    return settle_guards(db, run, failed, accept)
+
+
+def settle_guards(db, run, failed, accept=()):
+    """Raise GuardFailed for the guards that are not accepted; log the ones that are. Returns `failed`."""
     if not failed:
         return []
     row = state.load_run(db, run)
@@ -356,11 +361,6 @@ def check_guards(db, run, *, accept=()):
     if blocked:
         raise GuardFailed(blocked, supplied)
     configs = json.loads(row["configs_json"])
-    configs.setdefault("accepted_guards", []).extend(
-        {"guard": name, "at": state.now_utc()} for name in failed
-    )
-    db.execute(
-        "UPDATE runs SET configs_json=? WHERE run=?",
-        (json.dumps(configs, sort_keys=True), run),
-    )
+    configs.setdefault("accepted_guards", []).extend({"guard": name, "at": state.now_utc()} for name in failed)
+    db.execute("UPDATE runs SET configs_json=? WHERE run=?", (json.dumps(configs, sort_keys=True), run))
     return failed

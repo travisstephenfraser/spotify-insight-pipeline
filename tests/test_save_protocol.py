@@ -160,3 +160,14 @@ class Retry(SaveCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RecoveryByRole(SaveCase):
+    def test_recovery_limited_to_one_role_leaves_the_other_roles_open_calls_alone(self):
+        self.begin("q1", self.alone)
+        verify = state.open_session(self.db, "r1", "verify", 1, fixtures.FakeClock())
+        self.begin("v1", self.shared, role="verify", led=None, session=verify)
+        self.assertEqual(state.recover_orphans(self.db, "r1", roles=("verify",)), {"verify": 1})
+        outcomes = {c["request_id"]: c["outcome"] for c in self.db.execute("SELECT * FROM calls")}
+        self.assertEqual(outcomes, {"q1": "pending", "v1": "failed"})
+        self.assertEqual(self.ledger.reserved_usd(), Decimal(2500) * Decimal("0.042") / 1_000_000)

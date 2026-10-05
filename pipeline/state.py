@@ -400,7 +400,7 @@ def finish_attempt(
         raise
 
 
-def recover_orphans(db, run, *, ledger=None):
+def recover_orphans(db, run, *, ledger=None, roles=None):
     """Close the calls a dead process left open. Returns how many, by role.
 
     Each becomes a failed call with usage unknown, and its reservation stays counted as
@@ -409,6 +409,8 @@ def recover_orphans(db, run, *, ledger=None):
     counts = {}
     with tx(db):
         for call in db.execute("SELECT request_id, role FROM calls WHERE run=? AND outcome='pending'", (run,)).fetchall():
+            if roles is not None and call["role"] not in roles:
+                continue  # another stage's open call: that stage closes it, with its own ledger
             db.execute(
                 "UPDATE calls SET outcome='failed', usage_known=0, error=? WHERE request_id=?",
                 ("the process ended before a response was saved", call["request_id"]),

@@ -120,7 +120,7 @@ class StandinGemma:
     GEMMA_STEPS = ("server_problem", "invalid")
     SEVERITY_NUMBER = {"no_problem": 1, "annoyance": 2, "degraded": 3, "blocked": 4, "serious_harm": 5}
 
-    def __init__(self, *, script=None, respond=None, loaded=True):
+    def __init__(self, *, script=None, respond=None, loaded=True, latency=0.0):
         from pipeline import gemma
 
         self._gemma = gemma
@@ -128,6 +128,7 @@ class StandinGemma:
         self._script = list(script or [])
         self._respond = respond
         self._loaded = loaded
+        self._latency = latency
         self._lock = threading.Lock()
         self.calls = []  # (system, user, schema, max_tokens) for every call
 
@@ -141,6 +142,8 @@ class StandinGemma:
             step = self._script.pop(0) if self._script else None
         if step is not None and step not in self.GEMMA_STEPS:
             raise ValueError(f"unknown script step: {step!r}")
+        if self._latency:
+            time.sleep(self._latency)
         if step == "server_problem":
             raise self._gemma.ServerProblem("scripted server problem")
         if step == "invalid":
