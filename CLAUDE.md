@@ -149,7 +149,7 @@ Earlier steps of the same pass: 10-review test batch run at low effort with Trav
 - **Ruling by Travis, 2026-10-05 (spec item 32): labels stay frozen, scores shown two ways.** Every score against hand labels is reported against the labels as written, and again with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. He raised tuning the sheets after seeing the result; that was set aside because he had by then seen the raters' answers.
 - **Count-only check, run with his go** (`rule_check.py`, validation log entry 19): the rule would change 8 of 39 blind-sheet labels, 0 of 29 development labels and 4 of 50 golden labels, all `unclear`. With it applied the agreed checks read 8 of 15 and the disputed rows Fable 4, Astra 5, neither 14.
 - **Not covered by any rule:** his habit of giving severity 2 where the raters give 3 on complaints. It is disclosed as it stands. He said on 2026-10-05 that on review he agrees with the raters' severity.
-- **To raise at spec item 4:** which labels the cut-off is tuned against, now that a label both raters share equals his on 4 of 15 (8 by rule). Item 24 was decided before this was known.
+- **Which labels the cut-off is tuned against:** a label both raters share equals his on 4 of 15 (8 by rule), and item 24 was decided before this was known. Ruled under delegation at item 4 (below): he picks the number from a table that shows every reference side by side.
 
 **Spec approved, 2026-10-05.** Travis approved item 17 himself, then said: "Approve and run. No need to check in with me. We can speed this process up. I just want to get an executive summary report with anything high-level I should know about the steps once they're all completed." The assistant then ruled on every row still open in the spec's section 12. Those rows are marked Delegated, so they can be told apart from his own rulings. No row is open.
 
@@ -158,7 +158,7 @@ Earlier steps of the same pass: 10-review test batch run at low effort with Trav
 - **Item 5, feature-word list:** the process is accepted and the contents are still open. The assistant drafts the list from word counts; he reads it when he gives the go for the 100 gate.
 - **Item 18, the deliberate stop:** both. `--stop-after N` is built for the tests, the run also stops cleanly on Ctrl-C, and the recorded full run is stopped by hand.
 - **Human-only, still to do:** item 16 (send the two instructor questions) and item 29 (look for a spending limit in the TypeSafe console before the first paid pipeline call).
-- **What the delegation does not cover, on the assistant's reading:** money, model calls and the build. Every paid call and every gate still needs his explicit go, and so does starting the build. He did not re-rule on those, and the summary report tells him so.
+- **What the delegation does not cover, on the assistant's reading:** money, model calls and the build. Every paid call and every gate still needs his explicit go, and so does starting the build. He did not re-rule on those, and the summary report tells him so. The report is `feed/exec-summary-2026-10-05.html` (not committed).
 
 Raw evidence for every number above is in `experiments/2026-10-04/` and `experiments/2026-10-05/` (throwaway scripts and saved responses, not code to reuse).
 
