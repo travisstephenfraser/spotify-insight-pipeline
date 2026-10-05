@@ -1,0 +1,3 @@
+item,value,unit,note
+power_draw_watts,60,W,Assumed draw of the laptop while the local model runs. An estimate: edit it for your machine
+electricity_usd_per_kwh,0.40,USD/kWh,Assumed price of electricity. An estimate

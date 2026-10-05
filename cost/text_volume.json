@@ -1,0 +1,10 @@
+{
+  "full_file_sha256": "1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6",
+  "full_rows": 660622,
+  "full_nonempty_rows": 660609,
+  "full_nonempty_text_bytes": 50512073,
+  "full_distinct_texts": 484189,
+  "full_distinct_text_bytes": 48702093,
+  "pilot_rows": 100,
+  "pilot_text_bytes": 8236
+}
