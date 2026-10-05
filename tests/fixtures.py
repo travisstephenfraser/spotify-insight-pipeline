@@ -137,3 +137,35 @@ def result_for(text, **changes):
         "model": "jev-1.13.0",
         **changes,
     }
+
+
+PROBE = ROOT / "experiments/2026-10-04/tool-choice"
+
+
+@cache
+def saved_jev():
+    """The 100 exchanges saved by the Jev probe on 2026-10-04: request, response, review_id."""
+    import json
+
+    lines = (PROBE / "simple.jsonl").read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in lines if line.strip()]
+
+
+@cache
+def probe_records():
+    """What the probe's own scoring script made of those answers: an outside known answer."""
+    import sys
+
+    import gc
+    import warnings
+
+    sys.path.insert(0, str(PROBE))
+    from score_spike import simple_records
+
+    # The probe script leaves its input file for the collector to close. It is saved evidence
+    # and is not edited, so its warning is silenced here and nowhere else.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", ResourceWarning)
+        records = simple_records()
+        gc.collect()
+    return records
