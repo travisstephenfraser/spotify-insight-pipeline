@@ -66,3 +66,37 @@ def write_csv(path, rows, *, fields=FIELDS, bom=False, eol="\n"):
         w = csv.DictWriter(f, fieldnames=list(fields), lineterminator=eol, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
+
+
+RUN_ARGS = dict(
+    input_path="input.csv",
+    input_sha256="a" * 64,
+    seed=SEED,
+    verify_seed="verify-v1",
+    verify_size=5000,
+    sample_seed="sample-v1",
+    code_commit="c" * 40,
+    code_hash="d" * 64,
+    label_config="jev-1.13.0/prompt-v1/schema-v1/cut-0.70",
+    hashes={"prompt:enrich-v1.json": "1" * 64, "features": "2" * 64, "splitter": "3" * 64, "cutoff": "0.70"},
+    configs={"verify": {"model": "gemma", "prompt": "verify-v1"}},
+)
+
+
+def new_run(db, name="r1", **overrides):
+    from pipeline import state
+
+    state.create_run(db, name, **{**RUN_ARGS, **overrides})
+
+
+class FakeClock:
+    """A monotonic clock a test can move by hand."""
+
+    def __init__(self, start=1000.0):
+        self.now = start
+
+    def __call__(self):
+        return self.now
+
+    def advance(self, seconds):
+        self.now += seconds
