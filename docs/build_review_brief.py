@@ -68,7 +68,7 @@ def review_copy(spec):
     s = swap(
         s,
         line_starting(s, "Items 1 to 16 are from the first draft."),
-        "Rows marked Decided or Done carry Travis's ruling. The rest are open.",
+        "Rows marked Decided or Done carry Travis's ruling. Rows marked Delegated were ruled by the assistant on his instruction.",
     )
     s = swap(
         s,

@@ -1,11 +1,12 @@
 # Spotify Insight Pipeline: design spec
 
-Date: 2026-10-04. Status: draft for Travis's review, revised the same day after two independent reviews (section 13). Nothing here is built.
+Date: 2026-10-04. Status: approved on 2026-10-05. Travis ruled on the items marked Decided and told the assistant to rule on the rest without checking in (marked Delegated in section 12). Revised on 2026-10-04 after two independent reviews (section 13). Nothing here is built.
 
 Every line is marked by where it stands:
 
 - **Decided**: Travis ruled on it. The full trail is in `CLAUDE.md`.
 - **Proposed**: drafted here to complete the design. It needs Travis's yes. Section 12 lists every proposed item in one table.
+- **Delegated**: on 2026-10-05 Travis told the assistant to rule on the open items without checking in. The assistant accepted each proposal as written unless its row in section 12 says otherwise. Where the body of this spec still says Proposed, section 12 holds the status of record.
 
 Numbers are labeled *measured* (with the file that holds the evidence) or *estimate*. Nothing unmeasured is stated as fact.
 
@@ -355,39 +356,39 @@ Order of work: the wording trial, then the 100 gate (cost pilot, all stages), 50
 
 ## 12. Proposed items that need Travis's ruling
 
-Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Rows marked Decided or Done carry his ruling; the rest are open.
+Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Rows marked Decided or Done carry his ruling. On 2026-10-05 he approved item 17 and told the assistant to rule on every row still open without checking in; those rows are marked Delegated, and he reads them in a summary report. No row is open.
 
 | # | Item | Proposed | Section |
 |---|---|---|---|
-| 1 | Runs and reuse | One state file for all runs; every run starts cold; no reuse of gate results in the full run | 4 |
-| 2 | Tables | The tables listed | 4 |
-| 3 | `label_config` | Names model, prompt version, schema version and the cut-off | 6.1 |
-| 4 | Cut-off timing | Provisional number at the 100 gate, frozen before the full run | 6.1 |
-| 5 | Feature-word list | Contents to be agreed | 6.1 |
-| 6 | Prompt wording | Start from the probe's wording; slogan change drafted together and tried before the 100 gate | 6.1 |
-| 7 | Retries and stops | 4 attempts on temporary errors, then back to pending; after a 429 the rate halves at most once per 10 seconds; stop when nothing has succeeded for 60 seconds | 6.1, 7 |
-| 8 | Verify sample | Second seed; fixed at prepare time; 5,000 or the whole run if smaller; more than one Gemma request at once only after its speed is measured | 6.2 |
-| 9 | Disagreement and `needs_review` | Disagreement is reported only; it does not change the flag. A choice, not a checker rule | 6.2 |
-| 10 | Issue IDs and naming input | `issue-<topic>`; up to 30 quotes per naming call, picked by a third seed | 6.3 |
-| 11 | Memo evidence pack | Up to 5 quotes per issue, most severe first | 6.6 |
-| 12 | Reservation rule | Request bytes counted as tokens. Any attempt that was sent and returned no usage keeps its full reservation as spent until reconciled | 4, 7 |
+| 1 | Runs and reuse | **Delegated 2026-10-05: accepted.** One state file for all runs; every run starts cold; no reuse of gate results in the full run | 4 |
+| 2 | Tables | **Delegated 2026-10-05: accepted.** The tables listed | 4 |
+| 3 | `label_config` | **Delegated 2026-10-05: accepted.** Names model, prompt version, schema version and the cut-off | 6.1 |
+| 4 | Cut-off timing | **Delegated 2026-10-05: accepted.** Provisional number at the 100 gate, frozen before the full run. Travis still names the number at each go. The table he picks from shows every reference side by side: the raters' shared labels, his own labels as written, and his own with the fixed severity rule (item 32). Rows the two raters dispute are shown as a group on their own, with how many the flag catches, because a row two raters dispute is a row a reviewer should see | 6.1 |
+| 5 | Feature-word list | **Delegated 2026-10-05: process accepted, contents still open.** The assistant drafts the list from word counts over the full file (code, no model), matched as whole lowercase words. Travis reads the list when he gives the go for the 100 gate. The list is a versioned file and its hash is saved with the run | 6.1 |
+| 6 | Prompt wording | **Delegated 2026-10-05: accepted.** Start from the probe's wording; slogan change drafted together and tried before the 100 gate. Under the delegation the assistant drafts the slogan wording alone. The trial is still a paid call that needs Travis's go, and he sees its result before the 100 gate | 6.1 |
+| 7 | Retries and stops | **Delegated 2026-10-05: accepted.** 4 attempts on temporary errors, then back to pending; after a 429 the rate halves at most once per 10 seconds; stop when nothing has succeeded for 60 seconds. Added: reviews still pending at the end because their requests keep failing are listed and the run stops. A named command, run only on Travis's call, quarantines them with reason `api_failure_after_retries`, so the export can proceed and the README reports the shortfall. Without that command no review is quarantined for a temporary error | 6.1, 7 |
+| 8 | Verify sample | **Delegated 2026-10-05: accepted.** Second seed; fixed at prepare time; 5,000 or the whole run if smaller; more than one Gemma request at once only after its speed is measured | 6.2 |
+| 9 | Disagreement and `needs_review` | **Delegated 2026-10-05: accepted.** Disagreement is reported only; it does not change the flag. A choice, not a checker rule | 6.2 |
+| 10 | Issue IDs and naming input | **Delegated 2026-10-05: accepted.** `issue-<topic>`; up to 30 quotes per naming call, picked by a third seed | 6.3 |
+| 11 | Memo evidence pack | **Delegated 2026-10-05: accepted.** Up to 5 quotes per issue, most severe first | 6.6 |
+| 12 | Reservation rule | **Delegated 2026-10-05: accepted.** Request bytes counted as tokens. Any attempt that was sent and returned no usage keeps its full reservation as spent until reconciled | 4, 7 |
 | 13 | Failed calls with unknown tokens | **Decided 2026-10-04: zeros with a marker.** A failed call with no usage is exported with `input_tokens` 0, `output_tokens` 0 and `usage_known: false`. The README gives the count of such calls and calls the usage totals incomplete. Tested on a made-up export: this passes, and the checker adds the zeros into its totals with no mark; leaving the counts out raises two `invalid_usage` flags per call | 9 |
-| 14 | Dependencies and layout | Standard library only; the folders and commands shown | 11 |
+| 14 | Dependencies and layout | **Delegated 2026-10-05: accepted.** Standard library only; the folders and commands shown | 11 |
 | 15 | Key name | **Done 2026-10-04.** `.env` now uses `TYPESAFE_API_KEY`, the brief's name | |
-| 16 | Instructor questions | Still worth sending: is one issue per topic acceptable, and where are side experiments reported. The reuse question is moot under item 1 | |
-| 17 | Run names and locking | Every command takes `--run NAME`; resume refuses if the input, seed, prompts, schema, word list, splitter or cut-off differ; one process per state file | 4, 11 |
-| 18 | The deliberate stop | The full run is stopped once on purpose with work pending. Either Travis stops it by hand during the recording, or a `--stop-after N` option does it | 6.1 |
+| 16 | Instructor questions | **Delegated 2026-10-05: accepted. Human-only.** The assistant drafts both questions and Travis sends them: is one issue per topic acceptable, and where are side experiments such as the outside raters reported. The reuse question is moot under item 1 | |
+| 17 | Run names and locking | **Decided 2026-10-05: approved by Travis.** Every command takes `--run NAME`; resume refuses if the input, seed, prompts, schema, word list, splitter or cut-off differ; one process per state file | 4, 11 |
+| 18 | The deliberate stop | **Delegated 2026-10-05: both.** `--stop-after N` is built and used in the tests. The run also stops cleanly on Ctrl-C: no new work, in-flight requests finish, everything is saved. The recorded full run is stopped by hand, because the brief asks the recording to show an interruption | 6.1 |
 | 19 | Label freeze | **Decided 2026-10-04: yes.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways. The guide's last lines now say this. The development sheet as it stands is commit `bb5f440`, SHA-256 `febbfaee...00cd6dd6` | 10 |
 | 20 | Development labels already seen | **Decided 2026-10-04: keep them.** Always report both scores (21 of 29 before revision, 24 after). They are no longer used to pick the cut-off. Two outside raters then labeled them blind: both give the revised value on all five revised rows | 10 |
-| 21 | Verifier report depth | Agreement split by complaint and cancellation against the rest, and per topic; the sample ranked on Gemma's labels beside Jev's, to show whether the order holds | 6.2 |
-| 22 | Verifier wording | Gemma gets the contract's definitions word for word, not the paraphrase written for Jev, so the two share less | 6.2 |
+| 21 | Verifier report depth | **Delegated 2026-10-05: accepted.** Agreement split by complaint and cancellation against the rest, and per topic; the sample ranked on Gemma's labels beside Jev's, to show whether the order holds | 6.2 |
+| 22 | Verifier wording | **Delegated 2026-10-05: accepted.** Gemma gets the contract's definitions word for word, not the paraphrase written for Jev, so the two share less | 6.2 |
 | 23 | Slogan and injection cases | **Decided 2026-10-04.** 60 real boycott reviews picked by hash (`evals/boycott_60.csv`), 30 to tune on and 30 held back to score once. Two outside raters label them first; Travis labels blind only where they differ, plus a check sample. The raters also confirmed the planted cases' answer key (24 and 25 of 25) | 10 |
 | 24 | Cut-off evidence | **Decided 2026-10-04.** The outside raters label all 150 development rows blind. Travis hand-labels the rows where they differ plus 15 agreed rows picked by hash. The 121 rows labeled this way are then split by hash into a wording half and a cut-off half. The 29 rows labeled earlier stay out of the cut-off half, as item 20 rules. Every label records whether it came from Travis or from rater agreement | 6.1, 10 |
-| 25 | Guards | Bands around the previous gate's values in place of fixed thresholds; a test that verifier requests are identical with and without Jev's answers present; one planted failure per guard; the nested 100 must get identical labels at every gate | 10 |
-| 26 | Memo check | Claim ID and issue ID in the same sentence; the recommendation names rank 1 or says why not; run facts recomputed from exported files; some quotes picked by hash beside the most severe | 6.6 |
-| 27 | Output tokens and the limiter | **Decided 2026-10-04: settle it with a test batch.** Send a small known batch, then compare the usage page with input tokens times the rate. Until then output-token billing stays marked unknown. Still proposed: the token limiter uses bytes divided by 2.4, and `rates.csv` carries an output-token row | 7 |
-| 28 | Gate pass marks | Before each gate runs, name the numbers that would block the next go | 11 |
-| 29 | Provider-side limit | Travis checks whether the TypeSafe console offers a spending limit and sets it | 7 |
+| 25 | Guards | **Delegated 2026-10-05: accepted.** Bands around the previous gate's values in place of fixed thresholds; a test that verifier requests are identical with and without Jev's answers present; one planted failure per guard; the nested 100 must get identical labels at every gate. If the nested 100 differ between gates the run stops and lists the rows, and Travis rules: Jev's documents say identical requests can return different answers | 10 |
+| 26 | Memo check | **Delegated 2026-10-05: accepted.** Claim ID and issue ID in the same sentence; the recommendation names rank 1 or says why not; run facts recomputed from exported files; some quotes picked by hash beside the most severe | 6.6 |
+| 27 | Output tokens and the limiter | **Decided 2026-10-04: settle it with a test batch.** Send a small known batch, then compare the usage page with input tokens times the rate. Until then output-token billing stays marked unknown. Accepted under the delegation of 2026-10-05: the token limiter uses bytes divided by 2.4, and `rates.csv` carries an output-token row | 7 |
+| 28 | Gate pass marks | **Delegated 2026-10-05: accepted.** Before each gate runs, name the numbers that would block the next go. The implementation plan lists the marks for each gate, and each request for a go shows them | 11 |
+| 29 | Provider-side limit | **Delegated 2026-10-05: accepted. Human-only.** Travis checks whether the TypeSafe console offers a spending limit and sets it, before the first paid pipeline call | 7 |
 | 30 | Outside raters | **Decided and run 2026-10-04.** Claude Fable 5.1 and GPT-6 Astra label reviews blind as third-party raters, under a $10 cap per provider. They see the review text and the contract's definitions word for word, and nothing from Jev, Gemma or Travis. Their labels tune and mark disputed rows; they never support an accuracy claim. The golden 50 is frozen before either sees those texts. Results are in `docs/validation-log.md` | 10 |
 | 31 | Code changes between sessions | **Decided 2026-10-04: refuse.** A run records the code's git commit. A resume under a different commit is refused unless it is allowed by name and logged. Left for the implementation plan: compare the whole package, or only the code that turns answers into labels | 4 |
 | 32 | Scores shown two ways | **Decided 2026-10-05.** Hand labels stay as frozen. Every score against them is reported twice: against the labels as written, and with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. On the blind sheet the rule changes 8 of 39 hand labels, all boycott reviews labeled `unclear` with severity 2. On the golden 50 it changes 4, counted without showing a row or a value. The labeler's habit of giving severity 2 where both raters give 3 on complaints is covered by no rule and is disclosed as it stands | 10 |

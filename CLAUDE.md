@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Travis's individual capstone, "Multi Agent Large Data Processing Pipeline", due 2026-10-13 23:59 PT. The pipeline turns 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo, with every number traceable to saved evidence. The deliverable is one public GitHub repo whose README maps each rubric point to an evidence link.
 
-**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. Next: the unruled spec items one at a time, then Travis's approval of the spec, then the implementation plan.
+**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). Next: the implementation plan, then the build on Travis's go.
 
 **State as of 2026-10-04:** no pipeline code exists. The repo's remote is `git@github.com:travisstephenfraser/spotify-insight-pipeline.git`, private until Travis flips it public for submission. The design is being agreed one decision at a time. Update this section as stages land, and add the pipeline's own run and test commands under Commands when they exist. The decisions below are in the order they were made; later entries supersede earlier ones.
 
@@ -151,6 +151,15 @@ Earlier steps of the same pass: 10-review test batch run at low effort with Trav
 - **Not covered by any rule:** his habit of giving severity 2 where the raters give 3 on complaints. It is disclosed as it stands. He said on 2026-10-05 that on review he agrees with the raters' severity.
 - **To raise at spec item 4:** which labels the cut-off is tuned against, now that a label both raters share equals his on 4 of 15 (8 by rule). Item 24 was decided before this was known.
 
+**Spec approved, 2026-10-05.** Travis approved item 17 himself, then said: "Approve and run. No need to check in with me. We can speed this process up. I just want to get an executive summary report with anything high-level I should know about the steps once they're all completed." The assistant then ruled on every row still open in the spec's section 12. Those rows are marked Delegated, so they can be told apart from his own rulings. No row is open.
+
+- **Accepted as written:** items 1, 2, 3, 8, 9, 10, 11, 12, 14, 21, 22, 26, and the two parts of 27 that were still proposed.
+- **Accepted with something added:** item 4 (he still names the cut-off; the table he picks from shows every reference side by side, and rows the raters dispute are a group on their own); item 6 (the assistant drafts the slogan wording alone; the trial still needs his go); item 7 (reviews whose requests keep failing are listed, and a named command, run only on his call, quarantines them so the export is not blocked); item 25 (if the nested 100 differ between gates the run stops and he rules); item 28 (the implementation plan lists each gate's pass marks).
+- **Item 5, feature-word list:** the process is accepted and the contents are still open. The assistant drafts the list from word counts; he reads it when he gives the go for the 100 gate.
+- **Item 18, the deliberate stop:** both. `--stop-after N` is built for the tests, the run also stops cleanly on Ctrl-C, and the recorded full run is stopped by hand.
+- **Human-only, still to do:** item 16 (send the two instructor questions) and item 29 (look for a spending limit in the TypeSafe console before the first paid pipeline call).
+- **What the delegation does not cover, on the assistant's reading:** money, model calls and the build. Every paid call and every gate still needs his explicit go, and so does starting the build. He did not re-rule on those, and the summary report tells him so.
+
 Raw evidence for every number above is in `experiments/2026-10-04/` and `experiments/2026-10-05/` (throwaway scripts and saved responses, not code to reuse).
 
 Label workflow: Travis labels in Numbers (iCloud document `dev_150_labeled.numbers`); labels are exported with AppleScript and merged into the CSV by review ID, with review text always taken from the source. The CSV is now ahead of Numbers for the revised rows, so future imports must only fill rows that are still blank in the CSV.
@@ -162,6 +171,7 @@ Measured in a throwaway probe on 2026-10-04 (50 reviews, single runs): Gemma 26B
 ## How to work with Travis here
 
 - This is a guided walk-through, not an autonomous build. Explain each step, confirm he understands it, and get his decision before acting. Do not choose a tool, model, threshold, budget or schema on his behalf.
+- **Changed by Travis on 2026-10-05 for design decisions:** he asked for speed. Rule on open design items without checking in on each, mark the ruling as delegated, and give him an executive summary of anything high-level he should know. This does not loosen the rules on money, model calls, gates or the golden labels.
 - Short messages, plain words. Add detail only when he asks.
 - Prefer local models wherever they measure well enough. Tool choices are justified by measured quality, cost and runtime, never by default.
 - The 50 golden labels are his to write by hand. Never draft them, and never let his answer columns reach a prompt, a few-shot example, a routing threshold or issue discovery. The golden review *texts* are still classified in the full run.
