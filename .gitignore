@@ -19,3 +19,6 @@ __pycache__/
 
 # End-of-day handoff notes stay on this machine
 feed/HANDOFF-*.md
+
+# The state file holds every run and is never committed
+runs/state.sqlite*
