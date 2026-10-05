@@ -11,7 +11,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from pipeline import classify, gemma, labels, state
+from pipeline import classify, gemma, hashing, labels, state
 
 ROLE = "verify"
 PROMPT = Path(__file__).resolve().parents[1] / "prompts/verify-v1.md"
@@ -32,7 +32,7 @@ SCHEMA = {
 
 @dataclass
 class Outcome:
-    ended_how: str  # finished, time_box, interrupted, server_problem, not_ready
+    ended_how: str  # finished, time_box, interrupted, server_problem, not_ready, prompt_changed
     predicted: int
     failed: int
     remaining: int
@@ -49,9 +49,9 @@ def definitions(system):
     return system.split("<definitions>\n", 1)[1].split("\n</definitions>", 1)[0]
 
 
-def config(client):
-    """What a verify call was made with. Saved on every verify call row."""
-    return f"{client.model}/verify-v1/schema-v1/max-{MAX_TOKENS}"
+def config(client, prompt_path=PROMPT):
+    """What a verify call was made with, the prompt's content included. Saved on every verify call row."""
+    return f"{client.model}/verify-v1-{hashing.short_sha(prompt_path)}/schema-v1/max-{MAX_TOKENS}"
 
 
 def _checked(data):
@@ -97,6 +97,15 @@ def run(
         _guard(db, run, accept_guards)
         return Outcome("finished", *_counts(db, run))
 
+    label_config = config(client, prompt_path)
+    earlier = {r[0] for r in db.execute("SELECT DISTINCT label_config FROM calls WHERE run=? AND role=? AND outcome='succeeded'", (run, ROLE))}
+    if earlier - {label_config}:
+        # One sample under two prompts would be two measurements reported as one.
+        return Outcome(
+            "prompt_changed", *_counts(db, run),
+            message="the verify prompt or model changed after verify started on this run; put the earlier one back to finish the sample",
+        )  # fmt: skip
+
     session = state.open_session(db, run, ROLE, 1, clock)
     started = clock()
 
@@ -108,7 +117,7 @@ def run(
         client.check()
     except gemma.ServerProblem as e:
         return end("server_problem", str(e))
-    system, label_config = load_system(prompt_path), config(client)
+    system = load_system(prompt_path)
 
     for review in todo:
         if stop_event is not None and stop_event.is_set():

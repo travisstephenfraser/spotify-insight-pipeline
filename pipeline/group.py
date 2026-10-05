@@ -50,8 +50,9 @@ def assign(db, run):
     return cur.rowcount
 
 
-def config(client, quotes_per_issue):
-    return f"{client.model}/group-v1/schema-v1/max-{MAX_TOKENS}/quotes-{quotes_per_issue}"
+def config(client, quotes_per_issue, prompt_path=PROMPT):
+    """The naming setup, the prompt's content included, so an edited prompt is never answered from an old name."""
+    return f"{client.model}/group-v1-{hashing.short_sha(prompt_path)}/schema-v1/max-{MAX_TOKENS}/quotes-{quotes_per_issue}"
 
 
 def artifact_key(role, config_string, payload):
@@ -106,7 +107,7 @@ def name_issues(db, run, client, *, quotes_per_issue=30, clock=time.monotonic, p
     state.recover_orphans(db, run, roles=(ROLE,))
     session = state.open_session(db, run, ROLE, 1, clock)
     out = Outcome("finished", session_id=session)
-    system, label_config = Path(prompt_path).read_text(encoding="utf-8").strip("\n"), config(client, quotes_per_issue)
+    system, label_config = Path(prompt_path).read_text(encoding="utf-8").strip("\n"), config(client, quotes_per_issue, prompt_path)
 
     def end(how, message=""):
         out.ended_how, out.message = how, message

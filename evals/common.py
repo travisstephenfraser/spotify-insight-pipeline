@@ -90,6 +90,8 @@ class Paid:
         self.db, self.ledger, self.labeler, self.setup = db, spend, labeler, setup
         self.limiter = limiter or limits.Limiter(requests_per_second=5)
         self.clock = clock
+        # An eval call a killed process left open would stay reserved for good: close it and keep its reservation as spent.
+        state.recover_orphans(db, RUN, ledger=spend, roles=("enrich",))
         self.session = state.open_session(db, RUN, f"eval: {purpose}", 1, clock)
 
     def ask(self, item_id, text):
@@ -168,6 +170,10 @@ def session(a, purpose, prompt_file=None):
     lock.acquire()
     db = state.connect(state_path)
     try:
+        if not a.standin:
+            from pipeline import cli
+
+            cli._one_kind_per_state_file(db, standin=False)  # the cap must not split across two ledgers
         paid = Paid(db, ledger.Ledger(db, ROOT / "pipeline/billing.json", cap_usd=Decimal(a.cap)), labeler, setup, purpose)
         try:
             yield paid

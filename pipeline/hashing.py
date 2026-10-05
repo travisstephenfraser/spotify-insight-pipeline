@@ -32,3 +32,8 @@ def order_key(seed, review_id):
 def text_key(text):
     """Reviews share a result only when their text is byte-identical."""
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def short_sha(path):
+    """The first 12 hex characters of a file's SHA-256: enough to tell two versions of a prompt apart in a config string."""
+    return file_sha(path)[:12]

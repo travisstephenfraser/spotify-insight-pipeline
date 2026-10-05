@@ -125,7 +125,7 @@ class GoodExport(ExportCase):
         names = {p.name for p in self.evidence.iterdir()}
         self.assertEqual(
             names,
-            {"run_manifest.json", "run_log.jsonl", "run_summary.json", "quarantine.jsonl", "verify_predictions.jsonl", "artifacts.jsonl", "memo.md"},
+            {"run_manifest.json", "run_log.jsonl", "run_summary.json", "quarantine.jsonl", "verify_predictions.jsonl", "verify_report.json", "artifacts.jsonl", "memo.md"},
         )
         summary = json.loads((self.evidence / "run_summary.json").read_text())
         self.assertEqual(summary["statuses"], {"completed": 28, "quarantined": 2})

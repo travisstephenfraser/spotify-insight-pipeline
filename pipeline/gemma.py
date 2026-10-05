@@ -13,6 +13,7 @@ import urllib.request
 from dataclasses import dataclass
 
 MODEL = "google/gemma-4-26b-a4b-qat"
+REFUSED_REQUEST = (400, 413, 422)  # statuses that say "not this request", as against "not now" or "not here"
 # Chat-template tokens that can leak into a string that is otherwise valid for the schema.
 LEAK = re.compile(r"<start_of_turn>|<end_of_turn>|<bos>|<eos>|<pad>|<unused\d+>|<\|[^|<>\n]{1,40}\|>|<[a-z_]{2,20}\|>|<\|[a-z_]{2,20}>")
 
@@ -47,7 +48,7 @@ class Client:
     def __init__(self, base_url="http://localhost:1234/v1", model=MODEL, timeout=120):
         self.base_url, self.model, self.timeout = base_url.rstrip("/"), model, timeout
 
-    def _send(self, path, payload=None):
+    def _send(self, path, payload=None, *, one_request=False):
         data = None if payload is None else json.dumps(payload, ensure_ascii=False).encode("utf-8")
         request = urllib.request.Request(self.base_url + path, data=data, headers={"Content-Type": "application/json"})
         try:
@@ -55,7 +56,12 @@ class Client:
                 return json.loads(response.read())
         except urllib.error.HTTPError as e:
             with e:
-                raise ServerProblem(f"HTTP {e.code} from the model server: {e.read().decode('utf-8', 'replace')[:300]}") from None
+                detail = e.read().decode("utf-8", "replace")[:300]
+            if one_request and e.code in REFUSED_REQUEST:
+                # The server is up and refused this request, most likely for its size. Retrying it forever would
+                # stall the stage, so it is one invalid answer and the stage goes on.
+                raise InvalidOutput(f"the model server refused this request with HTTP {e.code}: {detail}") from None
+            raise ServerProblem(f"HTTP {e.code} from the model server: {detail}") from None
         except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError) as e:
             raise ServerProblem(f"the model server at {self.base_url} did not answer: {type(e).__name__}: {e}") from None
 
@@ -77,6 +83,7 @@ class Client:
                 "response_format": {"type": "json_schema", "json_schema": {"name": "answer", "strict": True, "schema": schema}},
                 "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             },
+            one_request=True,
         )
         if not isinstance(body, dict) or body.get("model") != self.model:
             named = body.get("model") if isinstance(body, dict) else body

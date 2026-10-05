@@ -208,8 +208,37 @@ def check(text, pack):
     return list(dict.fromkeys(problems))
 
 
-def config(client, per_issue):
-    return f"{client.model}/memo-v1/schema-v1/max-{MAX_TOKENS}/quotes-{per_issue}"
+def config(client, per_issue, prompt_path=PROMPT):
+    """The memo setup, the prompt's content included, so an edited prompt is never answered from an old memo."""
+    return f"{client.model}/memo-v1-{hashing.short_sha(prompt_path)}/schema-v1/max-{MAX_TOKENS}/quotes-{per_issue}"
+
+
+def recheck(db, run, text):
+    """Problems with a memo against the run's numbers as they stand now. Used at export and for a hand edit."""
+    pointer = db.execute("SELECT input_json FROM artifacts WHERE key=?", (f"final-memo:{run}",)).fetchone()
+    saved = db.execute("SELECT input_json FROM artifacts WHERE key=?", (pointer["input_json"],)).fetchone() if pointer else None
+    per_issue = PER_ISSUE
+    if saved:
+        try:
+            per_issue = max([per_issue, *(len(quotes) for quotes in json.loads(saved["input_json"])["evidence"].values())])
+        except (ValueError, KeyError, TypeError):
+            pass
+    return check(text, evidence_pack(db, run, per_issue=per_issue))
+
+
+def save_edited(db, run, text):
+    """Make a hand-edited memo the run's memo, if it passes the same check a model's memo must pass."""
+    problems = recheck(db, run, text)
+    if problems:
+        raise MemoFailed(problems)
+    key = f"{run}:edited:{hashing.text_key(text)}"
+    with state.tx(db):
+        db.execute(
+            "INSERT OR REPLACE INTO artifacts (key, run, role, input_json, output_json, model, created_utc) VALUES (?,?,?,?,?,?,?)",
+            (key, run, "memo-edited", json.dumps(evidence_pack(db, run), ensure_ascii=False, sort_keys=True),
+             json.dumps({"memo": text}, ensure_ascii=False), "edited by hand", state.now_utc()),
+        )  # fmt: skip
+        _set_final(db, run, key, text, "edited by hand")
 
 
 def final(db, run):
@@ -227,10 +256,11 @@ def _set_final(db, run, key, text, model):
 
 def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_path=PROMPT, warm_from=None):
     """Write the memo for the run and return it. Raises MemoFailed after two memos that fail the check."""
+    state.recover_orphans(db, run, roles=(ROLE,))  # before anything else: an open call would make export refuse
     pack = evidence_pack(db, run, per_issue=per_issue)
     if not pack["ranking"]:
         raise NothingToWrite("no complaint or cancellation in this run, so there is nothing to rank or recommend")
-    label_config = config(client, per_issue)
+    label_config = config(client, per_issue, prompt_path)
     content = group.artifact_key(ROLE, label_config, pack)
     key = f"{run}:{content}"
     saved = group.cached(db, run, content, warm_from)
@@ -239,7 +269,6 @@ def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_
         _set_final(db, run, saved["key"], text, saved["model"])
         return text
 
-    state.recover_orphans(db, run, roles=(ROLE,))
     session = state.open_session(db, run, ROLE, 1, clock)
     try:
         client.check()

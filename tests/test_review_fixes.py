@@ -9,7 +9,7 @@ from decimal import Decimal
 from pathlib import Path
 from unittest import mock
 
-from pipeline import classify, cli, group, jev, ledger, limits, memo, standins, state
+from pipeline import classify, cli, gemma, group, jev, ledger, limits, memo, standins, state, verify
 from tests import fixtures
 
 
@@ -289,6 +289,293 @@ class CliFixes(TmpCase):
     def test_an_adjustment_needs_a_note(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
             cli.main(["adjust", "--usd", "0.25", "--state", str(self.state)])
+
+
+class StagedCase(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.dir = Path(tmp.name)
+
+    def prompt_copy(self, name, edit="\nBe brief."):
+        path = self.dir / name
+        path.write_text((fixtures.ROOT / "prompts" / name).read_text(encoding="utf-8") + edit, encoding="utf-8")
+        return path
+
+
+class Finding5PromptsShapeTheirStage(StagedCase):
+    """A changed prompt must never be answered from an answer made under the old one."""
+
+    def test_an_edited_memo_prompt_gets_a_new_memo_not_the_saved_one(self):
+        db = fixtures.grouped_db(self.dir / "a")
+        self.addCleanup(db.close)
+        first = standins.StandinGemma()
+        memo.write(db, "r1", first)
+        again = standins.StandinGemma()
+        memo.write(db, "r1", again, prompt_path=self.prompt_copy("memo-v1.md"))
+        self.assertEqual((len(first.calls), len(again.calls)), (1, 1))
+        configs = [c["label_config"] for c in db.execute("SELECT label_config FROM calls WHERE role='memo' ORDER BY rowid")]
+        self.assertEqual(len(set(configs)), 2)
+
+    def test_an_edited_naming_prompt_gets_new_names(self):
+        db, _ = fixtures.classified_db(self.dir / "a")
+        self.addCleanup(db.close)
+        group.assign(db, "r1")
+        group.name_issues(db, "r1", standins.StandinGemma())
+        again = standins.StandinGemma()
+        out = group.name_issues(db, "r1", again, prompt_path=self.prompt_copy("group-v1.md"))
+        self.assertEqual(out.cached, 0)
+        self.assertGreater(len(again.calls), 0)
+
+    def test_the_verify_prompt_cannot_change_partway_through_a_sample(self):
+        db, _ = fixtures.classified_db(self.dir / "a")
+        self.addCleanup(db.close)
+        clock = fixtures.FakeClock()
+
+        class AnHourEach(standins.StandinGemma):
+            def ask(self, *args, **kwargs):
+                clock.advance(3600)
+                return super().ask(*args, **kwargs)
+
+        self.assertEqual(verify.run(db, "r1", AnHourEach(), clock=clock, max_hours=2.5).ended_how, "time_box")
+        fake = standins.StandinGemma()
+        out = verify.run(db, "r1", fake, prompt_path=self.prompt_copy("verify-v1.md"))
+        self.assertEqual((out.ended_how, fake.calls), ("prompt_changed", []))
+        self.assertIn("verify", out.message)
+        self.assertEqual(verify.run(db, "r1", standins.StandinGemma()).ended_how, "finished")
+
+    def test_each_stage_names_its_prompts_content_in_its_config(self):
+        fake = standins.StandinGemma()
+        a = verify.config(fake, fixtures.ROOT / "prompts/verify-v1.md")
+        b = verify.config(fake, self.prompt_copy("verify-v1.md"))
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(memo.config(fake, 5, fixtures.ROOT / "prompts/memo-v1.md"), memo.config(fake, 5, self.prompt_copy("memo-v1.md")))
+        self.assertNotEqual(group.config(fake, 30, fixtures.ROOT / "prompts/group-v1.md"), group.config(fake, 30, self.prompt_copy("group-v1.md")))
+
+
+class EditedMemo(TmpCase):
+    """Spec 6.6: a memo Travis edits by hand goes through the same code check."""
+
+    def finished(self):
+        code, text = self.cli("run", "--run", "m", "--new", "--input", self.csv, "--standin", "--verify-size", "15")
+        self.assertEqual(code, 0, text)
+        return memo.final(self.db(), "m")
+
+    def test_a_good_edit_passes_the_check_and_becomes_the_runs_memo(self):
+        original = self.finished()
+        edited = self.dir / "memo.md"
+        edited.write_text(original.replace("# Decision memo", "# Decision memo, edited"), encoding="utf-8")
+        code, text = self.cli("memo", "--run", "m", "--file", edited, "--save")
+        self.assertEqual(code, 0, text)
+        self.assertTrue(memo.final(self.db(), "m").startswith("# Decision memo, edited"))
+
+    def test_an_edit_that_breaks_a_number_is_refused_and_nothing_is_saved(self):
+        original = self.finished()
+        edited = self.dir / "memo.md"
+        edited.write_text(original + "\nAbout 99999 people are affected.", encoding="utf-8")
+        code, text = self.cli("memo", "--run", "m", "--file", edited, "--save")
+        self.assertEqual(code, 1)
+        self.assertIn("99999", text)
+        self.assertEqual(memo.final(self.db(), "m"), original)
+
+    def test_without_save_the_check_changes_nothing(self):
+        original = self.finished()
+        edited = self.dir / "memo.md"
+        edited.write_text(original.replace("# Decision memo", "# Edited"), encoding="utf-8")
+        code, text = self.cli("memo", "--run", "m", "--file", edited)
+        self.assertEqual(code, 0, text)
+        self.assertEqual(memo.final(self.db(), "m"), original)
+
+
+class Finding6GateChecks(TmpCase):
+    def two_runs(self):
+        small = self.dir / "small.csv"
+        rows = fixtures.synthetic_rows(40, empties=2, copies=4)
+        fixtures.write_csv(small, rows[:12])
+        self.cli("run", "--run", "gate-small", "--new", "--input", small, "--standin", "--verify-size", "5")
+        self.cli("run", "--run", "gate-big", "--new", "--input", self.csv, "--standin", "--verify-size", "15")
+
+    def test_reviews_in_both_runs_that_keep_their_labels_pass_the_nested_check(self):
+        self.two_runs()
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-small")
+        self.assertEqual(code, 0, text)
+        self.assertIn("12 reviews", text)
+
+    def test_a_review_whose_label_changed_between_runs_stops_the_gate_and_is_listed(self):
+        self.two_runs()
+        db = self.db()
+        row = db.execute("SELECT review_id, text_key FROM reviews WHERE run='gate-small' AND status='completed' ORDER BY run_order").fetchone()
+        db.execute("UPDATE results SET severity = CASE severity WHEN 5 THEN 4 ELSE severity + 1 END WHERE run='gate-big' AND text_key=?", (row["text_key"],))
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-small")
+        self.assertEqual(code, 4)
+        self.assertIn(row["review_id"], text)
+        self.assertIn("severity", text)
+
+    def test_runs_with_no_review_in_common_are_refused(self):
+        self.two_runs()
+        other = self.dir / "other.csv"
+        rows = fixtures.synthetic_rows(6, empties=0, copies=0)
+        for r in rows:
+            r["review_id"] = "other-" + r["review_id"]
+        fixtures.write_csv(other, rows)
+        self.cli("run", "--run", "elsewhere", "--new", "--input", other, "--standin")
+        code, text = self.cli("nested", "--run", "elsewhere", "--against", "gate-small")
+        self.assertEqual(code, 2)
+
+    def test_the_verify_reports_four_counts_are_printed_and_saved(self):
+        code, text = self.cli("run", "--run", "v", "--new", "--input", self.csv, "--standin", "--verify-size", "15")
+        self.assertIn("verify report: sample 15, predictions 15, verify failures 0, not labeled by Jev 0", text)
+        self.cli("export", "--run", "v", "--out", self.dir / "grading", "--evidence", self.dir / "evidence")
+        saved = json.loads((self.dir / "evidence" / "verify_report.json").read_text())
+        self.assertEqual((saved["sample"], saved["predictions"], saved["verify_failures"], saved["jev_unlabeled"]), (15, 15, 0, 0))
+        self.assertIn("agreement", saved)
+
+
+class SmallerFixes(StagedCase):
+    def test_a_request_the_model_server_refuses_is_one_invalid_answer_not_a_dead_stage(self):
+        """Minor 8: a review the server rejects (too long for its context) must not stall verify for good."""
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers.get("Content-Length", 0)))
+                self.send_response(self.server.status)
+                self.send_header("Content-Length", "2")
+                self.end_headers()
+                self.wfile.write(b"{}")
+
+            def log_message(self, *args):
+                pass
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True)
+        thread.start()
+        self.addCleanup(thread.join)
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        client = gemma.Client(base_url=f"http://127.0.0.1:{server.server_address[1]}/v1", timeout=5)
+        for status, error in ((400, gemma.InvalidOutput), (413, gemma.InvalidOutput), (422, gemma.InvalidOutput), (500, gemma.ServerProblem), (404, gemma.ServerProblem)):
+            server.status = status
+            with self.subTest(status=status), self.assertRaises(error):
+                client.ask("s", "u", verify.SCHEMA, max_tokens=10)
+
+    def test_a_memo_call_left_open_by_a_kill_is_closed_even_when_the_memo_is_already_saved(self):
+        """Minor 10: an open call would make export refuse for good."""
+        db = fixtures.grouped_db(self.dir / "a")
+        self.addCleanup(db.close)
+        memo.write(db, "r1", standins.StandinGemma())
+        session = state.open_session(db, "r1", "memo", 1, fixtures.FakeClock())
+        state.begin_attempt(db, None, request_id="orphan", run="r1", role="memo", review_ids=[], model="m", label_config="c", session_id=session, reserve_tokens=0)
+        memo.write(db, "r1", standins.StandinGemma())
+        self.assertEqual(db.execute("SELECT outcome FROM calls WHERE request_id='orphan'").fetchone()[0], "failed")
+
+    def test_a_warm_pass_that_could_not_finish_does_not_report_a_clean_pass(self):
+        """Minor 19."""
+        import argparse
+
+        db, _ = fixtures.full_run(self.dir / "a", stop_after=None)
+        self.addCleanup(db.close)
+        from pipeline import prepare
+
+        with state.tx(db):
+            fixtures.new_run(db, "warm")
+            prepare.prepare(db, "warm", self.dir / "a" / "r1.csv", seed=fixtures.SEED, verify_seed="verify-v1", verify_size=10)
+        db.execute("DELETE FROM artifacts WHERE run='r1' AND role='group'")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = cli._warm(db, argparse.Namespace(run="warm", warm_from="r1"), standins.StandinGemma(loaded=False))
+        self.assertEqual(code, cli.NOT_FINISHED)
+        self.assertNotIn("0 calls of any role", out.getvalue())
+
+    def test_an_eval_call_left_open_by_a_kill_gives_its_reservation_back_to_spend(self):
+        """Minor 9: an open eval call stayed reserved for good."""
+        import sys
+
+        sys.path.insert(0, str(fixtures.ROOT / "evals"))
+        import common
+
+        db = state.connect(self.dir / "state.sqlite", synchronous="OFF")
+        self.addCleanup(db.close)
+        billing = fixtures.write_billing(self.dir / "billing.json")
+        led = ledger.Ledger(db, billing)
+        session = state.open_session(db, common.RUN, "eval: test", 1, fixtures.FakeClock())
+        state.begin_attempt(db, led, request_id="open", run=common.RUN, role="enrich", review_ids=["x"], model="m", label_config="c", session_id=session, reserve_tokens=2500)
+        self.assertGreater(led.reserved_usd(), 0)
+        fresh = ledger.Ledger(db, billing)
+        common.Paid(db, fresh, standins.ReplayJev(), jev.load_setup(fixtures.ROOT / "prompts", 0.7), "test")
+        self.assertEqual(fresh.reserved_usd(), 0)
+        self.assertGreater(fresh.spent_usd(), 0)
+        self.assertEqual(db.execute("SELECT outcome FROM calls WHERE request_id='open'").fetchone()[0], "failed")
+
+    def test_a_stand_in_run_has_its_own_default_state_file(self):
+        """Minor 11: a stand-in's made-up charges must never land in the real ledger by default."""
+        a = cli.parser().parse_args(["run", "--run", "x", "--new", "--input", "f.csv", "--standin"])
+        self.assertEqual(Path(cli.state_path(a)).name, "standin.sqlite")
+        b = cli.parser().parse_args(["run", "--run", "x", "--new", "--input", "f.csv", "--go"])
+        self.assertEqual(Path(cli.state_path(b)).name, "state.sqlite")
+        c = cli.parser().parse_args(["run", "--run", "x", "--standin", "--state", "/tmp/mine.sqlite"])
+        self.assertEqual(cli.state_path(c), "/tmp/mine.sqlite")
+
+    def test_a_real_eval_refuses_a_state_file_that_holds_stand_in_runs(self):
+        import argparse
+        import os
+        import sys
+
+        sys.path.insert(0, str(fixtures.ROOT / "evals"))
+        import common
+
+        db = fixtures.prepared_db(self.dir)
+        db.execute("UPDATE runs SET configs_json=?", (json.dumps({"standin": True}),))
+        db.close()
+        a = argparse.Namespace(go=True, standin=False, state=str(self.dir / "state.sqlite"), prompt_file="enrich-v1.json", cutoff=0.7, cap="25")
+        with mock.patch.dict(os.environ, {"TYPESAFE_API_KEY": "fake-key-for-tests-0123456789"}):
+            with self.assertRaises(cli.Refused):
+                with common.session(a, "test"):
+                    self.fail("the session must not open")
+
+    def test_a_golden_cell_that_is_not_a_number_is_reported_without_its_value(self):
+        """Minor 13: a traceback would print the cell, and no golden label is ever printed."""
+        import sys
+
+        sys.path.insert(0, str(fixtures.ROOT / "evals"))
+        import score_golden
+
+        golden = self.dir / "golden.csv"
+        golden.write_text("review_id,review_text,intent,topic,severity,sentiment,evidence_quote,entities,needs_review,notes\nid-1,Bad app,complaint,other,SECRETLABEL,-0.5,Bad app,,FALSE,\n", encoding="utf-8")
+        records = self.dir / "records.jsonl"
+        records.write_text("", encoding="utf-8")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+            code = score_golden.main(["--golden", str(golden), "--records", str(records), "--run", "t", "--out-dir", str(self.dir)])
+        self.assertEqual(code, 2)
+        self.assertNotIn("SECRETLABEL", out.getvalue())
+        self.assertIn("row 2", out.getvalue())
+
+    def test_large_run_evidence_is_gzipped_and_named_when_it_is_too_big_for_the_repo(self):
+        """Minor 16: the full run's log is far over GitHub's file limit."""
+        from pipeline import export
+
+        db, csv_path = fixtures.full_run(self.dir / "a")
+        self.addCleanup(db.close)
+        evidence = self.dir / "a" / "evidence"
+        result = export.export(db, "r1", self.dir / "a" / "grading", checker_path=fixtures.CHECKER, input_path=csv_path, evidence_dir=evidence, gzip_over=1, size_limit=200)
+        names = {p.name for p in evidence.iterdir()}
+        self.assertIn("run_log.jsonl.gz", names)
+        self.assertNotIn("run_log.jsonl", names)
+        self.assertIn("evidence/run_log.jsonl.gz", result["release_assets"])
+
+    def test_a_csv_that_cannot_be_read_stops_with_a_plain_message(self):
+        """Review Focus 1: a fresh input may be malformed in ways the supplied one is not."""
+        from pipeline import prepare
+
+        bad_bytes = self.dir / "latin1.csv"
+        bad_bytes.write_bytes(b"review_id,review_text,review_rating,review_likes,app_version,review_timestamp\n1,caf\xe9,5,0,1,2024-01-01\n")
+        unbalanced = self.dir / "quote.csv"
+        unbalanced.write_text('review_id,review_text,review_rating,review_likes,app_version,review_timestamp\n1,"never closed,5,0,1,2024-01-01\n', encoding="utf-8")
+        for path in (bad_bytes, unbalanced):
+            with self.subTest(path=path.name), self.assertRaises(prepare.BadInput):
+                prepare.read_rows(path)
 
 
 if __name__ == "__main__":

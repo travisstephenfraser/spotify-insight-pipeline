@@ -115,7 +115,7 @@ class Ask(GemmaCase):
                 self.ask()
 
     def test_an_error_status_is_a_server_problem(self):
-        for status in (400, 500, 503):
+        for status in (404, 500, 503):
             self.server.status = status
             with self.subTest(status=status), self.assertRaises(gemma.ServerProblem):
                 self.ask()

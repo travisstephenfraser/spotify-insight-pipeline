@@ -24,6 +24,7 @@ from pipeline import classify, export, gemma, group, hashing, jev, ledger, limit
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "runs/state.sqlite"
+STANDIN_STATE = ROOT / "runs/standin.sqlite"  # stand-in runs never share the ledger that guards real money
 CHECKER = ROOT / "feed/Final Assignment - Spotify Reviews Dataset/check_submission.py"
 PROBE_ANSWERS = ROOT / "experiments/2026-10-04/tool-choice/simple.jsonl"
 SEED = "berkeley-fall-2026-assignment-5-v1"  # manifest.json, samples.seed
@@ -129,6 +130,9 @@ def _warm(db, a, gemma_client):
         session = state.open_session(db, run, "memo", 1, clock)
         memo.write(db, run, gemma_client, warm_from=source)
         state.close_session(db, session, "finished", clock)
+    elif named.ended_how != "no_complaints":
+        print(f"warm pass: naming did not finish ({named.ended_how}). {named.message} This is not a clean warm pass.")
+        return NOT_FINISHED
     calls = db.execute("SELECT COUNT(*) FROM calls WHERE run=?", (run,)).fetchone()[0]
     db.execute(
         "INSERT OR REPLACE INTO artifacts (key, run, role, input_json, output_json, model, created_utc) VALUES (?,?,?,?,?,?,?)",
@@ -176,6 +180,12 @@ def _stages(db, a, setup, labeler, gemma_client, limiter):
         print(f"verify: {checked.ended_how}; predicted {checked.predicted}, failed {checked.failed}, left {checked.remaining}. {checked.message}".rstrip())
         if checked.ended_how != "finished":
             return NOT_FINISHED
+        report = verify.report(db, a.run)
+        agree = report["agreement"]
+        print(
+            f"verify report: sample {report['sample']}, predictions {report['predictions']}, verify failures {report['verify_failures']}, "
+            f"not labeled by Jev {report['jev_unlabeled']}; all three fields agree on {agree['all_three']} of {agree['pairs']} pairs"
+        )
     except classify.GuardFailed as e:
         print(f"stopped: {e}")
         return GUARD
@@ -314,15 +324,57 @@ def cmd_adjust(db, a):
     return OK
 
 
+def cmd_memo(db, a):
+    """Check a memo edited by hand against the run's numbers; with --save, make it the run's memo."""
+    state.load_run(db, a.run)
+    text = Path(a.file).read_text(encoding="utf-8")
+    problems = memo.recheck(db, a.run, text)
+    if problems:
+        print(f"the memo does not pass the check ({len(problems)} problems):")
+        for problem in problems:
+            print(f"  - {problem}")
+        return FAILED_CHECK
+    if a.save:
+        memo.save_edited(db, a.run, text)
+        print(f"the memo passes the check and is now the memo of run {a.run}")
+    else:
+        print("the memo passes the check. Nothing was saved (add --save).")
+    return OK
+
+
+def cmd_nested(db, a):
+    """The gate check that reviews seen at two gates kept their labels (spec item 25)."""
+    state.load_run(db, a.run)
+    state.load_run(db, a.against)
+    compared, differ = classify.nested_differences(db, a.run, a.against)
+    if not compared:
+        raise Refused(f"runs {a.run} and {a.against} have no completed review in common, so there is nothing to compare")
+    if differ:
+        print(f"{len(differ)} of {compared} reviews labeled in both runs changed between {a.against} and {a.run}:")
+        for review_id, fields in differ:
+            print(f"  {review_id}: {', '.join(fields)}")
+        print("This stops the gate. Jev's documents say identical requests can return different answers; it is your call.")
+        return GUARD
+    print(f"{compared} reviews are labeled in both runs and every one kept its labels")
+    return OK
+
+
 def cmd_rank(a):
     rows = rank.from_files(a.grading)
     print(f"ranking.csv rebuilt from {a.grading}: {len(rows)} issues")
     return OK
 
 
+def state_path(a):
+    """The state file a command uses: the one named, else the stand-in file for a stand-in run, else the real one."""
+    if a.state:
+        return a.state
+    return str(STANDIN_STATE if getattr(a, "standin", False) else STATE)
+
+
 def parser():
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--state", default=str(STATE), help="the state file (default runs/state.sqlite)")
+    common.add_argument("--state", help="the state file (default runs/state.sqlite; runs/standin.sqlite for a --standin run)")
     common.add_argument("--billing", default=str(ROOT / "pipeline/billing.json"))
     common.add_argument("--cap", default="25", help="the cap on total Jev spend in dollars")
     p = argparse.ArgumentParser(prog="python3 -m pipeline", description=(__doc__ or "").split("\n")[0])
@@ -366,6 +418,15 @@ def parser():
     j.add_argument("--usd", required=True, help="dollars to add (negative to take away)")
     j.add_argument("--note", required=True, help="why: what the usage page showed")
 
+    m = sub.add_parser("memo", parents=[common], help="check a memo edited by hand; --save makes it the run's memo")
+    m.add_argument("--run", required=True)
+    m.add_argument("--file", required=True)
+    m.add_argument("--save", action="store_true")
+
+    n = sub.add_parser("nested", parents=[common], help="check that reviews labeled in two runs kept their labels")
+    n.add_argument("--run", required=True)
+    n.add_argument("--against", required=True, help="the earlier, smaller run")
+
     k = sub.add_parser("rank", parents=[common], help="rebuild ranking.csv from committed files; no model, no state file")
     k.add_argument("--grading", default=str(ROOT / "grading"))
     return p
@@ -375,6 +436,7 @@ def main(argv=None):
     a = parser().parse_args(argv)
     if a.command == "rank":
         return cmd_rank(a)
+    a.state = state_path(a)
     lock = state.RunLock(a.state)
     try:
         lock.acquire()
@@ -384,7 +446,7 @@ def main(argv=None):
     try:
         db = state.connect(a.state)
         try:
-            handler = {"run": cmd_run, "status": cmd_status, "quarantine-stuck": cmd_quarantine_stuck, "export": cmd_export, "adjust": cmd_adjust}[a.command]
+            handler = {"run": cmd_run, "status": cmd_status, "quarantine-stuck": cmd_quarantine_stuck, "export": cmd_export, "adjust": cmd_adjust, "memo": cmd_memo, "nested": cmd_nested}[a.command]
             return handler(db, a)
         except (Refused, state.ResumeRefused, state.NoSuchRun, state.DirtyTree, prepare.BadInput, prepare.GuardFailed, export.NotReady, ValueError) as e:
             what = f"there is no run named {e}" if isinstance(e, state.NoSuchRun) else str(e)

@@ -13,7 +13,7 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
-from pipeline import hashing, memo, rank, state
+from pipeline import hashing, memo, rank, state, verify
 
 VERSION = "a5-audit-v1"
 GZIPPABLE = (
@@ -154,28 +154,6 @@ def _ranking(db, run):
     return membership, rank.rank(records, membership)
 
 
-def _memo_problems(db, run, text):
-    """Check the saved memo again, against the numbers as they are being exported."""
-    pointer = db.execute(
-        "SELECT input_json FROM artifacts WHERE key=?", (f"final-memo:{run}",)
-    ).fetchone()
-    saved = (
-        db.execute(
-            "SELECT input_json FROM artifacts WHERE key=?", (pointer["input_json"],)
-        ).fetchone()
-        if pointer
-        else None
-    )
-    per_issue = memo.PER_ISSUE
-    if saved:
-        sizes = [
-            len(quotes)
-            for quotes in json.loads(saved["input_json"])["evidence"].values()
-        ]
-        per_issue = max([per_issue, *sizes])
-    return memo.check(text, memo.evidence_pack(db, run, per_issue=per_issue))
-
-
 def _gzip(path):
     """Replace a JSONL file with its gzip. The checker flags both forms present together."""
     target = Path(str(path) + ".gz")
@@ -253,7 +231,7 @@ def export(
         )
         writer.writeheader()
         writer.writerows(cited)
-    memo_problems = _memo_problems(db, run, memo_text) if memo_text else []
+    memo_problems = memo.recheck(db, run, memo_text) if memo_text else []
     if not memo_text:
         notes.append(
             "no memo: claims.csv is empty and the checker will flag the missing role and claims"
@@ -370,6 +348,9 @@ def export(
             before,
             completed,
             cap_usd,
+            gzip_over,
+            size_limit,
+            say,
         )
     return result
 
@@ -386,6 +367,9 @@ def _evidence(
     before,
     completed,
     cap_usd,
+    gzip_over,
+    size_limit,
+    say,
 ):
     """The run evidence the brief asks for beside the grading folder, so a reader never needs the state file."""
     folder.mkdir(parents=True, exist_ok=True)
@@ -429,6 +413,7 @@ def _evidence(
             for a in db.execute("SELECT * FROM artifacts WHERE run=? ORDER BY created_utc, key", (run,))
         ),
     )  # fmt: skip
+    _write_json(folder / "verify_report.json", verify.report(db, run))
     (folder / "memo.md").write_text(
         (memo_text or "No memo was written for this run.") + "\n", encoding="utf-8"
     )
@@ -545,3 +530,12 @@ def _evidence(
             },
         },
     )
+    # The full run's log is far larger than GitHub takes in a repo: gzip what is large, then name what still is.
+    for path in sorted(folder.glob("*.jsonl")):
+        if path.stat().st_size > gzip_over:
+            Path(str(path) + ".gz").unlink(missing_ok=True)
+            _gzip(path)
+    for path in sorted(folder.iterdir()):
+        if path.is_file() and path.stat().st_size > size_limit:
+            result["release_assets"].append(f"evidence/{path.name}")
+            say(f"evidence/{path.name} is over {size_limit} bytes: attach it as a release asset, GitHub will not take it in the repo")

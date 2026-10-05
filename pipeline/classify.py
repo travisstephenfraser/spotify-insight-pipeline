@@ -392,3 +392,26 @@ def settle_guards(db, run, failed, accept=()):
     configs.setdefault("accepted_guards", []).extend({"guard": name, "at": state.now_utc()} for name in failed)
     db.execute("UPDATE runs SET configs_json=? WHERE run=?", (json.dumps(configs, sort_keys=True), run))
     return failed
+
+
+NESTED_FIELDS = ("topic", "intent", "severity", "sentiment", "evidence_quote", "needs_review")
+
+
+def nested_differences(db, run, against):
+    """Reviews labeled in both runs whose labels differ: (how many were compared, [(review_id, [fields])]).
+
+    Each gate's input sits inside the next one's, so a review seen at both gates must keep its
+    labels (spec item 25). A difference stops the gate and Travis rules: Jev's documents say
+    identical requests can return different answers.
+    """
+    select = ", ".join(f"a.{f} AS new_{f}, b.{f} AS old_{f}" for f in NESTED_FIELDS)
+    rows = db.execute(
+        f"SELECT r.review_id, {select} FROM reviews r "
+        "JOIN results a ON a.run=r.run AND a.text_key=r.text_key "
+        "JOIN reviews q ON q.run=? AND q.review_id=r.review_id AND q.status='completed' "
+        "JOIN results b ON b.run=q.run AND b.text_key=q.text_key "
+        "WHERE r.run=? AND r.status='completed' ORDER BY r.run_order",
+        (against, run),
+    ).fetchall()
+    differ = [(r["review_id"], [f for f in NESTED_FIELDS if r[f"new_{f}"] != r[f"old_{f}"]]) for r in rows]
+    return len(rows), [(rid, fields) for rid, fields in differ if fields]

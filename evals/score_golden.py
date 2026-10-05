@@ -23,9 +23,24 @@ from pipeline import labels  # noqa: E402
 FIELDS = ("topic", "intent", "severity")
 
 
+class BadGolden(Exception):
+    """A golden cell cannot be read. The message names the row and column and never shows the cell."""
+
+
 def _golden(path):
     with open(path, encoding="utf-8-sig", newline="") as f:
-        return list(csv.DictReader(f))
+        rows = list(csv.DictReader(f))
+    for n, row in enumerate(rows, 2):
+        try:
+            int(row["severity"])
+        except (ValueError, TypeError, KeyError):
+            raise BadGolden(f"row {n}: the severity cell is not a whole number") from None
+        try:
+            if row.get("sentiment", "").strip():
+                Decimal(row["sentiment"].strip())
+        except (ArithmeticError, ValueError):
+            raise BadGolden(f"row {n}: the sentiment cell is not a number") from None
+    return rows
 
 
 def _records(path):
@@ -114,7 +129,11 @@ def main(argv=None):
     if out.exists() and not a.again:
         print(f"refused: {out.name} already exists. The golden 50 is scored once on the final setup.")
         return 2
-    result = report(a.golden, a.records)
+    try:
+        result = report(a.golden, a.records)
+    except BadGolden as e:
+        print(f"refused: {e}. Nothing was scored.")
+        return 2
     out.write_text(json.dumps(result, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     for name, title in (("as_written", "against the labels as frozen"), ("by_rule", "with the contract's fixed severity rule applied")):
         r = result[name]

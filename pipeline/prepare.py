@@ -47,6 +47,15 @@ class GuardFailed(Exception):
 
 def read_rows(path):
     """The six source fields of every row, as exact strings. Extra columns are ignored."""
+    try:
+        return _read_rows(path)
+    except UnicodeDecodeError as e:
+        raise BadInput(f"the CSV is not UTF-8 text (byte {e.start}); save it as UTF-8") from None
+    except csv.Error as e:
+        raise BadInput(f"the CSV could not be parsed: {e}") from None
+
+
+def _read_rows(path):
     with Path(path).open(encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f, strict=True)
         names = reader.fieldnames or []
