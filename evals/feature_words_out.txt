@@ -1,0 +1,50 @@
+# Reviews holding each candidate feature word, of 660622 reviews in spotify_reviews_18months.csv.
+# An entry matches itself or itself plus s, as a whole word or phrase; a phrase wins over a word inside it.
+# Kept in prompts/features-v1.txt: the 45 found in at least 100 reviews.
+premium	57781
+update	49878
+ads	35735
+playlist	32680
+shuffle	12519
+podcast	12467
+skip	12176
+lyrics	12035
+download	11480
+subscription	7461
+account	6661
+offline	5230
+search	4757
+repeat	4392
+login	4288
+queue	3535
+liked songs	3238
+video	2527
+recommendation	2392
+library	2100
+connect	1970
+radio	1964
+smart shuffle	1589
+bluetooth	1434
+payment	1279
+dj	1227
+password	1101
+notification	1067
+student	957
+autoplay	903
+wrapped	804
+family plan	602
+canvas	549
+widget	526
+android auto	444
+free trial	410
+audiobook	376
+sleep timer	299
+discover weekly	270
+car mode	260
+equalizer	240
+lock screen	237
+daily mix	231
+refund	183
+chromecast	128
+crossfade	66
+carplay	20

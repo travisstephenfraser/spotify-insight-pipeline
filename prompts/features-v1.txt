@@ -1,0 +1,47 @@
+# Feature words, version 1. A draft from counts over the full file (evals/feature_words_out.txt).
+# Travis reads this list when he gives the go for the 100 gate. Changing it changes label_config's inputs.
+premium
+update
+ads
+playlist
+shuffle
+podcast
+skip
+lyrics
+download
+subscription
+account
+offline
+search
+repeat
+login
+queue
+liked songs
+video
+recommendation
+library
+connect
+radio
+smart shuffle
+bluetooth
+payment
+dj
+password
+notification
+student
+autoplay
+wrapped
+family plan
+canvas
+widget
+android auto
+free trial
+audiobook
+sleep timer
+discover weekly
+car mode
+equalizer
+lock screen
+daily mix
+refund
+chromecast
