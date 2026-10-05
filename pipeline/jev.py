@@ -5,7 +5,11 @@ Jev picked), the entities (feature words found in the text) and the review flag.
 """
 
 import hashlib
+import http.client
 import json
+import re
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,12 +22,18 @@ MAX_TOKENS = 32_000  # Jev's documented limit on one request
 BYTES_PER_TOKEN = 2.4  # a request body measured 2.46 to 2.93 bytes per input token; 2.4 errs toward too many
 
 
-class Temporary(Exception):
+class _ClientError(Exception):
+    def __init__(self, message, status=None):
+        super().__init__(message)
+        self.status = status  # the HTTP status, or None when no response came back
+
+
+class Temporary(_ClientError):
     """429, 5xx, a timeout or network trouble. Worth another try."""
 
 
-class Fatal(Exception):
-    """401, 402, 403, or an answer from a model other than the pinned one. The run halts."""
+class Fatal(_ClientError):
+    """401, 402, 403, any other refusal of the request as sent, or a wrong model. The run halts."""
 
 
 class TooLarge(Exception):
@@ -149,3 +159,57 @@ def to_record(text, answer, *, features, cutoff, label_config):
         raise labels.InvalidAnswer(f"the answer is missing a part or has the wrong shape: {type(e).__name__}: {e}") from None
     labels.validate(text, record)
     return {**record, "min_top_probability": min(tops)}
+
+
+URL = "https://api.typesafe.ai/v1/systemone"
+BEARER = re.compile(r"Bearer\s+[A-Za-z0-9._~+/=-]+")
+
+
+def scrub(text, api_key):
+    """Error text as it may be saved: the key and any bearer token taken out."""
+    if api_key:
+        text = text.replace(api_key, "[removed]")
+    return BEARER.sub("Bearer [removed]", text)
+
+
+class Client:
+    """The real labeler: one HTTPS request per review to TypeSafe. Nothing here retries."""
+
+    def __init__(self, api_key, *, url=URL, timeout=30):
+        if not api_key:
+            raise ValueError("no TypeSafe key: set TYPESAFE_API_KEY")
+        self._key, self.url, self.timeout = api_key, url, timeout
+
+    def __repr__(self):
+        return f"jev.Client(url={self.url!r}, timeout={self.timeout})"
+
+    def label(self, text, request):
+        http_request = urllib.request.Request(
+            self.url,
+            data=body_bytes(request),
+            headers={"Authorization": f"Bearer {self._key}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(http_request, timeout=self.timeout) as response:
+                status, raw = response.status, response.read()
+        except urllib.error.HTTPError as e:
+            with e:  # the error carries the response body; close it once read
+                detail = scrub(e.read().decode("utf-8", "replace")[:300], self._key)
+            kind = Temporary if e.code == 429 or e.code >= 500 else Fatal
+            raise kind(f"HTTP {e.code}: {detail}", e.code) from None
+        except (urllib.error.URLError, http.client.HTTPException, OSError) as e:  # timeouts and network trouble
+            raise Temporary(scrub(f"{type(e).__name__}: {e}", self._key)) from None
+        try:
+            body = json.loads(raw)
+            for _ in range(2):  # tolerate an envelope around the answer
+                if isinstance(body, dict) and "answers" not in body and isinstance(body.get("result"), dict):
+                    body = body["result"]
+            if not isinstance(body, dict):
+                raise ValueError("the response is not a JSON object")
+        except ValueError as e:
+            raise Temporary(f"unreadable response: {e}", status) from None
+        usage = body.get("usage") if isinstance(body.get("usage"), dict) else {}
+        tokens = (usage.get("input_tokens"), usage.get("output_tokens"))
+        if not all(type(t) is int and t >= 0 for t in tokens):
+            tokens = (None, None)  # usage unknown is saved as unknown, never guessed
+        return Reply(body.get("answers"), body.get("model"), tokens[0], tokens[1], status, body.get("id"))
