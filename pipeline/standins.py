@@ -107,3 +107,64 @@ class ReplayJev:
         answers["tone"] = {"type": "score", "score": tone, "confidence": 0.9, "probabilities": {}}
         size = len(jev.body_bytes(request))
         return {"model": jev.MODEL, "answers": answers, "usage": {"input_tokens": max(1, size * 10 // 26), "output_tokens": 215}}
+
+
+class StandinGemma:
+    """A stand-in for gemma.Client: `check()` and `ask(system, user, schema, *, max_tokens)`.
+
+    It answers inside the schema it is given. Topic, intent and severity follow the same
+    keyword rule as the stand-in Jev, read from the user message alone. `respond` replaces
+    the answer for roles that need more (the memo); `script` makes calls fail in order.
+    """
+
+    GEMMA_STEPS = ("server_problem", "invalid")
+    SEVERITY_NUMBER = {"no_problem": 1, "annoyance": 2, "degraded": 3, "blocked": 4, "serious_harm": 5}
+
+    def __init__(self, *, script=None, respond=None, loaded=True):
+        from pipeline import gemma
+
+        self._gemma = gemma
+        self.model = gemma.MODEL
+        self._script = list(script or [])
+        self._respond = respond
+        self._loaded = loaded
+        self._lock = threading.Lock()
+        self.calls = []  # (system, user, schema, max_tokens) for every call
+
+    def check(self):
+        if not self._loaded:
+            raise self._gemma.ServerProblem(f"the stand-in server is not serving {self.model}")
+
+    def ask(self, system, user, schema, *, max_tokens):
+        with self._lock:
+            self.calls.append((system, user, schema, max_tokens))
+            step = self._script.pop(0) if self._script else None
+        if step is not None and step not in self.GEMMA_STEPS:
+            raise ValueError(f"unknown script step: {step!r}")
+        if step == "server_problem":
+            raise self._gemma.ServerProblem("scripted server problem")
+        if step == "invalid":
+            raise self._gemma.InvalidOutput("scripted invalid output")
+        data = self._respond(system, user, schema) if self._respond else self._by_rule(user, schema)
+        return self._gemma.Reply(data, self.model, max(1, (len(system) + len(user)) // 4), 20)
+
+    def _by_rule(self, user, schema):
+        low = user.lower()
+        intent = _first(INTENT_RULES, low, "unclear")
+        if intent == "complaint":
+            severity = "blocked" if ("cannot" in low or "crash" in low) else "annoyance"
+        else:
+            severity = "annoyance" if intent == "cancellation" else "no_problem"
+        rule = {"topic": _first(TOPIC_RULES, low, "other"), "intent": intent, "severity": self.SEVERITY_NUMBER[severity]}
+        data = {}
+        for name, spec in schema.get("properties", {}).items():
+            choices = spec.get("enum")
+            if choices:
+                data[name] = rule[name] if rule.get(name) in choices else choices[0]
+            elif spec.get("type") == "integer":
+                data[name] = 1
+            elif spec.get("type") == "boolean":
+                data[name] = False
+            else:
+                data[name] = f"stand-in {name}"
+        return data
