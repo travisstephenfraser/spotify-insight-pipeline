@@ -87,6 +87,8 @@ All three parts of the design are now decided. The written spec is `docs/superpo
 
 **Every check run so far is listed in `docs/validation-log.md`** (what was checked, why the checker counts as independent, the result, the evidence file, the limit). Add an entry there whenever a check runs; the final README cites it for the testing and evaluation points. `docs/spec-review-2026-10-04.md` holds the spec reviewers' briefs and reports as written and the outcome of every finding.
 
+`docs/independent-review-brief.md` is a single file to point a fresh reviewer at: instructions, a list of files it must not open, and a copy of the spec with the earlier reviews' summaries and the known-weakness lists removed. Its header records the hash of the spec it was copied from; rebuild the copy when the spec changes. It is meant for a reviewer from another maker, run where this file is not loaded automatically. If you are that reviewer and this file was loaded, set it aside as the brief says.
+
 Independent review of the spec, 2026-10-04 (three readers: measurement validity, contract and checker, state and spending; all the same model family as the author). Fixes the sources dictate are folded into the spec and listed in its section 13. Thirteen real choices were added to section 12 as items 17 to 29, so it now holds 29. What the review established, each checked against the files:
 
 - The first draft's resume rule would have been flagged: the full pass (about 1.8 hours, estimate) fits in one session, so `before` would equal `after`. The full run must be stopped once on purpose.

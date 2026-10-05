@@ -1,15 +1,136 @@
-# Spotify Insight Pipeline: design spec
+# Independent review brief
 
-Date: 2026-10-04. Status: draft for Travis's review, revised the same day after an independent review (section 13). Nothing here is built.
+Point a fresh reviewer at this one file. It holds the instructions (Part A) and the design to review (Part B). The reviewer needs nothing else from the people who wrote the design.
+
+**For whoever starts the review** (the reviewer may read this too):
+
+- Use a model from a different maker than the design's author if you can. The author worked with Claude.
+- Run it somewhere the repository's `CLAUDE.md` is not loaded automatically. That file is the authors' decision log and contains their conclusions.
+- When the report is done, compare it with `docs/spec-review-2026-10-04.md`. A hole found by both is close to certain. A hole found only here is the reason this review was worth running.
+
+---
+
+## Part A. Instructions for the reviewer
+
+### Your job
+
+You are reviewing a written design for a data pipeline. Nothing in it has been built. Find what is wrong, what is risky, and what is missing.
+
+You have no stake in this design. A finding that something would fail is a successful review. Do not soften findings and do not pad the report with praise.
+
+The pipeline is a graded course assignment. It must label 660,622 app reviews with a classifier, re-label a sample with a second model, group complaints into issues, rank them, have a model write a short memo, and export two folders that an instructor checks with a supplied script.
+
+### Why you are given so little
+
+Earlier reviews of this design exist. You are not given them, on purpose, so that your findings are your own.
+
+- Part B is the design with the earlier reviews' summaries and the authors' own list of known weaknesses taken out. The note at the top of Part B lists every change.
+- Report whatever you find, even if you suspect the authors already know it. Overlap is useful, not wasted.
+- Do not go looking for the earlier reviews. The files that hold them are listed under "Do not open".
+- If your tool loaded `CLAUDE.md` or any other instruction file from this repository by itself, say so at the top of your report and set its contents aside. It is the authors' account, not evidence.
+
+### What to read
+
+Primary sources. The design must satisfy these. Read them yourself and do not rely on Part B's description of them.
+
+| File | What it is |
+|---|---|
+| `feed/Final Assignment - Spotify Reviews Dataset/check_submission.py` | The instructor's checker. Read all of `audit()`. Every `flag(...)` call is a way to fail |
+| `feed/Final Assignment - Spotify Reviews Dataset/GRADING_CONTRACT.md` | Label definitions and the required export format |
+| `feed/Final Assignment - Spotify Reviews Dataset/COST_CALCULATOR.md` | Requirements for the cost calculator |
+| `feed/Final Assignment - Spotify Reviews Dataset/manifest.json` and `README.md` | Dataset counts, checksums and sampling method |
+| `feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md` | The assignment brief and rubric. **Read lines 1 to 225 only.** The rest is image data |
+
+Saved evidence. Part B quotes numbers marked *measured*. These files are where those numbers should come from. Treat every number in Part B as a claim to check.
+
+| Path | What it is |
+|---|---|
+| `experiments/2026-10-04/tool-choice/` | Probe scripts, their printed outputs (`*_out.txt`) and saved model responses |
+| `experiments/2026-10-04/outside-raters/` | `raters.py`, `pick_boycott.py`, `compare_raters.py`, `compare_raters_out.txt` |
+| `experiments/2026-10-04/red-team/` | Scripts and outputs of full-file counts and checker tests (`data/`, `stats/`, `checker/`) |
+| `experiments/2026-10-04/README.md` | The authors' index of those files. Its tables are their account; check them against the output files |
+| `evals/golden_labeling_guide.md`, `evals/dev_sets.json`, `evals/boycott_60.csv` | How hand labels are made, how the development set was picked, and the boycott sample (texts only) |
+
+### Do not open
+
+| Path | Why |
+|---|---|
+| `.env` | Secrets |
+| `evals/golden_50_labeled.csv`, `evals/dev_150_labeled.csv`, `evals/adjudication_sheet.csv` | Hand labels. Some are still being written blind |
+| `evals/adjudication_key.json` | The key to a blind labeling sheet |
+| `experiments/2026-10-04/outside-raters/*.jsonl` | Per-review model answers for reviews that are still being hand-labeled blind. Use `compare_raters_out.txt` for the totals |
+| `CLAUDE.md` | The authors' decision log, with their conclusions |
+| `docs/superpowers/specs/` | The full design file, which includes a summary of earlier reviews. Part B is the copy to review |
+| `docs/spec-review-2026-10-04.md`, `docs/validation-log.md`, `docs/red-team-plan-2026-10-04.html` | Earlier reviews and the authors' summary of them |
+| `feed/HANDOFF-*.md` | Session notes with conclusions |
+
+### Hard rules
+
+- Read-only. Do not create, change or delete any file in the repository.
+- No network and no model calls. Do not contact `localhost:1234`, `api.typesafe.ai`, `api.anthropic.com` or `api.openai.com`. Do not run any script with `--go`.
+- You may run `check_submission.py`. It uses the standard library only and makes no network call. Build any test input in a temporary folder outside the repository.
+- Never show a label that a person or a model gave to an individual review. Report counts only. Someone is labeling those reviews blind and will read your report.
+
+### How to review
+
+Make four separate passes. Report each under its own heading. Finish one before starting the next, so one line of thought does not crowd out the others.
+
+**Pass 1. Would it pass?** Go through `audit()` flag by flag and ask whether anything in the design can trip it. Trace a realistic run: several sessions, a kill in the middle, failed requests, retried requests, reviews with identical text, a review that never gets a valid label. Then go through the contract, the calculator requirements and the brief, requirement by requirement, and ask of each: does the design satisfy it, contradict it, or never mention it? Include the rubric lines, the README evidence list, the "save your results" list and the definition of done.
+
+**Pass 2. Can its measurements be trusted?** List every number the design will report, or will use to make a choice: agreement between models, scores against hand labels, the review flag, the checks that are meant to stop a bad run, cost and time. For each one ask:
+
+- Who or what produces the measurement, and is it independent of the thing being measured? Shared model, shared wording, shared author and shared prior exposure to the answer all count against independence.
+- Does the measurer see the same evidence the measured thing saw, no more and no less?
+- Which direction of failure would look like success?
+- What population is each sample drawn from, and what does it leave out?
+- Is the sample large enough for the claim it has to support?
+- Is any labeled set used for more than one decision, with nothing held back?
+
+**Pass 3. Would it run safely?** Look for ways it loses work, loses money or produces a wrong export without anyone noticing. Consider: the process dying at each point in a request's life; what "resume" does after each of those; many workers and one writer; two copies running at once; a setting changed between sessions; the spending cap and what it cannot see; rate limits; the local model server being down or serving a different model; the provider changing the model version mid-run; the size of the full file.
+
+**Pass 4. What is missing?** Name anything the assignment requires, or a careful engineer would expect, that Part B never mentions. Then check at least eight numbers marked *measured* in Part B against the saved output files and report each as matches, differs, or cannot find the source.
+
+If you have time, do one thing no document review can: write a small made-up input and a small export that follows Part B's rules exactly, including one deliberate stop and resume, run the checker on it, and report every flag.
+
+### Evidence standard
+
+- Every finding needs evidence: a quoted line with its path and line number, or a Part B section number, or a number you computed from a saved file.
+- A concern you cannot back that way goes in a separate list headed "Unverified concerns".
+- Do not confirm or refute from general knowledge. A claim that something is wrong needs a quote, exactly as a claim that something is right would.
+
+### What to hand back
+
+Give the report as your final message. Do not write it into the repository. Keep it under about 1,500 words.
+
+1. One line saying whether any instruction file was loaded automatically, and which model and tool you are.
+2. Findings, most severe first, grouped by pass. For each: a one-line claim; a severity; the evidence; the concrete sequence that fails (step, step, result); and the smallest change that would close it.
+   - **Blocker:** the checker would flag the export, a rubric point would be lost, money or work would be lost, or a reported number would be wrong or misleading without anyone knowing.
+   - **Should fix:** a real weakness with a workable way around it.
+   - **Note:** worth knowing, low cost either way.
+3. The numbers you checked in Pass 4 and what you found.
+4. "Unverified concerns".
+5. What you could not check, and why.
+
+No summary of the design and no closing praise. Stop after the report.
+
+---
+
+## Part B. The design under review
+
+*This copy was made on 2026-10-04 from the design file whose SHA-256 begins `fdf8f1d74ed85818`. Taken out: a status note about earlier reviews, a pointer to the authors' decision log, one paragraph and one list in which the authors state weaknesses they already know, pointers to earlier review files, and the final section, which summarized an earlier review. Two source notes were reworded to name the measurement, not the review that made it. Section numbers are unchanged, and the design text is otherwise word for word.*
+
+**Spotify Insight Pipeline: design spec**
+
+Date: 2026-10-04. Status: draft. Nothing here is built.
 
 Every line is marked by where it stands:
 
-- **Decided**: Travis ruled on it. The full trail is in `CLAUDE.md`.
+- **Decided**: Travis ruled on it.
 - **Proposed**: drafted here to complete the design. It needs Travis's yes. Section 12 lists every proposed item in one table.
 
 Numbers are labeled *measured* (with the file that holds the evidence) or *estimate*. Nothing unmeasured is stated as fact.
 
-## 1. Goal
+### 1. Goal
 
 Turn 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo. Every number in the memo traces to a saved calculation and to source reviews.
 
@@ -26,7 +147,7 @@ Done means:
 
 Not in this version: sub-issues inside a topic (decided later, section 6.4), a second business ranking, trend analysis by month, a web interface, any cloud model.
 
-## 2. Decisions this design rests on
+### 2. Decisions this design rests on
 
 All **Decided**, 2026-10-04.
 
@@ -46,7 +167,7 @@ All **Decided**, 2026-10-04.
 
 Known limits already accepted: the quote and the topic can come from different sentences (how often is unmeasured); the injection miss rate is reported, not fixed.
 
-## 3. Shape
+### 3. Shape
 
 ```
 input CSV (any path)
@@ -72,7 +193,7 @@ What models own: reading review language (Jev, Gemma) and writing prose (Gemma).
 
 The classifier sees `review_text` only. Stars and other fields are kept for analysis and never enter a prompt or a cache key.
 
-## 4. State
+### 4. State
 
 **Decided:** state lives in one SQLite file; a run saves after every request and resumes with the same command; runs are time-boxed (`--max-hours`).
 
@@ -103,7 +224,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 3. If the process dies between the two, the intent has no result. On restart it becomes a failed call with usage unknown, its reservation stays counted as spent, and the review goes back to `pending`. So a crash can cost one paid request per in-flight worker, 16 at most, and each is visible in the log.
 4. If the writer cannot commit, the run admits no new work. The file uses write-ahead logging and a busy timeout, and the queue to the writer is bounded.
 
-## 5. Stage 1: prepare (code)
+### 5. Stage 1: prepare (code)
 
 - **Input:** any CSV with the six source fields. Read with Python's `csv` module in strict mode. No trimming and no Unicode normalization anywhere.
 - **Hashing:** `source_sha256` uses the checker's `row_sha`. The pipeline keeps its own copy of that function, and a test asserts both give the same hash on real rows.
@@ -116,9 +237,9 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 - **Guards that raise, when the input is the supplied file:** 660,622 rows, 13 empty texts, 484,189 distinct nonempty texts, 159,701 missing app versions, no repeated IDs, file SHA-256 `1fc85de6...2fcef6`. For any other input these are skipped and the run says so.
 - **Stop:** every row is in the table and completed-or-pending plus quarantined equals the row count.
 
-## 6. Stages 2 to 6
+### 6. Stages 2 to 6
 
-### 6.1 Classify (Jev, role `enrich`)
+#### 6.1 Classify (Jev, role `enrich`)
 
 **Request, Decided:** one request per original text, model pinned to `jev-1.13.0`. Questions: topic (8 choices), intent (5 choices), severity (5 named choices, never digits), tone (a 5-step score). If code splits the text into more than one sentence, a fifth question asks which sentence states the most serious problem. Option order is shuffled in a repeatable way derived from the text.
 
@@ -145,7 +266,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 - *Temporary error (429, 5xx, network, timeout):* wait and retry with growing delays and jitter, **Proposed** up to 4 attempts. If all fail, the review goes back to `pending` and is tried again later in the run or in the next session. A temporary error never quarantines a review.
 - *Fatal response (401, 402, 403, or an answer whose `model` is not the pinned one):* the run halts at once and changes no review's status. A changed model version is Travis's call.
 - *Invalid answer (a normal response that fails validation):* retry once (the brief's limit). If it fails again, the review is `quarantined` with reason `invalid_model_output` and counts as not classified. Its copies are quarantined with the same reason and carry no cache pointer.
-- *Request over Jev's documented limits (255 options, 32,000 tokens):* quarantined with a reason. Nothing is cut short silently. The red team measured a maximum of 164 sentence pieces, so none is expected.
+- *Request over Jev's documented limits (255 options, 32,000 tokens):* quarantined with a reason. Nothing is cut short silently. A full-file count found a maximum of 164 sentence pieces, so none is expected.
 - Every attempt is its own row in `calls` with a unique `request_id`.
 
 **Finished means finished:** a review is marked `completed` only after its answer passes validation. A completed review is never sent again.
@@ -154,7 +275,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 
 **Resume evidence:** the checker needs a `before` checkpoint that is non-empty and strictly smaller than `after`. The full pass is about 1.8 hours (*estimate*), so it would finish inside one session unless it is stopped. So the full run is stopped once on purpose with work still pending, and that stop is what the recording shows. Every completion is saved with its session ID, so nothing depends on a clean shutdown. At export, code finds the boundary: the end of the first session that saved at least one new (non-copy) completion while reviews were still pending. Calls up to the boundary are `initial`. Later calls are `resume`. `checkpoint_before` is the completed list at the boundary. If a run has no such boundary, export says so plainly, because the checker will flag it.
 
-### 6.2 Verify (Gemma 26B, role `verify`)
+#### 6.2 Verify (Gemma 26B, role `verify`)
 
 **Decided:** blind. Gemma gets the review text and the label definitions. It never sees Jev's answer. One review per request. Code compares.
 
@@ -178,9 +299,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 
 **Comparison test:** a separate test copy of saved results with labels changed on purpose. The comparison must flag each one. This tests the comparison code, not Gemma's ability to catch Jev's mistakes. It lives in `evals/` and never touches `grading/`.
 
-**What agreement does and does not show:** agreement between the two engines is not accuracy. On the 100 pilot reviews they matched on 43 of 48 non-complaints but only 34 of 52 complaints and cancellations, the rows that feed the ranking (*measured*, saved answers, Gemma at 10 per request). On the same reviews the billing severity sum was 20 from Jev and 9 from Gemma, and usability 38 against 55. The top four topics kept the same order.
-
-### 6.3 Group (code, then Gemma 26B, role `group`)
+#### 6.3 Group (code, then Gemma 26B, role `group`)
 
 **Decided:** every completed `complaint` or `cancellation` review joins exactly one issue, the one for its topic. `allow_multi_issue` stays `false`.
 
@@ -191,13 +310,13 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 - **Cached by input:** the same sample under the same model, settings and prompt version reuses the saved name, so a warm run makes no new call.
 - **Output:** `issues` and `membership` tables, saved as `issues.json` and `grading/membership.csv`.
 
-### 6.4 Sub-issues (not built in this version)
+#### 6.4 Sub-issues (not built in this version)
 
 **Decided:** the baseline is one issue per topic. Splitting a topic into sub-issues is an optional later step. Travis decides after the first full Jev pass and before the final export, because it changes issue IDs. It would need a raise of the cap (up to about $10, *estimate*).
 
 Why it may be wanted: on the 100 pilot reviews, `other` ranked second by severity sum (*measured*, saved Jev answers), and `other` names nothing to fix.
 
-### 6.5 Rank (code only)
+#### 6.5 Rank (code only)
 
 For each issue: `complaint_count` (members), `severity_sum`, `mean_severity` (sum over count, six decimals, half-up, using `Decimal`), `priority_score` equal to `severity_sum`. Order by score descending, then issue ID ascending. Ranks start at 1. All other numbers are plain integer strings.
 
@@ -205,7 +324,7 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 
 **Failure and stop:** the command raises if a member review is missing from the records or is not a complaint or cancellation. It ends when the file is written.
 
-### 6.6 Memo (Gemma 26B, role `memo`)
+#### 6.6 Memo (Gemma 26B, role `memo`)
 
 **Input, never the raw CSV:**
 
@@ -226,7 +345,7 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 
 **Limit:** quotes are customer text and can contain instructions or personal details. The memo prompt passes them as quoted data, the code check catches invented IDs and numbers, and Travis reads the final memo for personal details.
 
-## 7. Money, speed and time
+### 7. Money, speed and time
 
 **Decided:** $25 cap on total Jev spend. Workers share one rate limiter and one ledger. Before each request the run reserves its worst-case cost. It stops admitting work when spent plus reserved plus the next reservation would pass the cap.
 
@@ -238,7 +357,7 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 - **What $25 covers (*estimates* from $0.0039 per 100 reviews *measured*):** the gates, about $0.41 together, and the full pass, about $19, which labels the gate reviews again. With the $0.05 already spent, about $5 is left for retries and the wording trial. A second full pass or sub-issues needs Travis to raise the cap.
 - **Time (*estimates*):** full Jev pass about 1.8 hours at 75 per second; Gemma on 5,000 about 23 to 48 minutes. Sustained Jev speed is unmeasured until the 10,000 gate.
 
-## 8. Cost calculator (`cost/`)
+### 8. Cost calculator (`cost/`)
 
 - **Two commands.** Offline replay is the default and needs no key. The paid pilot is a separate command that must be asked for by name. Importing or opening the calculator starts nothing.
 - **Replay reads committed files only:** `pilot_calls.jsonl`, `usage.csv` and `rates.csv`. It never opens the state file.
@@ -246,15 +365,15 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 - **Report:** the input checksum and the 100 IDs; per stage: provider, model, effort setting, prompt and schema version, batch size, workers, completed and failed, unique texts, cache hits, requests and attempts, tokens, rate with its unit, currency and dated source link, cost, seconds. Also cost per 1,000 rows, cost per completed record, throughput, cold and warm time, and the scaling decision.
 - **Time** comes from the monotonic clock in the `sessions` table, per stage, never from summed request times.
 - **Three separate totals:** Jev API spend; local compute for Gemma as a labeled estimate (measured seconds times an assumed power draw and electricity price, both editable, kept in their own file so the rate-doubling test does not touch them); and unknown costs, which stay marked unknown.
-- **Projection:** each stage from its own work count. Enrich: 484,189 requests with reuse, 660,609 without. Verify: 5,000. Group: at most 8. Memo: 1, added once. Input size is projected from the full file's text volume computed in code, plus the per-request overhead measured in the pilot, because pilot reviews are shorter than the average distinct text (red team). A base case and a conservative case with more retries. A warning when a case passes the cap.
+- **Projection:** each stage from its own work count. Enrich: 484,189 requests with reuse, 660,609 without. Verify: 5,000. Group: at most 8. Memo: 1, added once. Input size is projected from the full file's text volume computed in code, plus the per-request overhead measured in the pilot, because pilot reviews are shorter than the average distinct text (a full-file count). A base case and a conservative case with more retries. A warning when a case passes the cap.
 - **Controls, all editable:** spending limit, output-token cap, maximum workers, fallback fraction (zero by design).
 - **Instructor tests, as automated tests:** doubling the API rates doubles the API subtotal and leaves local cost and measured time unchanged; changing the projected row count leaves the measured results unchanged. Costs are not rounded before these tests, since the pilot's total is under one cent.
 - **Files:** `pilot_records.jsonl`, `pilot_calls.jsonl` (cold and warm, each with its run ID), `rates.csv`, `usage.csv`, `report.md`, and a README with both commands.
 - The calculator is refreshed after the 500 and 10,000 gates.
 
-## 9. Export
+### 9. Export
 
-### `grading/`
+#### `grading/`
 
 Code writes these from the full run's state:
 
@@ -268,11 +387,11 @@ Export refuses to run while any review is still `pending`. Otherwise it always w
 
 **Open, Travis to rule:** a failed call has no token counts. The checker flags a missing count, and the project rule says an unknown is never silently zero. The two choices are in section 12.
 
-### Run evidence (committed, large files as release assets)
+#### Run evidence (committed, large files as release assets)
 
 The brief asks for these beside the grading folder: a run manifest (source checksum, code version, prompts, model IDs, settings, outputs), `run_log.jsonl`, `run_summary.json` (stage timing, statuses, attempts, failures, usage, charges or labeled estimates, the spending limit, resume evidence), `quarantine.jsonl` with reasons and attempt counts, every verifier prediction, each group and memo input and output, and `memo.md`. All are written from the state file by the export command, so a reader never needs the state file itself.
 
-## 10. Tests and evaluation
+### 10. Tests and evaluation
 
 **No network, run on every change:**
 
@@ -288,13 +407,6 @@ The brief asks for these beside the grading folder: a run manifest (source check
 - the two outside raters (section 12 item 30): already run on the development, boycott and planted reviews; run on the golden texts only after the golden labels are frozen, for an agreement figure and a count of ambiguous cases;
 - the golden 50, once, after the full run. The report holds: topic and intent agreement; exact severity agreement and mean error, signed and unsigned; sentiment mean error; per-topic counts and confusion tables; the number of ambiguous cases; `needs_review` scored as a prediction (how many wrong labels it caught, how many right ones it flagged); the exact-copy quote check; and the list of disagreements. Travis inspects whether each quote supports its label and whether any entity is unsupported. The script reads the label columns; they never reach a prompt or the assistant's context.
 
-**Known weaknesses of the labels (open, section 12 items 19, 20, 23 and 24):**
-
-- Development labels were revised only on rows where a model disagreed. Before revision Jev scored 21 of 29 on all three fields; after, 24 of 29 (*measured*, `experiments/2026-10-04/README.md`). One row still carries a severity the guide itself calls a slip, and it counts as a Jev hit because Jev made the same call. Two outside raters later gave the revised value on all five revised rows, and sit below the hand label's severity on four other rows (*measured*, `docs/validation-log.md` entry 12).
-- The same 29 rows are used to tune wording, to pick the cut-off and to compare engines. Nothing is held back.
-- The planted slogan and injection cases were written by the assistant, who also tunes the wording against them. The outside raters matched that answer key on 24 and 25 of 25, and a real boycott sample with a held-back half now exists.
-- One person labels. There is no second labeler to measure how firm the labels are. The instructor's private sample is the only independent check.
-
 **Guards against a measure that reads itself (raise, never warn):**
 
 - known counts in prepare (section 5);
@@ -306,7 +418,7 @@ These thresholds are placeholders. Section 12 item 25 proposes bands tied to the
 
 **Human only:** the golden labels, the interrupt-and-resume recording, reading the final memo.
 
-## 11. Layout and commands (Proposed)
+### 11. Layout and commands (Proposed)
 
 Python 3.14, standard library only, so setup is clone and run. No dependencies to install.
 
@@ -331,9 +443,9 @@ python3 -m cost pilot --go                                     # paid, explicit
 
 Order of work: the wording trial, then the 100 gate (cost pilot, all stages), 500, 10,000, the full run in time-boxed sessions with one deliberate stop, the golden score, the README. Class 7 needs the 500 run, the golden labels and the calculator.
 
-## 12. Proposed items that need Travis's ruling
+### 12. Proposed items that need Travis's ruling
 
-Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Rows marked Decided or Done carry his ruling; the rest are open.
+Rows marked Decided or Done carry Travis's ruling. The rest are open.
 
 | # | Item | Proposed | Section |
 |---|---|---|---|
@@ -359,35 +471,11 @@ Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. I
 | 20 | Development labels already seen | **Decided 2026-10-04: keep them.** Always report both scores (21 of 29 before revision, 24 after). They are no longer used to pick the cut-off. Two outside raters then labeled them blind: both give the revised value on all five revised rows | 10 |
 | 21 | Verifier report depth | Agreement split by complaint and cancellation against the rest, and per topic; the sample ranked on Gemma's labels beside Jev's, to show whether the order holds | 6.2 |
 | 22 | Verifier wording | Gemma gets the contract's definitions word for word, not the paraphrase written for Jev, so the two share less | 6.2 |
-| 23 | Slogan and injection cases | **Decided 2026-10-04.** 60 real boycott reviews picked by hash (`evals/boycott_60.csv`), 30 to tune on and 30 held back to score once. Two outside raters label them first; Travis labels blind only where they differ, plus a check sample. The raters also confirmed the planted cases' answer key (24 and 25 of 25) | 10 |
+| 23 | Slogan and injection cases | **Decided 2026-10-04.** 60 real boycott reviews picked by hash (`evals/boycott_60.csv`), 30 to tune on and 30 held back to score once. Two outside raters label them first; Travis labels blind only where they differ, plus a check sample. The raters matched the planted cases' answer key on 24 and 25 of 25 | 10 |
 | 24 | Cut-off evidence | **Decided 2026-10-04.** The outside raters label all 150 development rows blind. Travis hand-labels the rows where they differ plus 15 agreed rows picked by hash. The rows are then split by hash into a wording half and a cut-off half | 6.1, 10 |
 | 25 | Guards | Bands around the previous gate's values in place of fixed thresholds; a test that verifier requests are identical with and without Jev's answers present; one planted failure per guard; the nested 100 must get identical labels at every gate | 10 |
 | 26 | Memo check | Claim ID and issue ID in the same sentence; the recommendation names rank 1 or says why not; run facts recomputed from exported files; some quotes picked by hash beside the most severe | 6.6 |
 | 27 | Output tokens and the limiter | **Decided 2026-10-04: settle it with a test batch.** Send a small known batch, then compare the usage page with input tokens times the rate. Until then output-token billing stays marked unknown. Still proposed: the token limiter uses bytes divided by 2.4, and `rates.csv` carries an output-token row | 7 |
 | 28 | Gate pass marks | Before each gate runs, name the numbers that would block the next go | 11 |
 | 29 | Provider-side limit | Travis checks whether the TypeSafe console offers a spending limit and sets it | 7 |
-| 30 | Outside raters | **Decided and run 2026-10-04.** Claude Fable 5.1 and GPT-6 Astra label reviews blind as third-party raters, under a $10 cap per provider. They see the review text and the contract's definitions word for word, and nothing from Jev, Gemma or Travis. Their labels tune and mark disputed rows; they never support an accuracy claim. The golden 50 is frozen before either sees those texts. Results are in `docs/validation-log.md` | 10 |
-
-## 13. Independent review, 2026-10-04
-
-The full record, with each reader's brief and report as written and the outcome of every finding, is `docs/spec-review-2026-10-04.md`. Every check run so far is listed in `docs/validation-log.md`.
-
-Three readers who had not seen the reasoning behind the first draft each read it against the source files: one for measurement validity, one for the contract and checker, one for state and spending controls. Every finding had to quote a source line. The top findings were then checked against those lines. All three are the same model family as the draft's author, so they can share its blind spots.
-
-Fixed in this revision, because the source files leave one answer:
-
-- **Resume evidence (two readers).** The first draft took the `before` checkpoint at the end of the first session. A run that finishes in one session would have been flagged. Now the run is stopped once on purpose and the boundary is found at export (6.1).
-- **Lost paid calls (two readers).** The first draft claimed a crash could not leave a paid call without its result. That was wrong. Now an intent row is saved before each request (4).
-- **Failure end states (two readers).** Temporary errors return a review to pending; fatal responses halt the run; copies of a quarantined original are quarantined (6.1).
-- **Ranking and replay** read committed files only, so a clean clone can rerun them (6.5, 8).
-- **Export** always writes and reports the checker's status, and writes all five `run.json` fields. Only the two JSONL files may be gzipped (9).
-- **Run evidence** the brief asks for is now listed (9).
-- **Golden report** now includes the measures the brief asks for, among them `needs_review` scored as a prediction (10).
-- **Verify** has a server check and a fixed sample, and saves every prediction (6.2).
-- **Cache keys** for names and the memo include the model and settings (6.3, 6.6).
-- **Naming and evidence samples** no longer use run order, which would have put golden texts first (6.3, 6.6).
-- **A wrong claim removed:** the first draft said the checker forces disagreement to stay out of `needs_review`. It does not (6.2).
-
-Left for Travis, because each is a real choice: items 17 to 29 in section 12.
-
-Raised but not checked against a source: whether Jev bills output tokens or failed attempts; whether one new connection per request holds at 75 per second for hours; whether LM Studio silently cuts long prompts; laptop sleep mid-session; whether the gzipped export fits under GitHub's 100 MB file limit.
+| 30 | Outside raters | **Decided and run 2026-10-04.** Claude Fable 5.1 and GPT-6 Astra label reviews blind as third-party raters, under a $10 cap per provider. They see the review text and the contract's definitions word for word, and nothing from Jev, Gemma or Travis. Their labels tune and mark disputed rows; they never support an accuracy claim. The golden 50 is frozen before either sees those texts. Saved outputs are in `experiments/2026-10-04/outside-raters/` | 10 |
