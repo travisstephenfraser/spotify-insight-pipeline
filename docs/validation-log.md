@@ -37,8 +37,10 @@ Update 2026-10-05: both hand-labeled files are frozen (entries 16 and 18). Later
 | 19 | The contract's fixed severity rule against the hand labels | Code only; counts alone for the golden file | 39, 29 and 50 labels | The rule would change 8, 0 and 4 labels; with it applied the blind check reads 8 of 15 | none |
 | 20 | Outside review of the implementation plan | A reviewer given the plan; report pasted in by Travis | 7 issues, 5 smaller points | All 7 hold and are fixed; the 5 smaller points are taken, one in a different form | not metered |
 | 21 | The built pipeline, with stand-in models | The instructor's checker; known answers from earlier scripts; 404 automated tests | every stage, 100 real pilot texts replayed | Checker `pass` on a stopped and resumed stand-in run; eight deliberate breaks each named; four known answers reproduced | none |
+| 22 | Independent review of the built code | A fresh reviewer with none of the build's context, same model family as the author | 77 files, about 10,500 lines | No critical finding, 7 important, 12 minor; all fixed but one minor, each with a test that failed first | not metered |
+| 23 | The wording trial | Pass marks written before the trial; planted answers from the contract; the outside raters' shared answer on real reviews | 34 items, two wordings, 68 requests | Probe 2 of 4 slogans and 15 of 28; candidate 4 of 4 and 23 of 28; no pass mark missed | $0.0033 by the ledger |
 
-Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
+Measured API spend on validation so far: Jev about $0.057 (about $0.053 on the 2026-10-04 probes and $0.0033 on the wording trial, counting output tokens at the input rate), Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
 ## The entries
 
@@ -231,6 +233,21 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Evidence:** `tests/test_review_fixes.py` (one test class per finding), the three fix commits on `build/pipeline`, `docs/build-rulings-2026-10-05.md` (the rulings the reviewer asked to overturn and what was done with each).
 - **Limits:** the fixes were written by the author and have not been reviewed in turn; the suite passing is the only check on them. The reviewer set aside everything that needs a real call: how LM Studio and TypeSafe behave, whether Gemma's memo passes the check, sustained speed, and how fast the state file commits under load. On macOS the clock the 60-second stop uses does not advance during sleep, so that stop is proven with an injected clock only.
 
+### 23. The wording trial: the first paid call through the pipeline's own code
+
+- **What:** on 2026-10-05 at 15:20 PDT, with Travis's go, `evals/wording_trial.py --go` sent the 4 planted slogan cases and the 30 real boycott reviews marked `tune` to Jev twice: once with the probe's intent wording (`prompts/enrich-v1.json`) and once with the candidate (`prompts/enrich-v2.json`, where only the intent question differs). 68 requests, one at a time, through the same ledger and call log the pipeline uses. The 30 `holdout` reviews were not read; the script refuses if one reaches it.
+- **Independence:** the pass marks were written in the implementation plan before the candidate wording was tried. The planted cases' accepted answers come from the contract and both outside raters gave them. The reference on the real reviews is the answer the two outside raters share, which is agreement with other models, not accuracy. The candidate wording was written by the same author who wrote the pass marks, before any Jev answer for these 30 reviews existed.
+- **Known answer reproduced:** the probe wording got 2 of the 4 planted slogans, reading S2 and S4 as `cancellation`. That is what the throwaway test of 2026-10-04 found (entry 6; the plan's gate table names the two cases), now through different code.
+- **Result, planted slogans:** probe 2 of 4; candidate 4 of 4 (S1 and S2 `unclear`, S3 `cancellation`, S4 `complaint`).
+- **Result, the 28 `tune` reviews the raters agree on** (24 `unclear`, 4 `complaint`): the probe's intent equals theirs on 15, the candidate's on 23. The probe read 12 of the 24 `unclear` reviews as `cancellation` and 1 as `complaint`; the candidate reads 5 as `cancellation` and none as `complaint`. All 4 `complaint` reviews are `complaint` under both. Intent changed on 10 of the 34 items.
+- **Pass marks:** none missed. The candidate may replace the probe wording; Travis has not yet said so.
+- **Not degenerate:** a wording that answered `unclear` to everything would also score well on reviews that are mostly `unclear`. The candidate still gives `cancellation` to S3, `complaint` to S4, and `complaint` to all 4 reviews the raters call complaints.
+- **Calls:** 68 of 68 succeeded, every one HTTP 200 and naming `jev-1.13.0`, 0.14 s each on average. Input tokens 64,710; output tokens 14,535 (*measured*, from the responses).
+- **Spend:** $0.0027 if only input tokens are billed; $0.0033 if output tokens are billed at the input rate, which is what the ledger recorded. The ledger now reads $0.0568 of $35: $0.0535 for the earlier probes ($0.0485 *measured*, $0.005 *estimated*) plus this trial.
+- **Still open, output-token billing:** the usage page was not read before the trial, and the assistant cannot see it. No Jev call was made on 2026-10-05 before 15:20 PDT, so a page that shows the day, or token counts, still separates this trial. The two readings differ by $0.0006, which a page rounded to cents cannot show; if so, the 10,000 gate (about $0.41 against $0.50, *estimate*) is the first run large enough to settle it.
+- **Evidence:** `evals/wording_trial_out.json` (each item's intent under each wording), `evals/wording_trial.py`, the two prompt files. The call log and ledger are in the state file, which is not committed.
+- **Limits:** 34 items, one run. Only 4 of the real reviews are complaints, so this says little about whether the candidate moves real complaints to `unclear`; no ordinary review was tried. Every accuracy figure recorded before this entry was measured with the probe wording and does not carry over to the candidate. The 100 gate labels the pilot reviews again and is the first comparison of the two wordings on ordinary text.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
@@ -247,4 +264,4 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Small samples.** 29 hand labels, 25 made-up cases, 60 boycott reviews, 100 pilot reviews.
 - **Single runs on one day.** No result here has been repeated on another day except Jev's rerun in entry 7.
 - **The golden 50 is labeled and frozen (entry 18) but not scored**, so there is still no accuracy figure of any kind.
-- **Nothing has run for real.** The pipeline is built and tested with stand-ins (entry 21) and its code has had one independent reading (entry 22). No real model call, pilot, gate or full run has been made with it.
+- **Nothing has run for real.** The pipeline is built and tested with stand-ins (entry 21) and its code has had one independent reading (entry 22). One small paid call has been made through it, the wording trial (entry 23). No pilot, gate or full run has been made.

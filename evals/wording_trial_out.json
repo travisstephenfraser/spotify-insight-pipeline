@@ -1,0 +1,372 @@
+{
+ "probe": {
+  "slogans_right": 2,
+  "slogans": {
+   "S1": true,
+   "S2": false,
+   "S3": true,
+   "S4": false
+  },
+  "tune_rows": 30,
+  "tune_with_shared_rater_intent": 28,
+  "tune_intent_matches": 15,
+  "per_item": [
+   {
+    "id": "planted:S1",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "planted:S2",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "planted:S3",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "planted:S4",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "a8d69996-98ea-4171-9f06-3be39891b95d",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "794f0e28-ec4e-4f5a-8903-9bcd6a7e9ad5",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "d38f69a5-55f0-4b79-b1c4-af48ffb097cd",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "0060a5bc-6a9d-4cbb-8d3e-4746da8a1c06",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "99fe8143-94d6-4ad5-8728-44a2304e9f16",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "8c82a606-b526-48b7-bd24-27667d5aeefb",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "97c20755-8bbe-46b1-950b-2ad70e980f3a",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "14f67840-f7d7-4c7f-8e33-6fd7af68b7db",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "07d8e375-f480-4d0e-b1b4-6e3682742638",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "4ba29487-f757-4f38-9c67-0138ee739892",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "12fb1e5f-e0ad-4a0b-a225-7814dae56d8d",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "3f9c2862-b287-4541-bb90-e4643d1fab8a",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "c3e00612-cabc-4d5f-b6c7-49782ebac9f0",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "005f92f7-b537-4c92-8c99-cca1c15ab863",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "de5560b2-b8ae-4854-9dae-202f523cbbad",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "2c60207b-6470-4e4c-aff3-3fccf0c6fdc3",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "155a3317-9f46-4584-b9e6-9e2e1256d668",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "e16c5513-97bf-4758-8f2c-89fa6b7343d8",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "20f55ea9-9e40-400f-9e48-a5acb0bfee38",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "c8dd5248-dc62-4be1-8e50-63a4f5e2e041",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "c5b02f58-6a40-46c3-9159-b9244c89dc7a",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "4fa178fa-3dcc-42e8-b5ff-30a6536ef41a",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "6da094c3-114c-4f2f-bd21-604e55656427",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "c636b526-29be-40e4-ba29-f2c087a59252",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "2d9c342d-9784-4eef-9957-2e4c4bd420d3",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "517d476a-3a68-4bd1-bd73-6f1967e4bc34",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "e3f57852-ff02-4a6b-b3e5-a60a7da1b21e",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "680f7967-b0ad-4b3f-b92a-1adbe46f3118",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "4e66cc9f-7f43-4468-9bc2-0e9df3d541e9",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "0cb5662f-1286-4501-8896-8099f47604b9",
+    "intent": "cancellation",
+    "invalid": null
+   }
+  ]
+ },
+ "candidate": {
+  "slogans_right": 4,
+  "slogans": {
+   "S1": true,
+   "S2": true,
+   "S3": true,
+   "S4": true
+  },
+  "tune_rows": 30,
+  "tune_with_shared_rater_intent": 28,
+  "tune_intent_matches": 23,
+  "per_item": [
+   {
+    "id": "planted:S1",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "planted:S2",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "planted:S3",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "planted:S4",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "a8d69996-98ea-4171-9f06-3be39891b95d",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "794f0e28-ec4e-4f5a-8903-9bcd6a7e9ad5",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "d38f69a5-55f0-4b79-b1c4-af48ffb097cd",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "0060a5bc-6a9d-4cbb-8d3e-4746da8a1c06",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "99fe8143-94d6-4ad5-8728-44a2304e9f16",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "8c82a606-b526-48b7-bd24-27667d5aeefb",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "97c20755-8bbe-46b1-950b-2ad70e980f3a",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "14f67840-f7d7-4c7f-8e33-6fd7af68b7db",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "07d8e375-f480-4d0e-b1b4-6e3682742638",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "4ba29487-f757-4f38-9c67-0138ee739892",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "12fb1e5f-e0ad-4a0b-a225-7814dae56d8d",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "3f9c2862-b287-4541-bb90-e4643d1fab8a",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "c3e00612-cabc-4d5f-b6c7-49782ebac9f0",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "005f92f7-b537-4c92-8c99-cca1c15ab863",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "de5560b2-b8ae-4854-9dae-202f523cbbad",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "2c60207b-6470-4e4c-aff3-3fccf0c6fdc3",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "155a3317-9f46-4584-b9e6-9e2e1256d668",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "e16c5513-97bf-4758-8f2c-89fa6b7343d8",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "20f55ea9-9e40-400f-9e48-a5acb0bfee38",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "c8dd5248-dc62-4be1-8e50-63a4f5e2e041",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "c5b02f58-6a40-46c3-9159-b9244c89dc7a",
+    "intent": "complaint",
+    "invalid": null
+   },
+   {
+    "id": "4fa178fa-3dcc-42e8-b5ff-30a6536ef41a",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "6da094c3-114c-4f2f-bd21-604e55656427",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "c636b526-29be-40e4-ba29-f2c087a59252",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "2d9c342d-9784-4eef-9957-2e4c4bd420d3",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "517d476a-3a68-4bd1-bd73-6f1967e4bc34",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "e3f57852-ff02-4a6b-b3e5-a60a7da1b21e",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "680f7967-b0ad-4b3f-b92a-1adbe46f3118",
+    "intent": "unclear",
+    "invalid": null
+   },
+   {
+    "id": "4e66cc9f-7f43-4468-9bc2-0e9df3d541e9",
+    "intent": "cancellation",
+    "invalid": null
+   },
+   {
+    "id": "0cb5662f-1286-4501-8896-8099f47604b9",
+    "intent": "cancellation",
+    "invalid": null
+   }
+  ]
+ },
+ "candidate_file": "enrich-v2.json",
+ "marks_missed": []
+}
