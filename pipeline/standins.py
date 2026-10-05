@@ -120,7 +120,7 @@ class StandinGemma:
     GEMMA_STEPS = ("server_problem", "invalid")
     SEVERITY_NUMBER = {"no_problem": 1, "annoyance": 2, "degraded": 3, "blocked": 4, "serious_harm": 5}
 
-    def __init__(self, *, script=None, respond=None, loaded=True, latency=0.0):
+    def __init__(self, *, script=None, respond=None, loaded=True, latency=0.0, log_path=None):
         from pipeline import gemma
 
         self._gemma = gemma
@@ -129,6 +129,7 @@ class StandinGemma:
         self._respond = respond
         self._loaded = loaded
         self._latency = latency
+        self._log_path = log_path
         self._lock = threading.Lock()
         self.calls = []  # (system, user, schema, max_tokens) for every call
 
@@ -140,6 +141,9 @@ class StandinGemma:
         with self._lock:
             self.calls.append((system, user, schema, max_tokens))
             step = self._script.pop(0) if self._script else None
+            if self._log_path:
+                with open(self._log_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps("gemma: " + ",".join(schema.get("properties", {}))) + "\n")
         if step is not None and step not in self.GEMMA_STEPS:
             raise ValueError(f"unknown script step: {step!r}")
         if self._latency:
@@ -148,7 +152,12 @@ class StandinGemma:
             raise self._gemma.ServerProblem("scripted server problem")
         if step == "invalid":
             raise self._gemma.InvalidOutput("scripted invalid output")
-        data = self._respond(system, user, schema) if self._respond else self._by_rule(user, schema)
+        if self._respond:
+            data = self._respond(system, user, schema)
+        elif "memo" in schema.get("properties", {}):
+            data = memo_responder(system, user, schema)  # the memo needs the pack's own IDs and numbers
+        else:
+            data = self._by_rule(user, schema)
         return self._gemma.Reply(data, self.model, max(1, (len(system) + len(user)) // 4), 20)
 
     def _by_rule(self, user, schema):
