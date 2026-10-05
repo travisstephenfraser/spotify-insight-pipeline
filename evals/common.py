@@ -120,6 +120,11 @@ class Paid:
                 finish("failed", error=str(e)[:500], status=e.status)
                 last = e
                 continue
+            except jev.Rejected as e:
+                # The provider refused this one request as sent. The same request would be refused again, so the
+                # item has no answer and the script goes on to the next.
+                finish("failed", error=str(e)[:500], status=e.status)
+                return {"invalid": f"the provider refused this request: {e}"}
             except jev.Fatal as e:
                 finish("failed", error=str(e)[:500], status=e.status)
                 raise
@@ -174,7 +179,10 @@ def session(a, purpose, prompt_file=None):
             from pipeline import cli
 
             cli._one_kind_per_state_file(db, standin=False)  # the cap must not split across two ledgers
-        paid = Paid(db, ledger.Ledger(db, ROOT / "pipeline/billing.json", cap_usd=Decimal(a.cap)), labeler, setup, purpose)
+        spend = ledger.Ledger(db, ROOT / "pipeline/billing.json", cap_usd=Decimal(a.cap))
+        if not a.standin and not db.execute("SELECT 1 FROM ledger WHERE kind='opening'").fetchone():
+            spend.opening(*cli.OPENING_SPEND)  # the probes made before the ledger existed count against the cap
+        paid = Paid(db, spend, labeler, setup, purpose)
         try:
             yield paid
         finally:

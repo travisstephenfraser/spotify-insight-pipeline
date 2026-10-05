@@ -110,6 +110,58 @@ class PaidCalls(EvalCase):
         self.assertEqual([c["outcome"] for c in self.db.execute("SELECT outcome FROM calls ORDER BY rowid")], ["failed", "succeeded"])
 
 
+class RefusedRequest(EvalCase):
+    """A request the provider refuses for one item has no answer. The script must go on and nothing may stay reserved."""
+
+    def test_a_refused_request_is_one_item_without_an_answer(self):
+        paid = self.paid(standins.ReplayJev(script={"Boycott Spotify": ["rejected"]}))
+        record = paid.ask("b1", "Boycott Spotify")
+        self.assertIn("invalid", record)
+        self.assertIn("refused", record["invalid"])
+        rows = [tuple(r) for r in self.db.execute("SELECT outcome, http_status FROM calls ORDER BY rowid")]
+        self.assertEqual(rows, [("failed", 400)])  # one try: the same request would be refused again
+        self.assertEqual(paid.ledger.reserved_usd(), 0)
+        self.assertNotIn("invalid", paid.ask("ok", "Great app"))
+
+
+class OpeningSpend(unittest.TestCase):
+    """The ledger starts with the Jev spend made before it existed, whichever real command touches it first."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.dir = Path(tmp.name)
+
+    def args(self, **over):
+        import argparse
+
+        base = dict(go=True, standin=False, state=str(self.dir / "state.sqlite"), prompt_file="enrich-v1.json", cutoff=0.7, cap="35")
+        return argparse.Namespace(**{**base, **over})
+
+    def opening_rows(self):
+        db = state.connect(self.dir / "state.sqlite", synchronous="OFF")
+        try:
+            return db.execute("SELECT COUNT(*) FROM ledger WHERE kind='opening'").fetchone()[0]
+        finally:
+            db.close()
+
+    def test_a_real_eval_on_a_new_state_file_records_the_earlier_probe_spend_once(self):
+        import os
+        from unittest import mock
+
+        from pipeline import cli
+
+        with mock.patch.dict(os.environ, {"TYPESAFE_API_KEY": "fake-key-for-tests-0123456789"}):
+            for _ in range(2):
+                with common.session(self.args(), "test") as paid:
+                    self.assertEqual(paid.ledger.spent_usd(), sum(cli.OPENING_SPEND))
+        self.assertEqual(self.opening_rows(), 2)  # one measured row and one estimated row, written once
+
+    def test_a_stand_in_eval_records_no_opening_spend(self):
+        with common.session(self.args(go=False, standin=True), "test") as paid:
+            self.assertEqual(paid.ledger.spent_usd(), 0)
+
+
 class Wording(EvalCase):
     def test_the_trial_reads_the_planted_slogans_and_the_tune_half_only(self):
         items = wording_trial.items()
