@@ -41,7 +41,7 @@ All **Decided**, 2026-10-04.
 | Fallback | None. Hard cases are flagged, never re-labeled |
 | Grouping | One issue per topic, eight at most. Code assigns. The group model only names and describes |
 | Writing model | Gemma 26B for issue names and the memo. Travis reads the pilot memo and rules on keeping it |
-| Budget | $25 of total Jev spend for the whole project |
+| Budget | $35 of total Jev spend for the whole project (raised from $25 on 2026-10-05, item 34) |
 | Golden 50 | Labeled by Travis by hand. Scored once at the end. Never in a prompt, a cut-off or grouping |
 | Gates | 100, then 500, then 10,000, then the full file. Each needs an explicit go |
 
@@ -77,7 +77,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 
 **Decided:** state lives in one SQLite file; a run saves after every request and resumes with the same command; runs are time-boxed (`--max-hours`).
 
-**Proposed:** the one file holds every run. The spend ledger sits in the same file and covers all runs, which is how the $25 cap spans the gates and the full run. The ledger starts with the Jev spend already made on probes: $0.0485 *measured*, plus about $0.005 *estimated* for two tests whose usage was not logged (`experiments/2026-10-04/README.md`).
+**Proposed:** the one file holds every run. The spend ledger sits in the same file and covers all runs, which is how the $35 cap spans the gates and the full run. The ledger starts with the Jev spend already made on probes: $0.0485 *measured*, plus about $0.005 *estimated* for two tests whose usage was not logged (`experiments/2026-10-04/README.md`).
 
 **Proposed:** every command names its run (`--run NAME`; `--new` creates one). At creation the run saves the input's SHA-256, the seed, and a content hash of each prompt, the schema, the feature-word list, the sentence splitter and the cut-off. A resume compares all of them and refuses on any difference, so one `label_config` can never cover two different setups. **Decided, item 31:** the run also records the code's git commit, and a resume under a different commit is refused unless it is allowed by name and logged. Code that turns answers into labels can change results without changing any of those files. One process at a time holds a lock on the state file.
 
@@ -131,7 +131,7 @@ The classifier sees `review_text` only. Stars and other fields are kept for anal
 
 **Request, Decided:** one request per original text, model pinned to `jev-1.13.0`. Questions: topic (8 choices), intent (5 choices), severity (5 named choices, never digits), tone (a 5-step score). If code splits the text into more than one sentence, a fifth question asks which sentence states the most serious problem. Option order is shuffled in a repeatable way derived from the text.
 
-**Wording, Proposed:** prompts live in `prompts/` as versioned files, with a file of worked examples showing how each definition was applied (the contract asks for these). The starting point is the wording in `experiments/2026-10-04/tool-choice/jev_spike.py`. The slogan change to the intent question is drafted with Travis, then tried on planted cases and development rows (a paid call of a few cents that needs a go). The wording is settled before the 100 gate, so the pilot measures the real setup. Any change is a new `label_config`: after a gate that means rerunning the gate, and after the full run it means a second full pass, which the $25 cap does not cover.
+**Wording, Proposed:** prompts live in `prompts/` as versioned files, with a file of worked examples showing how each definition was applied (the contract asks for these). The starting point is the wording in `experiments/2026-10-04/tool-choice/jev_spike.py`. The slogan change to the intent question is drafted with Travis, then tried on planted cases and development rows (a paid call of a few cents that needs a go). The wording is settled before the 100 gate, so the pilot measures the real setup. Any change is a new `label_config`: after a gate that means rerunning the gate, and after the full run it means a second full pass, which the $35 cap does not cover.
 
 **Code turns the answer into a record:**
 
@@ -237,14 +237,14 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 
 ## 7. Money, speed and time
 
-**Decided:** $25 cap on total Jev spend. Workers share one rate limiter and one ledger. Before each request the run reserves its worst-case cost. It stops admitting work when spent plus reserved plus the next reservation would pass the cap.
+**Decided:** $35 cap on total Jev spend (first set at $25 on 2026-10-04; raised by Travis on 2026-10-05, item 34). Workers share one rate limiter and one ledger. Before each request the run reserves its worst-case cost. It stops admitting work when spent plus reserved plus the next reservation would pass the cap.
 
 - **Rate:** $0.042 per million input tokens (docs.typesafe.ai/models, checked 2026-10-04, as used in the probe). Jev also reports about 215 output tokens per response (*measured*, `simple.jsonl`). Whether those are billed is unknown. `rates.csv` carries an output-token row, and spend is checked against the TypeSafe usage page at every gate.
 - **Reservation, Proposed:** the request body's size in bytes, counted as tokens. A request body is 2.46 to 2.93 bytes per input token (*measured* on the 100 pilot requests), so it overstated the input cost of every request seen so far. That is evidence, not a proof, and it says nothing about output tokens, whose billing is unknown (item 27). The rule is confirmed or replaced after the test batch.
 - **Limiter:** requests per second (75) and tokens per second, both under the documented 80 and 100,000. **Proposed:** the token limiter estimates tokens as bytes divided by 2.4. Using raw bytes would hold the run to about 41 requests per second.
 - **After a 429, Proposed:** the shared rate halves at most once per 10-second window and climbs back slowly.
 - **The ledger is local.** It cannot see provider billing it was not told about, and the spec knows of no limit on TypeSafe's side. Travis checks the console for one.
-- **What $25 covers (*estimates* from $0.0039 per 100 reviews *measured*):** the gates, about $0.41 together, and the full pass, about $19, which labels the gate reviews again. With the $0.05 already spent, about $5 is left for retries and the wording trial. A second full pass or sub-issues needs Travis to raise the cap.
+- **What $35 covers (*estimates*; the pass figures are the calculator's, from the pilot's *measured* token counts and the full file's text length):** the gates, about $0.41 together, and the full pass, which labels the gate reviews again: $19.11 with exact-text reuse, $24.65 if 5% of requests are retried and output tokens are billed at the input rate, $25.57 with no reuse. That leaves about $10 to $15 for retries, the wording trial and the small run that completes the cut-off table. It does not cover a second full pass (about $19 more). Sub-issues (up to about $10) fit only if the full pass comes in near its base estimate. Either still needs Travis's word.
 - **Time (*estimates*):** full Jev pass about 1.8 hours at 75 per second; Gemma on 5,000 about 53 minutes with one request at a time (from 0.64 s per review *measured* on 20). Sustained Jev speed is unmeasured until the 10,000 gate, and Gemma's speed with more than one request at once is unmeasured.
 
 ## 8. Cost calculator (`cost/`)
@@ -356,7 +356,7 @@ Order of work: the wording trial, then the 100 gate (cost pilot, all stages), 50
 
 ## 12. Proposed items that need Travis's ruling
 
-Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Item 33 came out of a reading of the implementation plan by an outside reviewer the same day. Rows marked Decided or Done carry his ruling. On 2026-10-05 he approved item 17 and told the assistant to rule on every row still open without checking in; those rows are marked Delegated, and he reads them in a summary report. No row is open.
+Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. Item 30 was raised by Travis afterward. Item 31 came out of the second review. Item 32 came out of the blind label check on 2026-10-05. Item 33 came out of a reading of the implementation plan by an outside reviewer the same day. Rows marked Decided or Done carry his ruling. On 2026-10-05 he approved item 17 and told the assistant to rule on every row still open without checking in; those rows are marked Delegated, and he reads them in a summary report. No row is open. Item 34 is Travis's budget change of 2026-10-05.
 
 | # | Item | Proposed | Section |
 |---|---|---|---|
@@ -393,6 +393,7 @@ Items 1 to 16 are from the first draft. Items 17 to 29 came out of the review. I
 | 31 | Code changes between sessions | **Decided 2026-10-04: refuse.** A run records the code's git commit. A resume under a different commit is refused unless it is allowed by name and logged. Left for the implementation plan: compare the whole package, or only the code that turns answers into labels | 4 |
 | 32 | Scores shown two ways | **Decided 2026-10-05.** Hand labels stay as frozen. Every score against them is reported twice: against the labels as written, and with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. On the blind sheet the rule changes 8 of 39 hand labels, all boycott reviews labeled `unclear` with severity 2. On the golden 50 it changes 4, counted without showing a row or a value. The labeler's habit of giving severity 2 where both raters give 3 on complaints is covered by no rule and is disclosed as it stands | 10 |
 | 33 | Corrections from the plan review | **Delegated 2026-10-05.** Four changes that an outside reading of the implementation plan showed were needed, each checked before it was made. (a) Item 31: the code is identified by a hash of the package's source files, because a commit plus a "dirty" mark cannot tell two uncommitted edits apart; a real run needs a clean tree. (b) Each ledger row keeps the billing rates in force when it was written, so editing a rate file cannot shrink past spend and reopen room under the cap; operational rates are kept apart from the calculator's editable ones. (c) `usage.csv` carries each stage's and each run's clock seconds, so offline replay has its times without the state file. (d) A guard still raises for every input, but an input other than the supplied file can be restarted with the guard accepted by name and logged, because a small one-sided CSV can truly be one topic | 4, 8, 10 |
+| 34 | Budget raised | **Decided 2026-10-05.** Travis raised the cap on total Jev spend from $25 to $35. The calculator's estimates for one full pass at the time: $19.11 with exact-text reuse, $24.65 with 5% retries and output tokens billed at the input rate, $25.57 with no reuse. The cap is one number in the ledger's code, read by every command; the calculator's copy in `cost/assumptions.csv` is held equal to it by a test. | 2, 4, 7 |
 
 ## 13. Independent review, 2026-10-04
 

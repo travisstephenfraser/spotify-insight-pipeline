@@ -1,0 +1,52 @@
+{
+  "version": "prompt-v1",
+  "schema": "schema-v1",
+  "model": "jev-1.13.0",
+  "source": "Wording measured on the 100 pilot reviews on 2026-10-04 (experiments/2026-10-04/tool-choice/jev_spike.py).",
+  "topic": {
+    "instructions": "Which topic is the review mainly about? Choose the topic of the most serious specific problem; on a tie choose the first one mentioned. For a positive review choose the first specific feature praised.",
+    "criteria": {
+      "access": "Login, signup, password or account access",
+      "usability": "Navigation, controls, layout, queue or playlist management, ad interruptions",
+      "playback": "Playback failure, crashes, lag, connection failures, audio quality, resource use",
+      "downloads": "Downloading, saved music, offline listening, disappearing downloads",
+      "catalog": "Missing songs or artists, search and discovery, recommendations, lyrics availability",
+      "billing": "Price, charges, subscriptions, paywalls, premium entitlement, controls that are explicitly premium-only",
+      "support": "Contacting support and the support response",
+      "other": "General praise or criticism, unrelated content, or no specific topic"
+    }
+  },
+  "intent": {
+    "instructions": "What is the writer's intent? If several apply, prefer cancellation, then complaint, then request, then praise, then unclear.",
+    "criteria": {
+      "cancellation": "The writer says they are leaving, uninstalling or cancelling, or threatens to",
+      "complaint": "A negative experience, including mixed praise and criticism",
+      "request": "A desired change with no failure reported",
+      "praise": "Positive, with no problem reported",
+      "unclear": "Meaningless or unrelated text, or a bare boycott slogan"
+    }
+  },
+  "severity": {
+    "instructions": "How severe is the worst problem the review reports?",
+    "criteria": {
+      "no_problem": "No problem reported: praise, unclear text, or a pure feature request",
+      "annoyance": "Dislike, generic criticism, a minor annoyance or a cosmetic issue; nothing stops working",
+      "degraded": "A function is degraded or restricted, but some use or a workaround remains",
+      "blocked": "A core task is clearly blocked, such as being unable to log in or play music",
+      "serious_harm": "Explicit serious financial, privacy or data harm"
+    }
+  },
+  "tone": {
+    "instructions": "How positive or negative is the review overall?",
+    "criteria": [
+      "Very negative",
+      "Negative",
+      "Neutral or mixed",
+      "Positive",
+      "Very positive"
+    ]
+  },
+  "evidence": {
+    "instructions": "Which part of the review states the most serious problem? If there is no problem, which part gives the most specific praise?"
+  }
+}

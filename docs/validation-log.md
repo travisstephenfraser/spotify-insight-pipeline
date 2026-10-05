@@ -10,7 +10,7 @@ Rules for this file:
 
 Status on 2026-10-04: design stage. No pipeline code exists and no full run has been made. Everything below was done to choose tools and to test the design and the labels before building.
 
-Update 2026-10-05: still design stage. Both hand-labeled files are frozen (entries 16 and 18).
+Update 2026-10-05: both hand-labeled files are frozen (entries 16 and 18). Later the same day the pipeline was built and tested with stand-in models (entry 21). No real run has been made.
 
 ## Summary
 
@@ -36,6 +36,7 @@ Update 2026-10-05: still design stage. Both hand-labeled files are frozen (entri
 | 18 | Label freeze | Format check by code; label values never shown | 39 and 50 rows | Both files committed and hashed before any model answer for their rows; nine blank golden cells filled after a first check | none |
 | 19 | The contract's fixed severity rule against the hand labels | Code only; counts alone for the golden file | 39, 29 and 50 labels | The rule would change 8, 0 and 4 labels; with it applied the blind check reads 8 of 15 | none |
 | 20 | Outside review of the implementation plan | A reviewer given the plan; report pasted in by Travis | 7 issues, 5 smaller points | All 7 hold and are fixed; the 5 smaller points are taken, one in a different form | not metered |
+| 21 | The built pipeline, with stand-in models | The instructor's checker; known answers from earlier scripts; 404 automated tests | every stage, 100 real pilot texts replayed | Checker `pass` on a stopped and resumed stand-in run; eight deliberate breaks each named; four known answers reproduced | none |
 
 Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
@@ -208,6 +209,28 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Evidence:** `docs/plan-review-2026-10-05.md` (the report as pasted, then the outcome of each point), `experiments/2026-10-05/plan-review/check_claims.py` and `check_claims_out.txt`, the plan's diff, and spec section 12 item 33.
 - **Limits:** nothing is built, so no claim was tested by running pipeline code. The reviewer's reproduction of the fingerprint collision was not rerun; the claim is true by construction. The fixes were written by the plan's author and have not been reviewed in turn.
 
+### 21. The built pipeline, with stand-in models
+
+- **What:** the pipeline was built on 2026-10-05 and run end to end with stand-ins: a stand-in classifier that replays the 100 answers Jev gave on 2026-10-04 (and labels other text by a fixed keyword rule), and a stand-in for the local model. No real model was called.
+- **Independence:** the judge of the export is the instructor's `check_submission.py`, which the author did not write. The known answers below were each produced earlier by a different script. The tests themselves were written by the same author as the code, in the same session.
+- **Result, the checker:** a run through every stage, stopped once and resumed, exports and the checker returns `pass` with no flags, labelable completion 1.0 and accounted 1.0. Eight deliberate breaks of a good export (a copy with a different label, a quarantined ID in a checkpoint, a resume call naming a checkpointed ID, a decimal token count, a mean with five decimals, both forms of a file, a call under another setup, a complaint left out of membership) are each named by the checker.
+- **Result, known answers reproduced:** (1) the request built for each of the 100 pilot reviews equals the request the probe sent, and the mapped topic, intent, severity, quote and sentiment equal the probe's on all 100; (2) replaying those answers through every stage gives 52 complaints or cancellations and severity sums of 38, 29, 22 and 20 for usability, other, playback and billing, the figures in entry 4's notes; (3) the calculator gives $0.0039 of API spend for the 100, the figure measured in entry 4; (4) the cut-off table gives entry 9's table, and 13 differences from the raters' shared label on 92 rows, which is entry 15's 79 of 92.
+- **Result, the full file:** prepare reads all 660,622 rows and gives 13 empty, 484,189 distinct texts and 159,701 missing app versions, the manifest's counts (11.7 seconds; run once, skipped in the normal suite).
+- **Falsification:** with the exact-quote check removed in a scratch copy, two tests fail and name it.
+- **Evidence:** `tests/` (404 tests, 1 skipped), `README.md` (the falsification output), the build's commits on `build/pipeline`.
+- **Limits:** stand-ins answer instantly and never return an odd shape, so nothing here tests a real model's behavior, real rate limits, or sustained speed. Agreement between two stand-ins that share a rule is meaningless and is not reported. The code paths that only a real run uses (`--go`) are covered by tests against a local test server, not by a call.
+
+### 22. Independent review of the built code
+
+- **What:** one reviewer read the whole `build/pipeline` branch against the plan and the spec (77 files, about 10,500 lines), read-only, after all 18 tasks were done. It was given the plan's five untested risk areas and the executor's rulings to weigh.
+- **Independence:** a fresh session with none of the build's context, on the most capable model available. It is the same model family as the author, so it shares the author's blind spots; it is a second reading, not an outside one. It made no model call and opened neither `.env` nor a golden label column.
+- **Result:** no critical defect, 7 important, 12 minor. Verdict: ready with fixes, 1 to 4 before any paid command and 5 to 7 before the 100 gate is judged. The parts it read and found sound: no lost result or double send in classify, the ledger's totals, every crash point of the two-step save, and the export against the checker's rules.
+- **What it found that the tests had not:** (1) names and memos were cached across runs, so a second run on the same file would make no naming or memo call and fail the checker's four-roles rule; (2) the paid pilot could not be run again after stopping partway and took any unfinished ending for its planned stop; (3) during an outage classify would have booked a failed call, and a held reservation, for every review it admitted; (4) a request the provider refuses for one review halted the run, and the resume sent the same review first; (5) the verify, naming and memo prompts were not part of anything saved, so an edited prompt was answered from the old result; (6) two gate pass marks had no code behind them; (7) changing only the projected row count gave a report with a negative count of empty reviews.
+- **How each was handled:** every finding was reproduced by a test that failed before the fix and passes after it, in one pass. Six of the twelve minor findings were re-graded as important by their effect (a key that could reach a committed log, a golden cell that could be printed, a stand-in run sharing the ledger that guards real money, a cut-off with three decimals, evidence files too large to push, verify stalling on one refused request). One minor finding is left open and listed in `docs/build-rulings-2026-10-05.md`.
+- **Known-answer checks after the fixes:** the stand-in run of the supplied 100-review file, stopped once and resumed, still exports and the supplied checker still returns `pass` with no flags; the replay still gives 52 members and $0.0048 for 100 reviews with output tokens counted at the input rate.
+- **Evidence:** `tests/test_review_fixes.py` (one test class per finding), the three fix commits on `build/pipeline`, `docs/build-rulings-2026-10-05.md` (the rulings the reviewer asked to overturn and what was done with each).
+- **Limits:** the fixes were written by the author and have not been reviewed in turn; the suite passing is the only check on them. The reviewer set aside everything that needs a real call: how LM Studio and TypeSafe behave, whether Gemma's memo passes the check, sustained speed, and how fast the state file commits under load. On macOS the clock the 60-second stop uses does not advance during sleep, so that stop is proven with an injected clock only.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
@@ -224,4 +247,4 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Small samples.** 29 hand labels, 25 made-up cases, 60 boycott reviews, 100 pilot reviews.
 - **Single runs on one day.** No result here has been repeated on another day except Jev's rerun in entry 7.
 - **The golden 50 is labeled and frozen (entry 18) but not scored**, so there is still no accuracy figure of any kind.
-- **Nothing is built.** These checks cover tool choice, the design and the labels. The pipeline's own tests come later and will be added here.
+- **Nothing has run for real.** The pipeline is built and tested with stand-ins (entry 21) and its code has had one independent reading (entry 22). No real model call, pilot, gate or full run has been made with it.

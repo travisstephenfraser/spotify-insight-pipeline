@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Travis's individual capstone, "Multi Agent Large Data Processing Pipeline", due 2026-10-13 23:59 PT. The pipeline turns 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo, with every number traceable to saved evidence. The deliverable is one public GitHub repo whose README maps each rubric point to an evidence link.
 
-**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). **The implementation plan is written** (`docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md`: 18 tasks in six phases, with proposed pass marks for each gate). Next: Travis's go to start the build, and his choice of how it is executed. No pipeline code exists yet.
+**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). **The implementation plan is written** (`docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md`: 18 tasks in six phases, with proposed pass marks for each gate). **The pipeline is built (2026-10-05) on branch `build/pipeline`, tested with stand-in models only.** All 18 plan tasks are done, one independent reviewer has read the whole branch, and its findings are fixed (validation log entry 22); 465 tests pass (1 skipped: the full-file read). No real model call, pilot, gate or full run has been made with it. **The Jev cap is $35 as of 2026-10-05** (raised from $25 by Travis; spec item 34). Travis chose to land the branch by pull request. Next: the gates, each on his go.
 
 **State as of 2026-10-04:** no pipeline code exists. The repo's remote is `git@github.com:travisstephenfraser/spotify-insight-pipeline.git`, private until Travis flips it public for submission. The design is being agreed one decision at a time. Update this section as stages land, and add the pipeline's own run and test commands under Commands when they exist. The decisions below are in the order they were made; later entries supersede earlier ones.
 
@@ -83,7 +83,7 @@ Design part 3, walked through one decision at a time on 2026-10-04:
 
 - **Grouping, decided by Travis:** one issue per topic is the baseline (eight issues at most). Code assigns each `complaint` or `cancellation` review from its saved topic; the group model only names and describes each issue from a bounded sample of quotes. Sub-issues inside a topic (a proposed list Travis signs off, then one extra Jev question per complaint, about 250,000 requests and roughly $10 by estimate) are an optional later step, decided after the early Jev pass and before the final export, because they change issue IDs. On the 100 pilot reviews Jev called 52 complaints or cancellations, and `other` ranked second by severity sum (usability 38, other 29, playback 22, billing 20), so the baseline carries one issue with nothing specific to fix.
 - **Writing model, decided by Travis:** Gemma 26B writes both the issue names (group role, at most 8 small calls) and the memo (one call), each with its own instructions. No model has written either yet, so quality is unmeasured. Review point: Travis reads the memo from the 100-review pilot and rules then on keeping Gemma 26B or switching the memo model; a switch means the pilot reruns. LM Studio also lists Gemma 31B (speed and memory on this laptop unknown); no cloud key is in use.
-- **Budget cap, decided by Travis: $25 of total Jev spend for the project**, held in the spend ledger (reserve worst case before each request; stop admitting work when spent plus reserved plus the next reservation would pass the cap; save and resume). Projected from the measured $0.0039 per 100 reviews: gates about $0.41 together, one full pass over 484,189 distinct texts about $19, leaving about $5. The cap does not cover a second full pass (about $19) or sub-issues (up to about $10); either needs Travis to raise it. So the intent wording must be settled before the full pass, because any prompt change is a new `label_config` and new work. Retries are unmeasured.
+- **Budget cap, decided by Travis: $25 of total Jev spend for the project** (raised to $35 on 2026-10-05, see the build section below), held in the spend ledger (reserve worst case before each request; stop admitting work when spent plus reserved plus the next reservation would pass the cap; save and resume). Projected from the measured $0.0039 per 100 reviews: gates about $0.41 together, one full pass over 484,189 distinct texts about $19, leaving about $5. The cap does not cover a second full pass (about $19) or sub-issues (up to about $10); either needs Travis to raise it. So the intent wording must be settled before the full pass, because any prompt change is a new `label_config` and new work. Retries are unmeasured.
 
 All three parts of the design are now decided. The written spec is `docs/superpowers/specs/2026-10-04-spotify-insight-pipeline-design.md`, **drafted 2026-10-04 and awaiting Travis's review**. It marks every line as Decided or Proposed, and its section 12 lists the proposed items that still need his ruling. After his approval comes the implementation plan.
 
@@ -103,7 +103,7 @@ Rulings by Travis on the review items, 2026-10-04:
 
 - **Item 19, label freeze: yes.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. After the freeze no golden label changes; a plainly wrong one stays and the score is shown both ways. The guide's last lines were rewritten to say this. The development sheet as it stands is commit `bb5f440`, SHA-256 `febbfaeea4ed9a0034ce8ee9e6cf9fb0f283515d2469a41520dbd93a00cd6dd6` (29 rows labeled, five revised after seeing Jev). The golden sheet was frozen on 2026-10-05: commit `dcab9ff`, SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`.
 - **Item 27, output-token billing: settle it with a test batch** (send a small known batch, compare the TypeSafe usage page with input tokens times the rate). Unknown until then.
-- **Outside raters (spec item 30): approved.** Fable 5.1 (Anthropic) and Astra 6 (OpenAI's top model) label reviews blind as third-party raters. Budget: **$10 per provider, a hard cap**, separate from the $25 Jev cap. Travis adds `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` to `.env`. Conditions: the raters see only the review text and the contract's label section word for word, nothing from Jev, Gemma, Travis or the assistant's paraphrases; their labels are for tuning and for marking disputed rows, never for accuracy claims; the golden 50 stays Travis's by hand and is frozen before any rater sees those texts; the write-up discloses that Fable 5.1 shares a maker with the assistant that wrote the spec. Each paid run still needs its own go.
+- **Outside raters (spec item 30): approved.** Fable 5.1 (Anthropic) and Astra 6 (OpenAI's top model) label reviews blind as third-party raters. Budget: **$10 per provider, a hard cap**, separate from the Jev cap ($25 then, $35 from 2026-10-05). Travis adds `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` to `.env`. Conditions: the raters see only the review text and the contract's label section word for word, nothing from Jev, Gemma, Travis or the assistant's paraphrases; their labels are for tuning and for marking disputed rows, never for accuracy claims; the golden 50 stays Travis's by hand and is frozen before any rater sees those texts; the write-up discloses that Fable 5.1 shares a maker with the assistant that wrote the spec. Each paid run still needs its own go.
 - **Item 20, the 29 development labels already seen: keep them as they are.** Always report both scores (21 of 29 against the originals, 24 against the revised). They are no longer used to pick the cut-off. The outside raters label them blind to show whether the five revisions were fixes or drift.
 - **Item 24, cut-off evidence: agreed.** The raters label all 150 development rows blind. Travis hand-labels only the rows where the two raters disagree, plus about 15 random rows where they agree (to measure how often an agreed label is wrong), without seeing the raters' answers. The rows are then split by hash into a wording half and a cut-off half.
 - **Item 23, slogan cases: agreed.** 60 real reviews containing "boycott" are picked by hash and go through the same process; wording is tuned on 30 and the other 30 are scored once. The planted injection cases stay, with the raters confirming the expected answers.
@@ -172,6 +172,33 @@ Still pending from Travis: which questions go to the instructor (reuse of early-
 
 Measured in a throwaway probe on 2026-10-04 (50 reviews, single runs): Gemma 26B-A4B 4-bit took about 0.57 s per review with one request at a time and 0.27 s with four, with no failed requests. Batch size (1, 10 or 50 per request) did not change speed, but labels drifted as batches grew.
 
+## What the build established (2026-10-05)
+
+Every decision the executor made on Travis's behalf during the build is in `docs/build-rulings-2026-10-05.md` (94 rulings, each with what it costs if wrong, plus the review's findings and the one left open). The summary written for Travis is `feed/exec-summary-build-2026-10-05.html` (not committed). The facts worth keeping:
+
+- A stand-in run through every stage, stopped once and resumed, exports and the supplied checker returns `pass` with no flags. Eight deliberate breaks of a good export are each named by the checker.
+- Replaying Jev's 100 saved pilot answers through the pipeline reproduces the recorded ranking (52 members; usability 38, other 29, playback 22, billing 20) and the measured cost ($0.0039 per 100).
+- The calculator's full-pass estimates: $19.11 with exact-text reuse, $25.57 without, $24.65 in the conservative case (5% retries and output tokens billed at the input rate). Under the first cap of $25 the no-reuse case was over and the conservative case left almost no room.
+- `pipeline/billing.json` counts Jev output tokens at the input rate until the usage page settles it, so the ledger errs high; `cost/rates.csv` leaves that rate blank and reports it as unknown.
+- The token limit (100,000 a second) alone allows about 97 requests a second at pilot request sizes, so the 75-a-second request limit is the one that binds.
+- Two stand-ins that label by the same rule agree on every pair, so a stand-in run with 50 or more sampled reviews trips the `verifier_agreement_100` guard; pass `--accept-guard verifier_agreement_100` or a smaller `--verify-size`.
+- Saved Jev answers cover 32 of the 60 cut-off-half rows. The other 28 are keyword-picked development rows Jev has not labeled: a small paid run is needed before the cut-off table is complete.
+- `prompts/enrich-v2.json` is the candidate slogan wording (only the intent question changes). Unmeasured.
+- `prompts/features-v1.txt` is a draft of 45 feature words from counts over the full file, for Travis to read at the 100 gate.
+
+**Independent code review and fix pass, 2026-10-05** (validation log entry 22). No critical finding, 7 important, 12 minor; all fixed but one minor, each with a test that failed first. What changed in how the pipeline behaves:
+
+- Names and memos are cached per run. A second run on the same file makes its own naming and memo calls; only a warm pass reads another run's.
+- Classify stops sending new reviews after 8 failures in a row (or twice the workers) and the session ends as `outage`. A request that never left the machine costs nothing in the ledger. A 4xx other than 401, 402, 403 and 429 sets that one review aside; it no longer halts the run.
+- The verify, naming and memo prompts are hashed into their stage's setup string. An edited naming or memo prompt is new work for that stage only. An edited verify prompt is refused once verify has started on a run.
+- New commands: `nested` (reviews labeled at two gates must keep their labels), `memo` (checks a hand-edited memo), `adjust` (corrects the ledger from the usage page), `cost evidence`. `cost pilot` reads the state file and picks up where it stopped.
+- A `--standin` run defaults to `runs/standin.sqlite`; a real eval refuses a state file that holds stand-in runs.
+- Measured with the stand-in: the state file saves about 1,490 requests a second with a disk sync on every save (10,000-review file, 16 workers), against a limit of 75. On macOS that sync does not force the drive's cache to flush.
+- Still open: Ctrl-C during naming or the memo call does not stop the call in flight.
+- Unknown until a real call, by the reviewer's own list: how LM Studio and TypeSafe behave at the edges, whether Gemma's memo passes the check, and sustained speed.
+
+**Ruling by Travis, 2026-10-05: the Jev cap is $35** (spec item 34; he added $10 to the API budget). The number lives once in `pipeline/ledger.py` (`CAP_USD`) and every command's default reads it. The calculator runs without the pipeline package, so it keeps its own copy in `cost/assumptions.csv`; `tests/test_cap.py` holds them equal. What $35 covers, by estimate: the gates (about $0.41) and one full pass in any of the three cases, with about $10 to $15 left. It does not cover a second full pass (about $19 more). Sub-issues (up to about $10) fit only if the full pass comes in near its base estimate. Either still needs his word. The cap is a local guard: it does not know what is in the TypeSafe account.
+
 ## How to work with Travis here
 
 - This is a guided walk-through, not an autonomous build. Explain each step, confirm he understands it, and get his decision before acting. Do not choose a tool, model, threshold, budget or schema on his behalf.
@@ -206,6 +233,26 @@ python3 "$D/check_submission.py" profile   --full "$D/spotify_reviews_18months.c
 python3 "$D/check_submission.py" reference --full "$D/spotify_reviews_18months.csv" --analysis "$D/spotify_reviews_18months.csv" --out local-reference.json
 python3 "$D/check_submission.py" check     --reference local-reference.json --submission grading --out self-check.json
 ```
+
+The pipeline's own commands (see `README.md` for the full list):
+
+```sh
+python3 -m unittest discover -s tests -t .                      # 465 tests, no outside network, no key
+python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
+python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
+python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the key, LM Studio
+python3 -m pipeline status --run NAME
+python3 -m pipeline export --run NAME --evidence runs/NAME     # grading/, run evidence, then the supplied checker
+python3 -m pipeline rank                                        # ranking from committed files; no model, no state file
+python3 -m cost                                                 # offline replay of the calculator
+python3 -m cost pilot --go                                      # REAL: the paid 100-review pilot; run again to pick up where it stopped
+python3 -m cost evidence                                        # write the pilot files again from finished runs
+python3 -m pipeline nested --run NAME --against EARLIER         # gate check: reviews labeled in both runs kept their labels
+python3 -m pipeline memo --run NAME --file memo.md --save       # check a hand-edited memo and make it the run's memo
+python3 -m pipeline adjust --usd 0.25 --note "why"              # correct the spend ledger from the provider's usage page
+```
+
+Stand-in runs and real runs never share a state file: a `--standin` run defaults to `runs/standin.sqlite`, so `status`, `export` and `nested` on a stand-in run need `--state runs/standin.sqlite`. A real run without `--go` only prints what it would spend. The eval scripts in `evals/` follow the same rule (`--standin` or `--go`).
 
 The checker is standard library only and makes no network or model calls. Keep `local-reference.json` and `self-check.json` outside `grading/`. Python is `/opt/homebrew/bin/python3` (3.14).
 
