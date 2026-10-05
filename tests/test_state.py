@@ -21,6 +21,11 @@ class TmpCase(unittest.TestCase):
         self.dir = Path(tmp.name)
         self.path = self.dir / "state.sqlite"
 
+    def connect(self):
+        db = state.connect(self.path)
+        self.addCleanup(db.close)
+        return db
+
     def repo(self):
         """A small git repo shaped like this one: pipeline/ and prompts/, one commit."""
         root = self.dir / "repo"
@@ -36,14 +41,14 @@ class TmpCase(unittest.TestCase):
 
 class Schema(TmpCase):
     def test_reopening_keeps_data(self):
-        db = state.connect(self.path)
+        db = self.connect()
         fixtures.new_run(db)
         db.close()
-        db = state.connect(self.path)
+        db = self.connect()
         self.assertEqual(db.execute("SELECT run FROM runs").fetchone()["run"], "r1")
 
     def test_every_planned_table_exists(self):
-        db = state.connect(self.path)
+        db = self.connect()
         names = {r["name"] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         self.assertEqual(
             names,
@@ -51,11 +56,11 @@ class Schema(TmpCase):
         )
 
     def test_write_ahead_mode(self):
-        db = state.connect(self.path)
+        db = self.connect()
         self.assertEqual(db.execute("PRAGMA journal_mode").fetchone()[0], "wal")
 
     def test_a_failed_transaction_leaves_nothing(self):
-        db = state.connect(self.path)
+        db = self.connect()
         with self.assertRaises(RuntimeError):
             with state.tx(db):
                 fixtures.new_run(db)
@@ -66,7 +71,7 @@ class Schema(TmpCase):
 class Runs(TmpCase):
     def setUp(self):
         super().setUp()
-        self.db = state.connect(self.path)
+        self.db = self.connect()
         fixtures.new_run(self.db)
         self.same = {k: fixtures.RUN_ARGS[k] for k in ("input_sha256", "seed", "code_hash", "hashes")}
 
@@ -158,7 +163,7 @@ class Fingerprint(TmpCase):
 
 class Sessions(TmpCase):
     def test_a_closed_session_keeps_its_clock(self):
-        db = state.connect(self.path)
+        db = self.connect()
         clock = fixtures.FakeClock()
         sid = state.open_session(db, "r1", "classify", 4, clock)
         clock.advance(12.5)
@@ -167,7 +172,7 @@ class Sessions(TmpCase):
         self.assertEqual((row["ended_mono"] - row["started_mono"], row["ended_how"], row["workers"]), (12.5, "finished", 4))
 
     def test_a_session_left_open_is_closed_as_crashed_at_its_last_heartbeat(self):
-        db = state.connect(self.path)
+        db = self.connect()
         clock = fixtures.FakeClock()
         done = state.open_session(db, "r1", "classify", 1, clock)
         state.close_session(db, done, "stop_after", clock)
@@ -182,7 +187,7 @@ class Sessions(TmpCase):
         self.assertEqual(kept["ended_how"], "stop_after")
 
     def test_a_crashed_session_with_no_heartbeat_ends_where_it_started(self):
-        db = state.connect(self.path)
+        db = self.connect()
         clock = fixtures.FakeClock()
         sid = state.open_session(db, "r1", "verify", 1, clock)
         state.close_crashed_sessions(db, "r1")
