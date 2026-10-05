@@ -6,12 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Travis's individual capstone, "Multi Agent Large Data Processing Pipeline", due 2026-10-13 23:59 PT. The pipeline turns 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo, with every number traceable to saved evidence. The deliverable is one public GitHub repo whose README maps each rubric point to an evidence link.
 
-**Start of the next session, before anything else:** ask Travis whether he has done the two labeling sessions, and prompt him to do them first if not. Travis asked for this on 2026-10-04.
-
-1. `evals/adjudication_sheet.csv`: 39 reviews, labeled blind with `evals/golden_labeling_guide.md`. He must not open `evals/adjudication_key.json` or anything in `experiments/2026-10-04/outside-raters/` first. About 45 minutes (estimate).
-2. The golden 50, `evals/golden_50_labeled.csv`: by hand, before any model sees those texts. About an hour (estimate).
-
-Do not start on spec items, the implementation plan or any build until both are done or he says to skip. When he finishes one, commit it and record its SHA-256 before showing him any model answer for those rows. Delete this block once both are frozen.
+**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. Next: the unruled spec items one at a time, then Travis's approval of the spec, then the implementation plan.
 
 **State as of 2026-10-04:** no pipeline code exists. The repo's remote is `git@github.com:travisstephenfraser/spotify-insight-pipeline.git`, private until Travis flips it public for submission. The design is being agreed one decision at a time. Update this section as stages land, and add the pipeline's own run and test commands under Commands when they exist. The decisions below are in the order they were made; later entries supersede earlier ones.
 
@@ -106,7 +101,7 @@ Independent review of the spec, 2026-10-04 (three readers: measurement validity,
 
 Rulings by Travis on the review items, 2026-10-04:
 
-- **Item 19, label freeze: yes.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. After the freeze no golden label changes; a plainly wrong one stays and the score is shown both ways. The guide's last lines were rewritten to say this. The development sheet as it stands is commit `bb5f440`, SHA-256 `febbfaeea4ed9a0034ce8ee9e6cf9fb0f283515d2469a41520dbd93a00cd6dd6` (29 rows labeled, five revised after seeing Jev). The golden sheet is still blank; its freeze hash is recorded when Travis finishes labeling.
+- **Item 19, label freeze: yes.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. After the freeze no golden label changes; a plainly wrong one stays and the score is shown both ways. The guide's last lines were rewritten to say this. The development sheet as it stands is commit `bb5f440`, SHA-256 `febbfaeea4ed9a0034ce8ee9e6cf9fb0f283515d2469a41520dbd93a00cd6dd6` (29 rows labeled, five revised after seeing Jev). The golden sheet was frozen on 2026-10-05: commit `dcab9ff`, SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`.
 - **Item 27, output-token billing: settle it with a test batch** (send a small known batch, compare the TypeSafe usage page with input tokens times the rate). Unknown until then.
 - **Outside raters (spec item 30): approved.** Fable 5.1 (Anthropic) and Astra 6 (OpenAI's top model) label reviews blind as third-party raters. Budget: **$10 per provider, a hard cap**, separate from the $25 Jev cap. Travis adds `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` to `.env`. Conditions: the raters see only the review text and the contract's label section word for word, nothing from Jev, Gemma, Travis or the assistant's paraphrases; their labels are for tuning and for marking disputed rows, never for accuracy claims; the golden 50 stays Travis's by hand and is frozen before any rater sees those texts; the write-up discloses that Fable 5.1 shares a maker with the assistant that wrote the spec. Each paid run still needs its own go.
 - **Item 20, the 29 development labels already seen: keep them as they are.** Always report both scores (21 of 29 against the originals, 24 against the revised). They are no longer used to pick the cut-off. The outside raters label them blind to show whether the five revisions were fixes or drift.
@@ -122,7 +117,7 @@ Rulings by Travis on the review items, 2026-10-04:
 - Planted cases: Fable 24 of 25, Astra 25 of 25, including every injection and slogan case.
 - Real boycott reviews: 52 or 53 of 60 are `unclear` to the raters, 6 or 7 `complaint`, 1 `cancellation`.
 - Saved Jev and Gemma answers on the pilot 100, against the answer the two raters share (92 reviews): Jev 79, Gemma 77 on all three fields. Agreement with other models, not accuracy.
-- **Waiting on Travis:** `evals/adjudication_sheet.csv`, 39 reviews to label blind (23 where the raters differ, 1 planted case, 15 agreed checks, mixed). He must not open `evals/adjudication_key.json` or the rater answer files first. When he is done the sheet is committed and hashed before he sees any rater answer for those rows.
+- **Done 2026-10-05:** Travis labeled `evals/adjudication_sheet.csv` blind (39 reviews: 23 where the raters differ, 1 planted case, 15 agreed checks, mixed). It was committed and hashed before he saw any rater answer for those rows. Results are under "Label freeze and blind human check" below.
 
 Earlier steps of the same pass: 10-review test batch run at low effort with Travis's go, then the same 10 at medium. Measured: Fable 5.1 labeled 10 of 10 at $0.0041 each (projected $1.16 for 285); Astra labeled 10 of 10 at $0.0097 each (projected $2.78). No refusals. They matched on topic, intent and severity on 7 of 10. At low effort neither spent more than a few tokens thinking (31 and 43 output tokens per answer). A second test of the same 10 at medium effort, also with his go: Fable $0.0051 each (projected $1.50), Astra $0.0119 each (projected $3.49); the raters again matched on 7 of 10; Fable's answers were identical at both settings, Astra changed 1 of 10. Spent so far: $0.09 and $0.22 of the $10 caps. Both keys are now in `.env`. Answers are saved per effort setting, and all settings count toward the cap.
 
@@ -141,7 +136,19 @@ Earlier steps of the same pass: 10-review test batch run at low effort with Trav
 - **Sentence pieces.** At most 39 per review with the probe's splitter. The 164 came from an older splitter.
 - **Checker facts measured on made-up exports.** Stopping with only copies pending, or with a pending original that later fails, raises `resume_call_evidence`. A failed call without token counts raises two `invalid_usage` flags; zeros pass and are summed with no mark. An input with no complaints can never pass (`missing_claims`).
 
-Raw evidence for every number above is in `experiments/2026-10-04/` (throwaway scripts and saved responses, not code to reuse).
+**Label freeze and blind human check, 2026-10-05.** Validation log entries 16 and 18. Evidence: `experiments/2026-10-05/`.
+
+- **Blind sheet frozen:** commit `634c05c`, SHA-256 `47ce41508e911455179a983f12f9e105c31129fae0450f790b6f46bf798e9274`, 39 of 39 rows filled. Committed before any rater answer for those rows was shown.
+- **Golden 50 frozen:** commit `dcab9ff`, SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`, 50 of 50 rows filled, every quote an exact copy. Frozen before any model saw the texts. Nine cells were blank at the first check and were filled before the freeze (quotes on eight short reviews, one needs_review); one entities cell also changed. No score was shown in between.
+- **Import:** `experiments/2026-10-05/labels/import_numbers.py` exports a copy of the Numbers document, fills the CSV by review ID and prints row numbers, column names and counts only. It opens a window in Numbers for about a second, so never run it while Travis is typing there.
+- **The 15 agreed checks:** Travis's label equals the raters' shared answer on all three fields for 4 of 15 (topic 12, intent 12, severity 5). A label both raters share does not stand in for his label, least of all on severity.
+- **The 23 disputed rows:** his label equals Fable's on 3, Astra's on 3 and neither on 17.
+- **Each rater against him, 38 real reviews:** Fable 7 on all three (topic 26, intent 31, severity 16); Astra 7 (topic 23, intent 32, severity 13). His severity is below Fable's on 15 and above on 7; below Astra's on 16 and above on 9.
+- **A pattern in his labels:** all 8 boycott reviews he called `unclear` carry severity 2. The contract's severity 1 covers "neutral/unclear content" and the labeling guide gives a boycott slogan severity 1. Four of the 11 agreed-check differences are this alone; set aside, the agreed checks would read 8 of 15. The labels stay as frozen.
+- **Planted case R1** (paying user, music stops): expected `playback`, `complaint`, 3; his label is `billing`, `complaint`, 2.
+- **Not checked:** whether the golden 50 carries the same severity pattern. That would be a count-only script over the frozen file and needs Travis's go.
+
+Raw evidence for every number above is in `experiments/2026-10-04/` and `experiments/2026-10-05/` (throwaway scripts and saved responses, not code to reuse).
 
 Label workflow: Travis labels in Numbers (iCloud document `dev_150_labeled.numbers`); labels are exported with AppleScript and merged into the CSV by review ID, with review text always taken from the source. The CSV is now ahead of Numbers for the revised rows, so future imports must only fill rows that are still blank in the CSV.
 

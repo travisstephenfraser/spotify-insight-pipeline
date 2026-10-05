@@ -1,0 +1,62 @@
+sheet: evals/adjudication_sheet.csv, commit 634c05c, committed 2026-10-05T11:41:23-07:00
+SHA-256 47ce41508e911455179a983f12f9e105c31129fae0450f790b6f46bf798e9274
+39 rows; needs_review TRUE on 1; a note on 1
+
+== the 15 agreed checks (development 10, boycott 5): both raters gave one answer ==
+your label is the same on all three: 4 of 15 | topic 12, intent 12, severity 5
+  of those, development 4, boycott 0
+
+== the 23 disputed rows (development 19, boycott 4): the raters differ ==
+all three fields: you match Fable 3, Astra 3, neither 17
+  topic    raters differ on  7: you give Fable's 3, Astra's 0, neither 4 | raters agree on 16: you give theirs on 11
+  intent   raters differ on  3: you give Fable's 1, Astra's 2, neither 0 | raters agree on 20: you give theirs on 18
+  severity raters differ on 16: you give Fable's 7, Astra's 4, neither 5 | raters agree on  7: you give theirs on 4
+
+== each rater against you, the 38 real reviews ==
+Fable: all three 7 of 38 | topic 26, intent 31, severity 16 | your severity minus theirs: {-2: 2, -1: 13, 0: 16, 1: 7}
+Astra: all three 7 of 38 | topic 23, intent 32, severity 13 | your severity minus theirs: {-2: 3, -1: 13, 0: 13, 1: 9}
+
+== planted case R1 (expected answer written by the assistant) ==
+expected topic ['playback'], intent ['complaint'], severity [3] | yours billing/complaint/2 (differs) | Fable playback/complaint/4 | Astra playback/complaint/3
+
+== row by row (topic/intent/severity; * = differs from yours) ==
+row  kind      set      yours                      Fable                       Astra
+  2  agreed    dev      billing/cancellation/2     billing/cancellation/3 *    billing/cancellation/3 *
+  3  agreed    dev      usability/complaint/3      access/complaint/4 *        access/complaint/4 *
+  4  agreed    boycott  other/unclear/2            other/unclear/1 *           other/unclear/1 *
+  5  agreed    dev      usability/complaint/2      usability/complaint/3 *     usability/complaint/3 *
+  6  agreed    dev      other/praise/1             usability/complaint/2 *     usability/complaint/2 *
+  7  agreed    dev      other/unclear/1            billing/complaint/2 *       billing/complaint/2 *  needs_review
+  8  agreed    boycott  other/unclear/2            other/unclear/1 *           other/unclear/1 *
+  9  disputed  dev      usability/cancellation/3   downloads/cancellation/3 *  access/cancellation/3 *
+ 10  disputed  dev      usability/complaint/2      catalog/complaint/2 *       catalog/complaint/3 *
+ 11  disputed  boycott  other/unclear/2            other/unclear/1 *           other/cancellation/1 *
+ 12  disputed  dev      playback/complaint/2       playback/complaint/3 *      playback/complaint/2
+ 13  disputed  dev      catalog/unclear/1          catalog/complaint/2 *       catalog/complaint/3 *
+ 14  disputed  boycott  billing/complaint/2        billing/complaint/3 *       playback/complaint/4 *
+ 15  disputed  dev      catalog/praise/1           catalog/complaint/2 *       catalog/complaint/3 *
+ 16  disputed  dev      access/complaint/2         billing/complaint/2 *       billing/complaint/3 *
+ 17  disputed  dev      access/complaint/4         access/complaint/4          access/complaint/3 *
+ 18  disputed  dev      usability/complaint/2      usability/complaint/3 *     usability/complaint/2
+ 19  agreed    dev      other/praise/1             other/praise/1              other/praise/1
+ 20  disputed  dev      other/praise/1             downloads/praise/1 *        usability/praise/1 *
+ 21  disputed  dev      access/complaint/4         access/complaint/4          access/complaint/3 *
+ 22  disputed  boycott  other/unclear/2            other/complaint/2 *         other/unclear/1 *
+ 23  disputed  dev      catalog/complaint/2        usability/complaint/2 *     playback/complaint/3 *
+ 24  disputed  boycott  other/unclear/2            other/cancellation/1 *      other/unclear/1 *
+ 25  agreed    boycott  other/unclear/2            other/complaint/2 *         other/complaint/2 *
+ 26  agreed    dev      downloads/praise/1         downloads/praise/1          downloads/praise/1
+ 27  disputed  dev      downloads/complaint/2      downloads/complaint/4 *     downloads/complaint/3 *
+ 28  disputed  dev      playback/complaint/4       playback/complaint/3 *      playback/complaint/4
+ 29  agreed    dev      downloads/cancellation/3   downloads/cancellation/3    downloads/cancellation/3
+ 30  disputed  dev      access/complaint/4         playback/complaint/4 *      other/complaint/4 *
+ 31  disputed  dev      support/complaint/2        billing/complaint/4 *       billing/complaint/3 *
+ 32  disputed  dev      usability/complaint/2      usability/complaint/3 *     other/complaint/3 *
+ 33  agreed    dev      other/complaint/2          other/complaint/2           other/complaint/2
+ 34  agreed    dev      billing/complaint/2        billing/complaint/3 *       billing/complaint/3 *
+ 35  agreed    boycott  other/unclear/2            other/unclear/1 *           other/unclear/1 *
+ 36  agreed    boycott  other/unclear/2            other/unclear/1 *           other/unclear/1 *
+ 37  disputed  dev      usability/complaint/3      billing/complaint/3 *       billing/complaint/4 *
+ 38  disputed  dev      other/praise/1             other/praise/1              catalog/praise/1 *
+ 39  planted   planted  billing/complaint/2        playback/complaint/4 *      playback/complaint/3 *
+ 40  disputed  dev      billing/complaint/2        usability/complaint/3 *     usability/complaint/2 *

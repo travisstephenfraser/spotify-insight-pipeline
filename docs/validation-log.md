@@ -10,6 +10,8 @@ Rules for this file:
 
 Status on 2026-10-04: design stage. No pipeline code exists and no full run has been made. Everything below was done to choose tools and to test the design and the labels before building.
 
+Update 2026-10-05: still design stage. Both hand-labeled files are frozen (entries 16 and 18).
+
 ## Summary
 
 | # | Check | Who checked | Size | Result | API cost |
@@ -29,8 +31,9 @@ Status on 2026-10-04: design stage. No pipeline code exists and no full run has 
 | 13 | Answer key for the planted cases | The two outside raters | 25 cases | 24 and 25 of 25 match the key | in 11 |
 | 14 | Real boycott reviews | Hash-picked sample, two raters | 60 reviews | 52 or 53 `unclear`, 6 or 7 `complaint`, 1 `cancellation` | in 11 |
 | 15 | Jev and Gemma against the raters' shared answer | Two outside raters | 92 reviews | Jev 79, Gemma 77 on all three fields | in 11 |
-| 16 | Blind human check of the raters | Travis, by hand | 39 reviews | **Pending** | none |
+| 16 | Blind human check of the raters | Travis, by hand | 39 reviews | Hand label equals the raters' shared answer on 4 of 15 agreed reviews (topic 12, intent 12, severity 5); on the 23 disputed it equals Fable's on 3, Astra's on 3, neither on 17 | none |
 | 17 | Second independent review of the spec | A reviewer from another maker, given one brief file and none of the earlier conclusions | 13 factual claims | All 13 confirmed on recheck; three mislabeled numbers and several gaps fixed | not metered |
+| 18 | Label freeze | Format check by code; label values never shown | 39 and 50 rows | Both files committed and hashed before any model answer for their rows; nine blank golden cells filled after a first check | none |
 
 Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
@@ -142,12 +145,19 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **Limit:** this is agreement with two other models, not accuracy. Gemma's answers here are from the 10-per-request probe, a setup since dropped.
 - **Evidence:** `outside-raters/compare_raters_out.txt`.
 
-### 16. Blind human check of the raters (pending)
+### 16. Blind human check of the raters
 
-- **What:** Travis labels 39 reviews by hand without seeing any rater's answer: the 23 where the raters differ, 1 planted case, and 15 picked by hash from the reviews where they agree. The three kinds are mixed and unmarked.
-- **Why:** the 15 agreed reviews measure how often a label both raters share is wrong in a human's judgment. Without that, rater agreement is only agreement.
-- **Freeze:** the filled sheet is committed and hashed before any rater answer for those rows is shown.
-- **Files:** `evals/adjudication_sheet.csv`, `evals/adjudication_key.json`.
+- **What:** Travis labeled 39 reviews by hand without seeing any rater's answer: the 23 where the raters differ, 1 planted case, and 15 picked by hash from the reviews where they agree. The three kinds are mixed and unmarked.
+- **Why:** the 15 agreed reviews measure how often a label both raters share differs from a human's judgment. Without that, rater agreement is only agreement.
+- **Freeze:** the filled sheet was committed on 2026-10-05 as `634c05c` (SHA-256 `47ce41508e911455179a983f12f9e105c31129fae0450f790b6f46bf798e9274`) before any rater answer for those rows was shown. The scoring script refuses a sheet that is not committed.
+- **Result, the 15 agreed reviews:** the hand label equals the raters' shared answer on all three fields for 4 of 15 (topic 12, intent 12, severity 5).
+- **Result, the 23 disputed reviews:** the hand label equals Fable's on 3, Astra's on 3 and neither on 17. Where the raters differ on a field, the hand label gives: topic (7 reviews) Fable's on 3, Astra's on 0, neither on 4; intent (3) Fable's on 1, Astra's on 2; severity (16) Fable's on 7, Astra's on 4, neither on 5.
+- **Each rater against the hand labels, the 38 real reviews:** Fable 7 of 38 on all three (topic 26, intent 31, severity 16). Astra 7 of 38 (topic 23, intent 32, severity 13). The hand severity is below Fable's on 15 reviews and above on 7; below Astra's on 16 and above on 9. No difference is more than two steps.
+- **A pattern in the hand labels:** all 8 boycott reviews labeled `unclear` carry severity 2 (sheet rows 4, 8, 11, 22, 24, 25, 35, 36). The contract's severity 1 covers "neutral/unclear content" and the labeling guide gives a boycott slogan severity 1. Wherever a rater says `unclear` on those rows it gives severity 1. Four of the 11 agreed-check differences are this alone (rows 4, 8, 35, 36); set aside, the agreed checks would read 8 of 15. The labels stay as frozen and both readings are reported.
+- **Planted case R1** ("I pay for premium and the music still stops every 30 seconds"): the expected answer is `playback`, `complaint`, 3. The hand label is `billing`, `complaint`, 2. Fable gives `playback`, `complaint`, 4 and Astra `playback`, `complaint`, 3.
+- **Checks inside the scoring:** the key must still describe the rater files (agreed rows identical, disputed rows different); each sheet text must equal the source text; no hand label may equal both raters on a disputed row; the planted case must reproduce entry 13 (Astra matches the key, Fable does not). On a made-up sheet built from the raters' own answers the script returned the counts built into it (15 of 15; 13, 10 and 0).
+- **Evidence:** `experiments/2026-10-05/labels/score_adjudication.py` and `score_adjudication_out.txt`; `evals/adjudication_sheet.csv`, `evals/adjudication_key.json`.
+- **Limits:** one labeler, one pass, 15 agreed reviews. The labeler had already seen entry 12 (both raters below his severity on four development rows) before labeling these. The raters are language models: a difference between them and the hand label is not an error by either side until the rule is read against the review.
 
 ### 17. Second independent review of the spec
 
@@ -161,6 +171,18 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **What it caught that the first review missed:** the Gemma speed label. The first reviewers were given the project notes, which carried the same wrong figure. This one was not, and read the saved output. That is the case for using a different maker and withholding the authors' account.
 - **Evidence:** `docs/independent-spec-review-2026-10-04.md` (the report), `experiments/2026-10-04/review-checks/` (the independence check, the checker reproduction, the recount), and the spec's section 13.
 - **Limits:** the brief that framed the review was written by the spec's author, so the reviewer's attention followed the author's four passes. The recheck was also done by the author. The reviewer could not open the label files, so it could not test anything about the labels themselves.
+
+### 18. Label freeze: the blind sheet and the golden 50
+
+- **What:** on 2026-10-05 both hand-labeled files were imported from Numbers by review ID, format-checked, committed and hashed. The blind sheet was frozen before any rater answer for its rows was shown. The golden 50 was frozen before any model saw those texts.
+- **How the labels stay unseen:** the import prints row numbers, column names and counts, never a value. No golden label was read into the assistant's context.
+- **Result, blind sheet:** 39 of 39 rows filled on intent, topic, severity and needs_review, nothing outside the lists. Commit `634c05c`, SHA-256 `47ce41508e911455179a983f12f9e105c31129fae0450f790b6f46bf798e9274`. Numbers source as saved at 11:05 PDT: SHA-256 `76dbc13cd38bdf1faaf1a4ac0f4d18ed48e956e719adb30422437fb8c03df737`.
+- **Result, golden 50:** 50 of 50 rows filled on intent, topic, severity, sentiment, evidence_quote and needs_review (entities on 21, notes on 10). Every quote is an exact copy of its review. Commit `dcab9ff`, SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`. Numbers source as saved at 11:44 PDT: SHA-256 `b786faf5293e85e3fafccdfd65189f8375f273607b192a059e49ad4b72a97bfe`.
+- **What changed before the golden freeze:** the file as first finished at 11:38 (Numbers SHA-256 `a1b906baec909162ccb73464c3ba31de50238b1c3573da5a02e659657541569f`) had nine blank cells: evidence_quote on sheet rows 18, 19, 20, 21, 28, 32, 35, 38 and needs_review on row 49. Those nine were filled. One cell that already held a value also changed (entities, row 49). No model answer and no score was shown in between. The blind-sheet score was run once into a file nobody opened, to test the script, and was first displayed after the golden commit.
+- **Checks inside the import:** the IDs in the export must equal the IDs in the file; the text beside each ID is compared with the repo's text (no differences on either file); the rewrite must leave IDs and texts unchanged. On a made-up export with shuffled rows, odd letter case and number format, the written file was byte-identical to the expected one, and an export with a blank cell and two bad values was refused with the right rows named.
+- **Evidence:** the two commits; `experiments/2026-10-05/labels/import_numbers.py`.
+- **Limits:** the Numbers documents are not in the repo, only their hashes. The order of events rests on commit times and this log. The golden labels have not been compared with anything, and nothing has checked them against the labeling guide's rules.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
@@ -175,5 +197,5 @@ Measured API spend on validation so far: Jev about $0.053, Fable 5.1 $1.12, Astr
 - **One human labeler.** No second person has labeled anything, so nothing measures how firm the hand labels are. The instructor's private sample is the only human check from outside.
 - **Small samples.** 29 hand labels, 25 made-up cases, 60 boycott reviews, 100 pilot reviews.
 - **Single runs on one day.** No result here has been repeated on another day except Jev's rerun in entry 7.
-- **The golden 50 is not labeled yet**, so there is no accuracy figure of any kind.
+- **The golden 50 is labeled and frozen (entry 18) but not scored**, so there is still no accuracy figure of any kind.
 - **Nothing is built.** These checks cover tool choice, the design and the labels. The pipeline's own tests come later and will be added here.
