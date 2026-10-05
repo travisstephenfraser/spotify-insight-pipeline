@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Travis's individual capstone, "Multi Agent Large Data Processing Pipeline", due 2026-10-13 23:59 PT. The pipeline turns 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo, with every number traceable to saved evidence. The deliverable is one public GitHub repo whose README maps each rubric point to an evidence link.
 
-**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). **The implementation plan is written** (`docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md`: 18 tasks in six phases, with proposed pass marks for each gate). Next: Travis's go to start the build, and his choice of how it is executed. No pipeline code exists yet.
+**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). **The implementation plan is written** (`docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md`: 18 tasks in six phases, with proposed pass marks for each gate). **The pipeline is built (2026-10-05) on branch `build/pipeline`, tested with stand-in models only.** All 18 plan tasks are done; 404 tests pass (1 skipped: the full-file read). No real model call, pilot, gate or full run has been made with it. Next: Travis decides how the branch lands on `main`, then the gates, each on his go.
 
 **State as of 2026-10-04:** no pipeline code exists. The repo's remote is `git@github.com:travisstephenfraser/spotify-insight-pipeline.git`, private until Travis flips it public for submission. The design is being agreed one decision at a time. Update this section as stages land, and add the pipeline's own run and test commands under Commands when they exist. The decisions below are in the order they were made; later entries supersede earlier ones.
 
@@ -172,6 +172,20 @@ Still pending from Travis: which questions go to the instructor (reuse of early-
 
 Measured in a throwaway probe on 2026-10-04 (50 reviews, single runs): Gemma 26B-A4B 4-bit took about 0.57 s per review with one request at a time and 0.27 s with four, with no failed requests. Batch size (1, 10 or 50 per request) did not change speed, but labels drifted as batches grew.
 
+## What the build established (2026-10-05)
+
+The executor's rulings and notes are in the final message of the build session and, until the branch is merged, in `.superpowers/sdd/2026-10-05-spotify-insight-pipeline/progress.md` (gitignored). The facts worth keeping:
+
+- A stand-in run through every stage, stopped once and resumed, exports and the supplied checker returns `pass` with no flags. Eight deliberate breaks of a good export are each named by the checker.
+- Replaying Jev's 100 saved pilot answers through the pipeline reproduces the recorded ranking (52 members; usability 38, other 29, playback 22, billing 20) and the measured cost ($0.0039 per 100).
+- The calculator's full-pass estimates: $19.11 with exact-text reuse, $25.57 without (over the cap), $24.65 in the conservative case (5% retries and output tokens billed at the input rate). The conservative case leaves almost no room under $25.
+- `pipeline/billing.json` counts Jev output tokens at the input rate until the usage page settles it, so the ledger errs high; `cost/rates.csv` leaves that rate blank and reports it as unknown.
+- The token limit (100,000 a second) alone allows about 97 requests a second at pilot request sizes, so the 75-a-second request limit is the one that binds.
+- Two stand-ins that label by the same rule agree on every pair, so a stand-in run with 50 or more sampled reviews trips the `verifier_agreement_100` guard; pass `--accept-guard verifier_agreement_100` or a smaller `--verify-size`.
+- Saved Jev answers cover 32 of the 60 cut-off-half rows. The other 28 are keyword-picked development rows Jev has not labeled: a small paid run is needed before the cut-off table is complete.
+- `prompts/enrich-v2.json` is the candidate slogan wording (only the intent question changes). Unmeasured.
+- `prompts/features-v1.txt` is a draft of 45 feature words from counts over the full file, for Travis to read at the 100 gate.
+
 ## How to work with Travis here
 
 - This is a guided walk-through, not an autonomous build. Explain each step, confirm he understands it, and get his decision before acting. Do not choose a tool, model, threshold, budget or schema on his behalf.
@@ -206,6 +220,22 @@ python3 "$D/check_submission.py" profile   --full "$D/spotify_reviews_18months.c
 python3 "$D/check_submission.py" reference --full "$D/spotify_reviews_18months.csv" --analysis "$D/spotify_reviews_18months.csv" --out local-reference.json
 python3 "$D/check_submission.py" check     --reference local-reference.json --submission grading --out self-check.json
 ```
+
+The pipeline's own commands (see `README.md` for the full list):
+
+```sh
+python3 -m unittest discover -s tests -t .                      # 404 tests, no outside network, no key
+python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
+python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
+python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the key, LM Studio
+python3 -m pipeline status --run NAME
+python3 -m pipeline export --run NAME --evidence runs/NAME     # grading/, run evidence, then the supplied checker
+python3 -m pipeline rank                                        # ranking from committed files; no model, no state file
+python3 -m cost                                                 # offline replay of the calculator
+python3 -m cost pilot --go                                      # REAL: the paid 100-review pilot
+```
+
+Stand-in runs and real runs never share a state file: pass `--state` to a stand-in run. A real run without `--go` only prints what it would spend. The eval scripts in `evals/` follow the same rule (`--standin` or `--go`).
 
 The checker is standard library only and makes no network or model calls. Keep `local-reference.json` and `self-check.json` outside `grading/`. Python is `/opt/homebrew/bin/python3` (3.14).
 
