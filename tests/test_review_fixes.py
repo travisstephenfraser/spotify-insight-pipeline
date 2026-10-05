@@ -3,6 +3,9 @@
 import contextlib
 import io
 import json
+import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from decimal import Decimal
@@ -286,6 +289,11 @@ class CliFixes(TmpCase):
         self.assertEqual([tuple(r) for r in rows], [("adjust", "0.25", "usage page shows output tokens billed")])
         self.assertIn("0.2500", text)
 
+    def test_an_adjustment_that_is_not_an_amount_is_refused_and_nothing_is_written(self):
+        code, text = self.cli("adjust", "--usd", "a quarter", "--note", "typo")
+        self.assertEqual(code, 2)
+        self.assertEqual(self.db().execute("SELECT COUNT(*) FROM ledger WHERE kind='adjust'").fetchone()[0], 0)
+
     def test_an_adjustment_needs_a_note(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
             cli.main(["adjust", "--usd", "0.25", "--state", str(self.state)])
@@ -411,6 +419,13 @@ class Finding6GateChecks(TmpCase):
         self.assertIn(row["review_id"], text)
         self.assertIn("severity", text)
 
+    def test_a_run_compared_with_itself_is_refused(self):
+        """Every label equals itself, so this would read as a pass and prove nothing."""
+        self.two_runs()
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-big")
+        self.assertEqual(code, 2)
+        self.assertIn("itself", text)
+
     def test_runs_with_no_review_in_common_are_refused(self):
         self.two_runs()
         other = self.dir / "other.csv"
@@ -517,6 +532,13 @@ class SmallerFixes(StagedCase):
         c = cli.parser().parse_args(["run", "--run", "x", "--standin", "--state", "/tmp/mine.sqlite"])
         self.assertEqual(cli.state_path(c), "/tmp/mine.sqlite")
 
+    def test_neither_default_state_file_can_be_committed(self):
+        """A state file holds every saved model answer; the stand-in one would also dirty the tree before a real run."""
+        ignored = (fixtures.ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+        for path in (cli.STATE, cli.STANDIN_STATE):
+            with self.subTest(path=path.name):
+                self.assertIn(f"runs/{path.name}*", ignored)
+
     def test_a_real_eval_refuses_a_state_file_that_holds_stand_in_runs(self):
         import argparse
         import os
@@ -576,6 +598,149 @@ class SmallerFixes(StagedCase):
         for path in (bad_bytes, unbalanced):
             with self.subTest(path=path.name), self.assertRaises(prepare.BadInput):
                 prepare.read_rows(path)
+
+
+PILOT_CSV = fixtures.DATA / "cost_100.csv"
+
+
+class Finding2PilotCanBeReentered(StagedCase):
+    """The paid pilot must be able to pick up where it stopped, and must know a planned stop from any other."""
+
+    def setUp(self):
+        super().setUp()
+        self.state = self.dir / "state.sqlite"
+        self.cost = self.dir / "cost"
+        self.cost.mkdir()
+        for name in ("rates.csv", "local_compute.csv", "assumptions.csv", "text_volume.json"):
+            shutil.copy2(fixtures.ROOT / "cost" / name, self.cost / name)
+
+    def run_pipeline(self, *args):
+        return run_cli("run", *args, "--standin", "--state", self.state)
+
+    def steps(self):
+        from cost import evidence
+
+        db = state.connect(self.state, synchronous="OFF")
+        try:
+            return evidence.pilot_steps(db, "cold", "warm")
+        finally:
+            db.close()
+
+    def pilot(self, *extra):
+        return subprocess.run(
+            [sys.executable, "-m", "cost", "pilot", "--standin", "--state", str(self.state), "--dir", str(self.cost), "--cold", "cold", "--warm", "warm", *extra],
+            cwd=fixtures.ROOT, capture_output=True, text=True,
+        )  # fmt: skip
+
+    def test_a_fresh_pilot_plans_the_stopped_start_the_resume_and_the_warm_pass(self):
+        self.assertEqual(self.steps(), ["cold_start", "cold_resume", "warm"])
+
+    def test_after_the_planned_stop_only_the_resume_and_the_warm_pass_are_left(self):
+        self.run_pipeline("--run", "cold", "--new", "--input", PILOT_CSV, "--stop-after", "50")
+        self.assertEqual(self.steps(), ["cold_resume", "warm"])
+
+    def test_a_start_that_completed_nothing_is_started_again_with_its_stop(self):
+        """An outage at the first request leaves no completed review, so there is no boundary to resume across yet."""
+        self.run_pipeline("--run", "cold", "--new", "--input", PILOT_CSV, "--stop-after", "50")
+        db = state.connect(self.state, synchronous="OFF")
+        db.execute("UPDATE reviews SET status='pending', completed_session=NULL WHERE run='cold'")
+        db.execute("DELETE FROM results WHERE run='cold'")
+        db.close()
+        self.assertEqual(self.steps(), ["cold_restart", "cold_resume", "warm"])
+
+    def test_a_finished_cold_run_leaves_only_the_warm_pass_and_a_finished_pair_leaves_nothing(self):
+        self.run_pipeline("--run", "cold", "--new", "--input", PILOT_CSV, "--stop-after", "50")
+        self.run_pipeline("--run", "cold")
+        self.assertEqual(self.steps(), ["warm"])
+        self.run_pipeline("--run", "warm", "--new", "--input", PILOT_CSV, "--warm-from", "cold")
+        self.assertEqual(self.steps(), [])
+
+    def test_a_cold_run_that_was_never_stopped_cannot_be_the_pilot(self):
+        from cost import evidence
+
+        self.run_pipeline("--run", "cold", "--new", "--input", PILOT_CSV)
+        with self.assertRaises(evidence.BadPilot) as caught:
+            self.steps()
+        self.assertIn("--cold", str(caught.exception))
+
+    def test_the_pilot_command_can_be_run_again_after_it_finished(self):
+        first = self.pilot()
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        again = self.pilot()
+        self.assertEqual(again.returncode, 0, again.stdout + again.stderr)
+        self.assertTrue((self.cost / "usage.csv").exists())
+
+    def test_the_pilot_command_finishes_a_pilot_that_was_cut_off_after_its_first_step(self):
+        self.run_pipeline("--run", "cold", "--new", "--input", PILOT_CSV, "--stop-after", "50")
+        done = self.pilot()
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertEqual(self.steps(), [])
+        self.assertTrue((self.cost / "pilot_calls.jsonl").exists())
+
+    def test_the_evidence_can_be_written_on_its_own_from_finished_runs(self):
+        self.run_pipeline("--run", "cold", "--new", "--input", PILOT_CSV, "--stop-after", "50")
+        self.run_pipeline("--run", "cold")
+        self.run_pipeline("--run", "warm", "--new", "--input", PILOT_CSV, "--warm-from", "cold")
+        done = subprocess.run(
+            [sys.executable, "-m", "cost", "evidence", "--state", str(self.state), "--dir", str(self.cost), "--cold", "cold", "--warm", "warm"],
+            cwd=fixtures.ROOT, capture_output=True, text=True,
+        )  # fmt: skip
+        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertTrue((self.cost / "pilot_records.jsonl").exists())
+
+
+class Finding7RowCount(unittest.TestCase):
+    """The instructor changes the projected row count. The report must stay consistent with itself."""
+
+    @classmethod
+    def setUpClass(cls):
+        from tests import test_cost
+
+        cls._tmp = tempfile.TemporaryDirectory()
+        cls.dir = test_cost.make_pilot(Path(cls._tmp.name))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._tmp.cleanup()
+
+    def replay(self, *args):
+        done = subprocess.run([sys.executable, "-m", "cost", "replay", "--dir", str(self.dir), *args], cwd=fixtures.ROOT, capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr[-1500:])
+        return (self.dir / "report.md").read_text()
+
+    def test_changing_only_the_row_count_scales_the_counts_that_depend_on_it(self):
+        report = self.replay("--rows", "1000")
+        section = report.split("## Estimated before the full run")[1]
+        self.assertIn("All 1,000 rows accounted for; 1,000 nonempty outputs; 0 empty-text quarantines", section)
+        self.assertNotIn("660,609", section)
+        self.assertNotIn("484,189", section)
+        self.assertNotRegex(section, r"-\d[\d,]* empty-text")
+        self.assertIn("733", section)  # 1,000 rows at the full file's share of distinct texts
+        self.assertIn("scaled to this row count", section)
+
+    def test_the_full_files_own_counts_are_used_when_nothing_is_changed(self):
+        section = self.replay().split("## Estimated before the full run")[1]
+        self.assertIn("All 660,622 rows accounted for; 660,609 nonempty outputs; 13 empty-text quarantines", section)
+        self.assertIn("484,189", section)
+        self.assertNotIn("scaled to this row count", section)
+
+    def test_counts_given_by_hand_are_kept_as_given(self):
+        section = self.replay("--rows", "1000", "--nonempty", "990", "--distinct", "900").split("## Estimated before the full run")[1]
+        self.assertIn("All 1,000 rows accounted for; 990 nonempty outputs; 10 empty-text quarantines", section)
+        self.assertIn("| 900 |", section)
+
+    def test_an_assumptions_file_with_only_its_row_count_edited_is_scaled_too(self):
+        from cost import calc
+
+        inputs = calc.load(self.dir)
+        inputs["assumptions"] = [{**r, "value": "1000"} if r["item"] == "rows" else r for r in inputs["assumptions"]]
+        plan = calc.projection_inputs(inputs)
+        self.assertEqual((plan["rows"], plan["nonempty"], plan["distinct"]), (1000, 1000, 733))
+
+    def test_counts_that_cannot_be_true_together_are_refused(self):
+        done = subprocess.run([sys.executable, "-m", "cost", "replay", "--dir", str(self.dir), "--rows", "100", "--nonempty", "500"], cwd=fixtures.ROOT, capture_output=True, text=True)
+        self.assertEqual(done.returncode, 2)
+        self.assertIn("nonempty", done.stdout)
 
 
 if __name__ == "__main__":

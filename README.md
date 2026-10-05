@@ -16,7 +16,7 @@ State      one SQLite file, write-ahead mode
 Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name/memo  Gemma 26B, local
-Tests      446 automated (445 run with no outside network; 1 skipped unless the 97 MB file is present)
+Tests      462 automated (461 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-05
 ```
 
@@ -54,6 +54,7 @@ classify: stop_after; completed 50, pending 50, quarantined 0; spent $0.0024 of 
 $ python3 -m pipeline run --run dry100 --standin --state /tmp/dry/state.sqlite
 classify: finished; completed 100, pending 0, quarantined 0; spent $0.0048 of $25
 verify: finished; predicted 100, failed 0, left 0.
+verify report: sample 100, predictions 100, verify failures 0, not labeled by Jev 0; all three fields agree on 19 of 100 pairs
 group: finished; 52 members, 8 named, 0 reused, 0 fell back.
 memo: written and checked
 All stages finished. Next: python3 -m pipeline export --run dry100
@@ -63,7 +64,7 @@ checker status: pass
 coverage: 100 classified, 0 quarantined, of 100 rows
 ```
 
-The first command stops on purpose after 50 reviews. The second is the same command without `--new`: it resumes, sends nothing that was already completed, and runs the remaining stages. The third writes the grading folder and runs the supplied checker on it.
+The first command stops on purpose after 50 reviews. The second is the same command without `--new`: it resumes, sends nothing that was already completed, and runs the remaining stages. The third writes the grading folder and runs the supplied checker on it. The "19 of 100" in the verify report compares replayed answers with a keyword rule, so it says nothing about either model.
 
 ## Features
 
@@ -105,10 +106,13 @@ The first command stops on purpose after 50 reviews. The second is the same comm
       |                 retry x4 on 429/5xx/timeout -> back to pending
       |                 invalid answer: retry once -> quarantine invalid_model_output
       |                 wrong model or 401/402/403 -> HALT, no status changed
+      |                 other 4xx: that one review waits, then is listed as stuck
+      |                 8 failures in a row -> nothing new is sent, session ends "outage"
       v
  3 VERIFY      Gemma    role "verify": blind re-label of the fixed sample
       |        code     comparison, agreement report, disagreement list
       |                 server problem -> HALT (never counted as a failed review)
+      |                 a request the server refuses (400/413/422) is one failed review
       v
  4 GROUP       code     membership: one issue per topic
       |        Gemma    role "group": a name and one sentence per issue
@@ -165,7 +169,7 @@ One SQLite file, `runs/state.sqlite`, holds every run. It is not committed. The 
 | `workers` | INTEGER | not null | Requests in flight at most |
 | `started_utc` | TEXT | not null | Wall-clock start |
 | `started_mono`, `last_mono`, `ended_mono` | REAL | | Monotonic clock: start, last heartbeat, end |
-| `ended_how` | TEXT | | finished, stop_after, interrupted, time_box, cap, fatal, no_success_60s, stuck, crashed |
+| `ended_how` | TEXT | | finished, stop_after, interrupted, time_box, cap, fatal, no_success_60s, outage, stuck, crashed |
 
 **`reviews`**
 
@@ -230,7 +234,7 @@ A request settles exactly once: a unique index refuses a second `actual` or `kep
 
 **`membership`**: `run`, `issue_id`, `review_id` (primary key together).
 
-**`artifacts`**: `key` (primary key: a hash of the role, the setup and the input), `run`, `role`, `input_json`, `output_json`, `model`, `created_utc`. Names and memos are cached here by what went in.
+**`artifacts`**: `key` (primary key: the run, then a hash of the role, the setup and the input), `run`, `role`, `input_json`, `output_json`, `model`, `created_utc`. Names and memos are cached here by what went in, within one run. The setup string carries a hash of the prompt file, so an edited prompt is new work. A warm pass reads the artifacts of the run it names.
 
 ## Authentication and ownership
 
@@ -263,6 +267,8 @@ python3 -m pipeline rank --grading /tmp/dry/grading
 python3 -m cost
 ```
 
+A `--standin` run with no `--state` uses `runs/standin.sqlite`. The file that guards real spend, `runs/state.sqlite`, is only ever used by a real run, and each file holds one kind.
+
 The repository is private until submission. The full dataset, `spotify_reviews_18months.csv` (97.4 MB, 660,622 rows), is not in the repo. It comes from the course's dataset link and goes in `feed/Final Assignment - Spotify Reviews Dataset/`. Its SHA-256 is `1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6`; prepare refuses to continue if the file with that checksum does not give its known counts.
 
 A real run also needs LM Studio serving `google/gemma-4-26b-a4b-qat` at `localhost:1234` (`lms server start`) and a TypeSafe key. See [Running it for real](#running-it-for-real).
@@ -283,12 +289,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-446 tests: 445 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+462 tests: 461 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 446 tests in 11.064s
+Ran 462 tests in 12.566s
 
 OK (skipped=1)
 ```
@@ -388,11 +394,20 @@ Nothing here has been done yet. A real run starts only with `--go`, on committed
 
 1. Start the local model server and load `google/gemma-4-26b-a4b-qat`.
 2. Wording trial on the tuning cases only: `python3 evals/wording_trial.py --go`.
-3. The 100-review pilot, cold then warm: `python3 -m cost pilot --go`, then `python3 -m cost`.
+3. The 100-review pilot, cold then warm: `python3 -m cost pilot --go`, then `python3 -m cost`. The pilot reads the state file before each step, so if it stops partway the same command picks up from there. `python3 -m cost evidence` writes the pilot files again from finished runs.
 4. 500 reviews, then 10,000, then the full file:
    `python3 -m pipeline run --run NAME --new --go --workers 16 --input PATH.csv --stop-after N`, then the same command without `--new`.
+   After each gate, `python3 -m pipeline nested --run NAME --against EARLIER` lists any review labeled at both gates whose labels changed.
 5. `python3 -m pipeline export --run NAME --evidence runs/NAME`.
 6. `python3 evals/score_golden.py --run NAME`, once.
+
+Three commands for the cases a run can meet:
+
+| Case | Command |
+|---|---|
+| The memo was edited by hand | `python3 -m pipeline memo --run NAME --file memo.md --save` runs the same number and citation check a model's memo must pass |
+| The provider's usage page differs from the ledger | `python3 -m pipeline adjust --usd 0.25 --note "what the page showed"` |
+| A review's request keeps failing | `python3 -m pipeline quarantine-stuck --run NAME --reason api_failure_after_retries`, on the owner's call only |
 
 The step that is easy to miss: the prompt wording and the review cut-off are part of `label_config`. Changing either after the full run starts means a second full pass, which the $25 cap does not cover. Both are settled first.
 

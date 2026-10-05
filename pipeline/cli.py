@@ -318,9 +318,15 @@ def cmd_export(db, a):
 
 def cmd_adjust(db, a):
     """A correction to the spend ledger, found by comparing it with the provider's usage page."""
+    try:
+        amount = Decimal(a.usd)
+    except ArithmeticError:
+        raise Refused("--usd takes a dollar amount such as 0.25 or -0.10") from None
+    if not amount.is_finite():
+        raise Refused("--usd takes a dollar amount such as 0.25 or -0.10")
     led = ledger.Ledger(db, a.billing, cap_usd=Decimal(a.cap))
-    led.adjust(Decimal(a.usd), a.note)
-    print(f"ledger adjusted by ${Decimal(a.usd):.4f} ({a.note}). Spent now: ${led.spent_usd():.4f} of ${a.cap}")
+    led.adjust(amount, a.note)
+    print(f"ledger adjusted by ${amount:.4f} ({a.note}). Spent now: ${led.spent_usd():.4f} of ${a.cap}")
     return OK
 
 
@@ -344,6 +350,8 @@ def cmd_memo(db, a):
 
 def cmd_nested(db, a):
     """The gate check that reviews seen at two gates kept their labels (spec item 25)."""
+    if a.run == a.against:
+        raise Refused("a run compared with itself always agrees; name the earlier, smaller run with --against")
     state.load_run(db, a.run)
     state.load_run(db, a.against)
     compared, differ = classify.nested_differences(db, a.run, a.against)

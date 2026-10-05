@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Travis's individual capstone, "Multi Agent Large Data Processing Pipeline", due 2026-10-13 23:59 PT. The pipeline turns 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo, with every number traceable to saved evidence. The deliverable is one public GitHub repo whose README maps each rubric point to an evidence link.
 
-**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). **The implementation plan is written** (`docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md`: 18 tasks in six phases, with proposed pass marks for each gate). **The pipeline is built (2026-10-05) on branch `build/pipeline`, tested with stand-in models only.** All 18 plan tasks are done; 404 tests pass (1 skipped: the full-file read). No real model call, pilot, gate or full run has been made with it. Next: Travis decides how the branch lands on `main`, then the gates, each on his go.
+**Both hand-labeled files are frozen as of 2026-10-05** (`evals/adjudication_sheet.csv` and `evals/golden_50_labeled.csv`; hashes and results under "Label freeze and blind human check" below). No golden label changes from here. **The spec is approved as of 2026-10-05** (section 12 has no open row; see "Spec approved" below). **The implementation plan is written** (`docs/superpowers/plans/2026-10-05-spotify-insight-pipeline.md`: 18 tasks in six phases, with proposed pass marks for each gate). **The pipeline is built (2026-10-05) on branch `build/pipeline`, tested with stand-in models only.** All 18 plan tasks are done, one independent reviewer has read the whole branch, and its findings are fixed (validation log entry 22); 462 tests pass (1 skipped: the full-file read). No real model call, pilot, gate or full run has been made with it. Next: Travis decides how the branch lands on `main`, then the gates, each on his go.
 
 **State as of 2026-10-04:** no pipeline code exists. The repo's remote is `git@github.com:travisstephenfraser/spotify-insight-pipeline.git`, private until Travis flips it public for submission. The design is being agreed one decision at a time. Update this section as stages land, and add the pipeline's own run and test commands under Commands when they exist. The decisions below are in the order they were made; later entries supersede earlier ones.
 
@@ -174,7 +174,7 @@ Measured in a throwaway probe on 2026-10-04 (50 reviews, single runs): Gemma 26B
 
 ## What the build established (2026-10-05)
 
-The executor's rulings and notes are in the final message of the build session and, until the branch is merged, in `.superpowers/sdd/2026-10-05-spotify-insight-pipeline/progress.md` (gitignored). The facts worth keeping:
+Every decision the executor made on Travis's behalf during the build is in `docs/build-rulings-2026-10-05.md` (94 rulings, each with what it costs if wrong, plus the review's findings and the one left open). The facts worth keeping:
 
 - A stand-in run through every stage, stopped once and resumed, exports and the supplied checker returns `pass` with no flags. Eight deliberate breaks of a good export are each named by the checker.
 - Replaying Jev's 100 saved pilot answers through the pipeline reproduces the recorded ranking (52 members; usability 38, other 29, playback 22, billing 20) and the measured cost ($0.0039 per 100).
@@ -185,6 +185,17 @@ The executor's rulings and notes are in the final message of the build session a
 - Saved Jev answers cover 32 of the 60 cut-off-half rows. The other 28 are keyword-picked development rows Jev has not labeled: a small paid run is needed before the cut-off table is complete.
 - `prompts/enrich-v2.json` is the candidate slogan wording (only the intent question changes). Unmeasured.
 - `prompts/features-v1.txt` is a draft of 45 feature words from counts over the full file, for Travis to read at the 100 gate.
+
+**Independent code review and fix pass, 2026-10-05** (validation log entry 22). No critical finding, 7 important, 12 minor; all fixed but one minor, each with a test that failed first. What changed in how the pipeline behaves:
+
+- Names and memos are cached per run. A second run on the same file makes its own naming and memo calls; only a warm pass reads another run's.
+- Classify stops sending new reviews after 8 failures in a row (or twice the workers) and the session ends as `outage`. A request that never left the machine costs nothing in the ledger. A 4xx other than 401, 402, 403 and 429 sets that one review aside; it no longer halts the run.
+- The verify, naming and memo prompts are hashed into their stage's setup string. An edited naming or memo prompt is new work for that stage only. An edited verify prompt is refused once verify has started on a run.
+- New commands: `nested` (reviews labeled at two gates must keep their labels), `memo` (checks a hand-edited memo), `adjust` (corrects the ledger from the usage page), `cost evidence`. `cost pilot` reads the state file and picks up where it stopped.
+- A `--standin` run defaults to `runs/standin.sqlite`; a real eval refuses a state file that holds stand-in runs.
+- Measured with the stand-in: the state file saves about 1,490 requests a second with a disk sync on every save (10,000-review file, 16 workers), against a limit of 75. On macOS that sync does not force the drive's cache to flush.
+- Still open: Ctrl-C during naming or the memo call does not stop the call in flight.
+- Unknown until a real call, by the reviewer's own list: how LM Studio and TypeSafe behave at the edges, whether Gemma's memo passes the check, and sustained speed.
 
 ## How to work with Travis here
 
@@ -224,7 +235,7 @@ python3 "$D/check_submission.py" check     --reference local-reference.json --su
 The pipeline's own commands (see `README.md` for the full list):
 
 ```sh
-python3 -m unittest discover -s tests -t .                      # 404 tests, no outside network, no key
+python3 -m unittest discover -s tests -t .                      # 462 tests, no outside network, no key
 python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
 python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
 python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the key, LM Studio
@@ -232,10 +243,14 @@ python3 -m pipeline status --run NAME
 python3 -m pipeline export --run NAME --evidence runs/NAME     # grading/, run evidence, then the supplied checker
 python3 -m pipeline rank                                        # ranking from committed files; no model, no state file
 python3 -m cost                                                 # offline replay of the calculator
-python3 -m cost pilot --go                                      # REAL: the paid 100-review pilot
+python3 -m cost pilot --go                                      # REAL: the paid 100-review pilot; run again to pick up where it stopped
+python3 -m cost evidence                                        # write the pilot files again from finished runs
+python3 -m pipeline nested --run NAME --against EARLIER         # gate check: reviews labeled in both runs kept their labels
+python3 -m pipeline memo --run NAME --file memo.md --save       # check a hand-edited memo and make it the run's memo
+python3 -m pipeline adjust --usd 0.25 --note "why"              # correct the spend ledger from the provider's usage page
 ```
 
-Stand-in runs and real runs never share a state file: pass `--state` to a stand-in run. A real run without `--go` only prints what it would spend. The eval scripts in `evals/` follow the same rule (`--standin` or `--go`).
+Stand-in runs and real runs never share a state file: a `--standin` run defaults to `runs/standin.sqlite`, so `status`, `export` and `nested` on a stand-in run need `--state runs/standin.sqlite`. A real run without `--go` only prints what it would spend. The eval scripts in `evals/` follow the same rule (`--standin` or `--go`).
 
 The checker is standard library only and makes no network or model calls. Keep `local-reference.json` and `self-check.json` outside `grading/`. Python is `/opt/homebrew/bin/python3` (3.14).
 

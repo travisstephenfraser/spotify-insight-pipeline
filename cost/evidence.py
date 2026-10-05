@@ -8,7 +8,7 @@ import json
 from decimal import Decimal
 from pathlib import Path
 
-from pipeline import export, hashing, state
+from pipeline import export, hashing, memo, state, verify
 
 STAGES = ("classify", "verify", "group", "memo")
 ROLE = {"classify": "enrich", "verify": "verify", "group": "group", "memo": "memo"}
@@ -21,6 +21,47 @@ COLUMNS = (
 
 class BadPilot(Exception):
     """The two runs are not a clean cold and warm pair, so they are not saved as pilot evidence."""
+
+
+def pilot_steps(db, cold, warm):
+    """The steps a pilot still has to take, in order, read from the state file. Empty means only the evidence is left.
+
+    Raises BadPilot when a run that exists cannot become part of a clean pilot, and says which new name to pass.
+    """
+
+    def exists(run):
+        return db.execute("SELECT 1 FROM runs WHERE run=?", (run,)).fetchone() is not None
+
+    def count(sql, *args):
+        return db.execute(sql, args).fetchone()[0]
+
+    steps = []
+    if not exists(cold):
+        steps += ["cold_start", "cold_resume"]
+    else:
+        pending = count("SELECT COUNT(*) FROM reviews WHERE run=? AND status='pending'", cold)
+        originals = count("SELECT COUNT(*) FROM reviews WHERE run=? AND status='completed' AND cache_source_id IS NULL", cold)
+        members = count("SELECT COUNT(*) FROM membership WHERE run=?", cold)
+        whole = pending == 0 and not verify._todo(db, cold) and (memo.final(db, cold) is not None or (originals and not members and
+                 count("SELECT COUNT(*) FROM sessions WHERE run=? AND stage='group'", cold)))  # fmt: skip
+        if originals == 0:
+            # Nothing completed yet, so there is no saved work to resume across. Start again with the planned stop.
+            steps += ["cold_restart", "cold_resume"]
+        elif not whole:
+            steps.append("cold_resume")
+        elif export.boundary(db, cold) is None:
+            raise BadPilot(
+                f"run {cold} finished without being stopped and resumed, so it has no resume evidence. "
+                "Start a fresh pilot under new names: --cold NAME --warm NAME"
+            )
+    if not exists(warm):
+        steps.append("warm")
+    else:
+        record = db.execute("SELECT output_json FROM artifacts WHERE key=?", (f"warm:{warm}",)).fetchone()
+        calls = count("SELECT COUNT(*) FROM calls WHERE run=?", warm)
+        if record is None or calls or json.loads(record["output_json"]).get("source_run") != cold:
+            raise BadPilot(f"run {warm} exists and is not a clean warm pass of {cold}. Use a new name for it: --warm NAME")
+    return steps
 
 
 def usage_rows(db, run, which):

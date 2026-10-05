@@ -7,7 +7,7 @@ estimate and costs that are unknown are three separate totals.
 
 import csv
 import json
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 STAGES = ("classify", "verify", "group", "memo")
@@ -129,13 +129,27 @@ def measured(*, calls, rates, usage, local, records=(), **_):
     return out
 
 
+def scale_counts(rows, text_volume):
+    """(nonempty, distinct) for another row count, at the full file's shares of each."""
+
+    def share(count):
+        return int((Decimal(rows) * count / text_volume["full_rows"]).to_integral_value(ROUND_HALF_UP))
+
+    return share(text_volume["full_nonempty_rows"]), share(text_volume["full_distinct_texts"])
+
+
 def projection_inputs(inputs):
     """The editable assumptions as arguments for `project`."""
     a = {r["item"]: r["value"] for r in inputs["assumptions"]}
+    rows, nonempty, distinct = int(a["rows"]), int(a["nonempty"]), int(a["distinct"])
+    scaled = not distinct <= nonempty <= rows  # only the row count was edited: the other two no longer fit it
+    if scaled:
+        nonempty, distinct = scale_counts(rows, inputs["text_volume"])
     return {
-        "rows": int(a["rows"]),
-        "nonempty": int(a["nonempty"]),
-        "distinct": int(a["distinct"]),
+        "scaled": scaled,
+        "rows": rows,
+        "nonempty": nonempty,
+        "distinct": distinct,
         "verify": int(a["verify"]),
         "issues": int(a["issues"]),
         "text_volume": inputs["text_volume"],
@@ -151,7 +165,7 @@ def projection_inputs(inputs):
 
 def project(
     measured, *, rows, nonempty, distinct, verify, issues, text_volume, retry_rate, conservative_retry_rate=Decimal("0.05"),
-    text_copies=Decimal(2), max_rps=Decimal(75), cap=Decimal(25), rates=(), local=(),
+    text_copies=Decimal(2), max_rps=Decimal(75), cap=Decimal(25), rates=(), local=(), scaled=False,
 ):  # fmt: skip
     """Full-run estimates. Each stage from its own work count; the memo once. Every figure here is an estimate."""
     cold = measured["cold"]["stages"]
@@ -212,17 +226,18 @@ def project(
             "seconds": sum((s["seconds"] for s in stages.values()), Decimal(0)),
         }
 
-    distinct_bytes, nonempty_bytes = text_volume["full_distinct_text_bytes"], text_volume["full_nonempty_text_bytes"]
-    full = rows >= text_volume.get("full_rows", rows)  # another row count has no measured text volume: use the pilot's
+    # An average text length does not depend on how many rows are projected, so the full file's is used for any count.
+    distinct_text = (text_volume["full_distinct_text_bytes"], text_volume["full_distinct_texts"])
+    nonempty_text = (text_volume["full_nonempty_text_bytes"], text_volume["full_nonempty_rows"])
     cases = {
-        "base": case(distinct, distinct_bytes if full else 0, text_volume["full_distinct_texts"] if full else 0, retry_rate, False),
-        "no_reuse": case(nonempty, nonempty_bytes if full else 0, text_volume["full_nonempty_rows"] if full else 0, retry_rate, False),
-        "conservative": case(distinct, distinct_bytes if full else 0, text_volume["full_distinct_texts"] if full else 0, conservative_retry_rate, True),
+        "base": case(distinct, *distinct_text, retry_rate, False),
+        "no_reuse": case(nonempty, *nonempty_text, retry_rate, False),
+        "conservative": case(distinct, *distinct_text, conservative_retry_rate, True),
     }
     warnings = [
         f"the {name} case passes the cap: ${c['api_usd']:.2f} against ${cap}" for name, c in cases.items() if c["api_usd"] > cap
     ]
-    return {**cases, "warnings": warnings, "rows": rows, "nonempty": nonempty, "distinct": distinct, "cap": cap}
+    return {**cases, "warnings": warnings, "rows": rows, "nonempty": nonempty, "distinct": distinct, "cap": cap, "scaled": scaled}
 
 
 def _usd(value, places=4):
@@ -291,7 +306,8 @@ def report(inputs, measured_, projection):
         "## Estimated before the full run",
         "",
         f"All {projection['rows']:,} rows accounted for; {projection['nonempty']:,} nonempty outputs; "
-        f"{projection['rows'] - projection['nonempty']:,} empty-text quarantines. Every figure in this section is an estimate.",
+        f"{projection['rows'] - projection['nonempty']:,} empty-text quarantines. Every figure in this section is an estimate."
+        + (" The nonempty and distinct counts were scaled to this row count at the full file's shares." if projection["scaled"] else ""),
         "",
         "| Case | Jev requests | Attempts | Input tokens per request | API cost | Local estimate | Jev time at the rate cap | Jev time with one worker |",
         "|---|---|---|---|---|---|---|---|",
