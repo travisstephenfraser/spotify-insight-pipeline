@@ -186,3 +186,26 @@ def classified_db(directory, rows=None, *, verify_size=10, labeler=None, cutoff=
         setup=jev.load_setup(ROOT / "prompts", cutoff), backoff=(0, 0, 0),
     )  # fmt: skip
     return db, outcome
+
+
+def record_for(row, **label):
+    """A completed grading record for a source row, valid for the checker."""
+    from pipeline import hashing
+
+    base = {
+        "topic": "playback", "intent": "complaint", "sentiment": -0.5, "severity": 3, "entities": [],
+        "evidence_quote": row["review_text"].strip(), "needs_review": False,
+        "label_config": RUN_ARGS["label_config"],
+    }  # fmt: skip
+    return {"review_id": row["review_id"], "source_sha256": hashing.row_sha(row), "status": "completed", **base, **label}
+
+
+def reference_for(rows):
+    """What the checker's `reference` step would build for these rows, without reading a file."""
+    from pipeline import hashing
+
+    return {
+        "rows": {r["review_id"]: {"source_sha256": hashing.row_sha(r), "review_text": r["review_text"]} for r in rows},
+        "analysis_sha256": "x",
+        "ingestion": {},
+    }
