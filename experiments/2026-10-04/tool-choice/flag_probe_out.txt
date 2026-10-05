@@ -1,0 +1,20 @@
+lowest top probability per review, 100 pilot reviews
+  below 0.50:   3 of 100
+  below 0.60:  17 of 100
+  below 0.70:  26 of 100
+  below 0.80:  38 of 100
+  below 0.90:  54 of 100
+  below 0.95:  66 of 100
+
+labeled rows: 29; Jev all-three right 24, wrong 5
+  lowest top probability on the 5 wrong rows: [0.42, 0.58, 0.61, 0.64, 0.87]
+  cut 0.6: flags 2 of 5 wrong, 1 of 24 right
+  cut 0.7: flags 4 of 5 wrong, 4 of 24 right
+  cut 0.8: flags 4 of 5 wrong, 8 of 24 right
+  cut 0.9: flags 5 of 5 wrong, 11 of 24 right
+
+Jev and Gemma disagree on 23 of 100
+  cut 0.6: flags 8 of 23 disagreements, 9 of 77 agreements
+  cut 0.7: flags 13 of 23 disagreements, 13 of 77 agreements
+  cut 0.8: flags 18 of 23 disagreements, 20 of 77 agreements
+  cut 0.9: flags 21 of 23 disagreements, 33 of 77 agreements

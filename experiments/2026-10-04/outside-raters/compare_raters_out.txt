@@ -1,0 +1,49 @@
+anthropic: 235 saved at medium effort, 0 without labels, refused 0, spend at every setting $1.12
+openai: 235 saved at medium effort, 0 without labels, refused 0, spend at every setting $2.77
+rated by both: 235 of 235
+
+== rater against rater ==
+dev      n=150  all three 131  topic 144  intent 150  severity 136
+boycott  n= 60  all three  56  topic  59  intent  57  severity  58
+planted  n= 25  all three  23  topic  25  intent  25  severity  23
+all      n=235  all three 210  topic 228  intent 232  severity 217
+severity gap between raters: {0: 217, 1: 18}
+
+== against the 29 hand labels ==
+fable: all three 25/29 against the labels as they stand, 21/29 against the labels as first written | topic 29, intent 29, severity 25
+astra: all three 25/29 against the labels as they stand, 21/29 against the labels as first written | topic 29, intent 29, severity 25
+the five revised rows (field: first -> revised | fable, astra):
+  row 5 topic: playback -> billing | billing, billing
+  row 6 topic: usability -> billing | billing, billing
+  row 22 intent: complaint -> cancellation | cancellation, cancellation
+  row 26 topic: usability -> billing | billing, billing
+  row 30 severity: 3 -> 2 | 2, 2
+  row 5 severity: yours 4 | fable 3, astra 3
+  row 19 severity: yours 3 | fable 2, astra 2
+  row 29 severity: yours 4 | fable 3, astra 3
+anchor: fable matches 21 of the 21 rows where Jev, Gemma and the hand label agree
+anchor: astra matches 21 of the 21 rows where Jev, Gemma and the hand label agree
+
+== planted cases (expected answers were written by the assistant) ==
+fable: 24/25  contract rule 8/9  no letters 5/5  injection 4/4  slogan 4/4  non-English 3/3
+astra: 25/25  contract rule 9/9  no letters 5/5  injection 4/4  slogan 4/4  non-English 3/3
+planted cases where a rater differs from the expected answer: ['R1']
+
+== sheet for Travis: 39 rows ==
+disputed 23 (development 19 of 121, boycott 4 of 60), planted 1, agreed checks 15
+disputed among the 29 already labeled (not on the sheet): 0
+boycott disputed by split: {'tune': 2, 'holdout': 2}
+boycott intents, fable: {'unclear': 52, 'complaint': 7, 'cancellation': 1} | astra: {'unclear': 53, 'complaint': 6, 'cancellation': 1}
+rows where a rater differs from the hand label (all are severity):
+  row 5: yours 4 | fable 3 astra 3 jev 3 gemma 3
+  row 19: yours 3 | fable 2 astra 2 jev 2 gemma 2
+  row 24: yours 4 | fable 2 astra 2 jev 4 gemma 4
+  row 29: yours 4 | fable 3 astra 3 jev 4 gemma 3
+planted R1: fable {'topic': 'playback', 'intent': 'complaint', 'severity': 4, 'needs_review': False} | astra {'topic': 'playback', 'intent': 'complaint', 'severity': 3, 'needs_review': False}
+pilot reviews rated by both: 100; raters agree with each other on 92
+  on those 92: Jev matches the shared answer on 79, Gemma (10 per request) on 77
+    topic: Jev 88, Gemma 82
+    intent: Jev 88, Gemma 89
+    severity: Jev 86, Gemma 86
+  complaints and cancellations among them: 46; Jev all three 36, Gemma 32
+  severity minus the shared answer: Jev {-2: 0, -1: 3, 0: 86, 1: 2, 2: 1} | Gemma {-2: 0, -1: 5, 0: 86, 1: 0, 2: 1}

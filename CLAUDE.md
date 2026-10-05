@@ -58,7 +58,70 @@ Three foundation tests, 2026-10-04 (throwaway code, about 4 cents of Jev calls):
 
 **Ruling by Travis, 2026-10-04: Jev is the primary classifier**, chosen for cost and speed on the evidence above, and testing is stopped. This replaces the race: Gemma 26B becomes the blind second opinion. The ruling matches the tie rule (gap inside the noise, so the faster engine labels). Known Jev weak spots the design must guard and test: boycott hashtags read as `cancellation`, and instruction-like text moving the answer. No full run yet; the spec is still being agreed.
 
-Design part 2 (settings that follow from the Jev ruling) was presented on 2026-10-04 and is **awaiting Travis's yes**: Jev `jev-1.13.0` in the simple style, one request per review, with Jev picking the evidence sentence; one request at a time for the pilot, then up to 16 at once capped near 75 per second; Gemma 26B as blind second opinion on a random sample of 5,000 at one review per request; a review flag from Jev's top probability with the cut-off set on development labels only; tightened intent wording for slogans plus planted slogan and injection tests. Part 3 (grouping, memo, budget cap) has not been presented. Then the spec gets written.
+**Design part 2 approved by Travis, 2026-10-04**, one setting at a time, all five as presented:
+
+1. Labeler: Jev `jev-1.13.0`, simple style, one request per review, with Jev picking the evidence sentence on multi-sentence reviews (25 of the 100 pilot reviews). Known limit, accepted: the quote and the topic come from separate questions and can point at different sentences; how often is unmeasured. This supersedes the per-sentence bullet in the reshaped plan above.
+2. Speed: one request at a time for the cost pilot, then up to 16 at once capped near 75 per second. That is about 69K tokens per second (estimate; 72K was measured at 78 per second) against a documented 100K. Sustained speed is unmeasured until the 10,000 gate. What the run does on a rate-limit response is still to be written in the spec.
+3. Second opinion: Gemma 26B, blind, on a random sample of 5,000, one review per request. Gemma's accuracy at one per request is unmeasured and gets scored on the development labels at the 100 gate. Only these 5,000 reviews can be flagged by disagreement.
+4. Review flag: `needs_review` is true when the lowest of Jev's three top probabilities (topic, intent, severity) is below a cut-off. Travis picks the number later, on development labels only, once more of the 150 rows are labeled. This drops the earlier two-option-orders idea.
+5. Weak spots: tightened intent wording for slogans, plus planted slogan and injection tests kept in `evals/`. Injections get a test only, no guard; the README reports the measured miss rate as a known limit. The new wording is unwritten and untested, and trying it is a paid call that needs a go.
+
+Read of the saved pilot answers for setting 4 (no new calls, `flag_probe.py`), using the lowest of the three top probabilities per review:
+
+| Cut-off | Flagged, of 100 | Jev mistakes caught, of 5 | Right answers flagged, of 24 | Jev-Gemma disagreements caught, of 23 |
+|---|---|---|---|---|
+| 0.6 | 17 | 2 | 1 | 8 |
+| 0.7 | 26 | 4 | 4 | 13 |
+| 0.8 | 38 | 4 | 8 | 18 |
+| 0.9 | 54 | 5 | 11 | 21 |
+
+Too thin to fix a number (29 labels, 5 mistakes, five labels revised toward Jev).
+
+Design part 3, walked through one decision at a time on 2026-10-04:
+
+- **Grouping, decided by Travis:** one issue per topic is the baseline (eight issues at most). Code assigns each `complaint` or `cancellation` review from its saved topic; the group model only names and describes each issue from a bounded sample of quotes. Sub-issues inside a topic (a proposed list Travis signs off, then one extra Jev question per complaint, about 250,000 requests and roughly $10 by estimate) are an optional later step, decided after the early Jev pass and before the final export, because they change issue IDs. On the 100 pilot reviews Jev called 52 complaints or cancellations, and `other` ranked second by severity sum (usability 38, other 29, playback 22, billing 20), so the baseline carries one issue with nothing specific to fix.
+- **Writing model, decided by Travis:** Gemma 26B writes both the issue names (group role, at most 8 small calls) and the memo (one call), each with its own instructions. No model has written either yet, so quality is unmeasured. Review point: Travis reads the memo from the 100-review pilot and rules then on keeping Gemma 26B or switching the memo model; a switch means the pilot reruns. LM Studio also lists Gemma 31B (speed and memory on this laptop unknown); no cloud key is in use.
+- **Budget cap, decided by Travis: $25 of total Jev spend for the project**, held in the spend ledger (reserve worst case before each request; stop admitting work when spent plus reserved plus the next reservation would pass the cap; save and resume). Projected from the measured $0.0039 per 100 reviews: gates about $0.41 together, one full pass over 484,189 distinct texts about $19, leaving about $5. The cap does not cover a second full pass (about $19) or sub-issues (up to about $10); either needs Travis to raise it. So the intent wording must be settled before the full pass, because any prompt change is a new `label_config` and new work. Retries are unmeasured.
+
+All three parts of the design are now decided. The written spec is `docs/superpowers/specs/2026-10-04-spotify-insight-pipeline-design.md`, **drafted 2026-10-04 and awaiting Travis's review**. It marks every line as Decided or Proposed, and its section 12 lists the proposed items that still need his ruling. After his approval comes the implementation plan.
+
+**Every check run so far is listed in `docs/validation-log.md`** (what was checked, why the checker counts as independent, the result, the evidence file, the limit). Add an entry there whenever a check runs; the final README cites it for the testing and evaluation points. `docs/spec-review-2026-10-04.md` holds the spec reviewers' briefs and reports as written and the outcome of every finding.
+
+Independent review of the spec, 2026-10-04 (three readers: measurement validity, contract and checker, state and spending; all the same model family as the author). Fixes the sources dictate are folded into the spec and listed in its section 13. Thirteen real choices were added to section 12 as items 17 to 29, so it now holds 29. What the review established, each checked against the files:
+
+- The first draft's resume rule would have been flagged: the full pass (about 1.8 hours, estimate) fits in one session, so `before` would equal `after`. The full run must be stopped once on purpose.
+- The development labels lean toward Jev. Rows were revised only where a model disagreed (21 of 29 on all three fields before, 24 after). Sheet row 29 still carries severity 4 where the labeling guide says 3, and it scores as a Jev hit because Jev made the same call.
+- Jev and Gemma agree on 43 of 48 non-complaints but only 34 of 52 complaints and cancellations on the pilot 100. Billing severity sum is 20 from Jev and 9 from Gemma; usability 38 against 55. The top four topics keep their order.
+- A request body is 2.46 to 2.93 bytes per input token, and Jev reports about 215 output tokens per response whose billing is unknown.
+- The golden labeling guide's last line allowed changing a label after scoring, which conflicted with "scored once" (spec item 19).
+
+Rulings by Travis on the review items, 2026-10-04:
+
+- **Item 19, label freeze: yes.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. After the freeze no golden label changes; a plainly wrong one stays and the score is shown both ways. The guide's last lines were rewritten to say this. The development sheet as it stands is commit `bb5f440`, SHA-256 `febbfaeea4ed9a0034ce8ee9e6cf9fb0f283515d2469a41520dbd93a00cd6dd6` (29 rows labeled, five revised after seeing Jev). The golden sheet is still blank; its freeze hash is recorded when Travis finishes labeling.
+- **Item 27, output-token billing: settle it with a test batch** (send a small known batch, compare the TypeSafe usage page with input tokens times the rate). Unknown until then.
+- **Outside raters (spec item 30): approved.** Fable 5.1 (Anthropic) and Astra 6 (OpenAI's top model) label reviews blind as third-party raters. Budget: **$10 per provider, a hard cap**, separate from the $25 Jev cap. Travis adds `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` to `.env`. Conditions: the raters see only the review text and the contract's label section word for word, nothing from Jev, Gemma, Travis or the assistant's paraphrases; their labels are for tuning and for marking disputed rows, never for accuracy claims; the golden 50 stays Travis's by hand and is frozen before any rater sees those texts; the write-up discloses that Fable 5.1 shares a maker with the assistant that wrote the spec. Each paid run still needs its own go.
+- **Item 20, the 29 development labels already seen: keep them as they are.** Always report both scores (21 of 29 against the originals, 24 against the revised). They are no longer used to pick the cut-off. The outside raters label them blind to show whether the five revisions were fixes or drift.
+- **Item 24, cut-off evidence: agreed.** The raters label all 150 development rows blind. Travis hand-labels only the rows where the two raters disagree, plus about 15 random rows where they agree (to measure how often an agreed label is wrong), without seeing the raters' answers. The rows are then split by hash into a wording half and a cut-off half.
+- **Item 23, slogan cases: agreed.** 60 real reviews containing "boycott" are picked by hash and go through the same process; wording is tuned on 30 and the other 30 are scored once. The planted injection cases stay, with the raters confirming the expected answers.
+- Items 17, 18, 21, 22, 25, 26, 28 and 29 are unruled.
+
+**Outside-rater pass finished, 2026-10-04, medium effort, each step with Travis's go.** Evidence and full tables: `experiments/2026-10-04/README.md` and `outside-raters/compare_raters_out.txt`.
+
+- Both raters labeled 235 of 235 with no refusals. Spent: Fable 5.1 $1.12, Astra 6 $2.77, of $10 each. Room is left for the 50 golden texts.
+- They give identical topic, intent and severity on 210 of 235 (development 131 of 150, boycott 56 of 60, planted 23 of 25). Every severity difference is one step.
+- Against the 29 hand labels each matches 25 as the labels stand and 21 as first written. Both give the revised value on all five revised rows, so the revisions were fixes by this measure. The four remaining differences are all severity (sheet rows 5, 19, 24, 29), with both raters below the hand label.
+- Planted cases: Fable 24 of 25, Astra 25 of 25, including every injection and slogan case.
+- Real boycott reviews: 52 or 53 of 60 are `unclear` to the raters, 6 or 7 `complaint`, 1 `cancellation`.
+- Saved Jev and Gemma answers on the pilot 100, against the answer the two raters share (92 reviews): Jev 79, Gemma 77 on all three fields. Agreement with other models, not accuracy.
+- **Waiting on Travis:** `evals/adjudication_sheet.csv`, 39 reviews to label blind (23 where the raters differ, 1 planted case, 15 agreed checks, mixed). He must not open `evals/adjudication_key.json` or the rater answer files first. When he is done the sheet is committed and hashed before he sees any rater answer for those rows.
+
+Earlier steps of the same pass: 10-review test batch run at low effort with Travis's go, then the same 10 at medium. Measured: Fable 5.1 labeled 10 of 10 at $0.0041 each (projected $1.16 for 285); Astra labeled 10 of 10 at $0.0097 each (projected $2.78). No refusals. They matched on topic, intent and severity on 7 of 10. At low effort neither spent more than a few tokens thinking (31 and 43 output tokens per answer). A second test of the same 10 at medium effort, also with his go: Fable $0.0051 each (projected $1.50), Astra $0.0119 each (projected $3.49); the raters again matched on 7 of 10; Fable's answers were identical at both settings, Astra changed 1 of 10. Spent so far: $0.09 and $0.22 of the $10 caps. Both keys are now in `.env`. Answers are saved per effort setting, and all settings count toward the cap.
+
+- Models and rates, checked against the makers' pages on 2026-10-04: `claude-fable-5-1` and `gpt-6-astra`, both $10 input and $50 output per million tokens. Thinking is billed as output on both, so cost depends on the effort setting and is unmeasured.
+- `evals/boycott_60.csv`: 60 real reviews containing "boycott", picked by hash among 1,873 distinct eligible texts (3,484 rows contain the word, matching the red team's count), 30 marked `tune` and 30 `holdout`. No golden or development review is in it.
+- `experiments/2026-10-04/outside-raters/raters.py`: one review per request, the contract's label section copied word for word (2,522 characters, SHA-256 starting `21b37d5f43750bc9`), standard library only, dry run by default. It rates 235 reviews now (150 development, 60 boycott, 25 planted) and leaves room in the budget for the 50 golden texts later. It stops at the $10 cap and stops after ten rows if the projection would pass it. No fallback model: a refusal is saved as a refusal so each file is one rater's work.
+- Dry-run estimate for 285 rows per provider: about $3.70 if answers average 100 output tokens, $6.55 at 300, $12.25 at 700 (estimates; the last would trip the cap).
+- `.env` now holds three key names: `TYPESAFE_API_KEY` (renamed, so spec item 15 is done), `ANTHROPIC_API_KEY`, and `OPEN_API_KEY`. The brief's name for the last is `OPENAI_API_KEY`; the script reads either. Nothing is built and no model is called until he approves those and gives a go for each gate.
 
 Raw evidence for every number above is in `experiments/2026-10-04/` (throwaway scripts and saved responses, not code to reuse).
 

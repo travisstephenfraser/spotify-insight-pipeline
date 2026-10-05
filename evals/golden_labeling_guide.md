@@ -78,4 +78,6 @@ Two smaller ones: a threat to switch to another service anywhere in the review m
 
 ## When you finish
 
-Say so in the chat. A format check reports only row numbers and column names with problems: a blank cell, a value outside the lists, or a quote that is not an exact copy. After the classifier is scored, a label changes only to fix a clear slip, and each change goes in notes.
+Say so in the chat. A format check reports only row numbers and column names with problems: a blank cell, a value outside the lists, or a quote that is not an exact copy. Fix those, then the file is committed and its SHA-256 recorded. That is the frozen answer key, and it is frozen before you see any model output for these reviews.
+
+After the freeze no label changes. If a label turns out to be plainly wrong, it stays as it is, and the report shows the score both ways with the reason.
