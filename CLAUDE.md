@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Travis's individual capstone, "Multi Agent Large Data Processing Pipeline", due 2026-10-13 23:59 PT. The pipeline turns 660,622 Spotify app reviews into a ranked list of product issues and a short decision memo, with every number traceable to saved evidence. The deliverable is one public GitHub repo whose README maps each rubric point to an evidence link.
 
+**Start of the next session, before anything else:** ask Travis whether he has done the two labeling sessions, and prompt him to do them first if not. Travis asked for this on 2026-10-04.
+
+1. `evals/adjudication_sheet.csv`: 39 reviews, labeled blind with `evals/golden_labeling_guide.md`. He must not open `evals/adjudication_key.json` or anything in `experiments/2026-10-04/outside-raters/` first. About 45 minutes (estimate).
+2. The golden 50, `evals/golden_50_labeled.csv`: by hand, before any model sees those texts. About an hour (estimate).
+
+Do not start on spec items, the implementation plan or any build until both are done or he says to skip. When he finishes one, commit it and record its SHA-256 before showing him any model answer for those rows. Delete this block once both are frozen.
+
 **State as of 2026-10-04:** no pipeline code exists. The repo's remote is `git@github.com:travisstephenfraser/spotify-insight-pipeline.git`, private until Travis flips it public for submission. The design is being agreed one decision at a time. Update this section as stages land, and add the pipeline's own run and test commands under Commands when they exist. The decisions below are in the order they were made; later entries supersede earlier ones.
 
 Before the repo goes public: reread this file, `docs/` and `experiments/` for anything personal, and decide whether the course brief in `feed/` should be published. Handoff notes (`feed/HANDOFF-*.md`) are gitignored and stay on the laptop.
