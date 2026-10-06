@@ -38,7 +38,7 @@ The measured section of the report does not change. To see that rates and usage 
 
 - **API spend**: billed units times the price in `rates.csv`, exact, never rounded before it is summed.
 - **Local compute**: an estimate. Measured seconds times the assumptions in `local_compute.csv`. Running a model on this laptop is not free.
-- **Unknown costs**: listed with their units and never counted as zero. Whether Jev bills its output tokens is unknown until a test batch is compared with the provider's usage page; until then `jev_output_tokens` has a blank price.
+- **Unknown costs**: listed with their units and never counted as zero. Whether Jev bills its output tokens was settled from the provider's usage page on 2026-10-05: it does not, so `jev_output_tokens` has a price of 0 and a note with the reading. A blank price still means unknown.
 
 A stage's time is its session clock, not the sum of its request times. A run's time is the sum of its sessions; the idle time between the deliberate stop and the resume is left out.
 

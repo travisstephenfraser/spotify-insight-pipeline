@@ -9,7 +9,8 @@ FEATURES = ("playlist", "shuffle", "premium", "ads")
 
 
 def setup(cutoff=0.70):
-    return jev.load_setup(PROMPTS, cutoff)
+    """The probe's wording: the saved pilot answers these tests replay were made with it."""
+    return jev.load_setup(PROMPTS, cutoff, prompt_name=jev.PROBE_PROMPT_FILE)
 
 
 def record(saved, cutoff=0.70):

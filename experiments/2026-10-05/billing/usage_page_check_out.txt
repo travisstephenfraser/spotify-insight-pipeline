@@ -1,0 +1,8 @@
+usage page: $0.056, 1,640,194 tokens, 1,451 requests (1130.4 tokens a request)
+responses that saved their usage: 325 of 1,451; output tokens per response 204.5 (probe 202.0, trial 213.8)
+reading A, tokens are input plus output and only input is billed:
+  $0.056 buys 1,333,333 input tokens, which leaves 211.5 output tokens a request (203.3 to 219.7 for the page's rounding)
+  the measured figure is inside that range: True
+reading B, every token is billed at the input rate:
+  the page would show $0.0689; it shows $0.056: fits False
+this trial alone: $0.002718 for input, $0.000610 more if output were billed at the input rate

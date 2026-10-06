@@ -77,7 +77,7 @@ RUN_ARGS = dict(
     sample_seed="sample-v1",
     code_commit="c" * 40,
     code_hash="d" * 64,
-    label_config="jev-1.13.0/prompt-v1/schema-v1/cut-0.70",
+    label_config="jev-1.13.0/prompt-v1/schema-v1/cut-0.70",  # the probe wording: these fixtures replay its saved answers
     hashes={"prompt:enrich-v1.json": "1" * 64, "features": "2" * 64, "splitter": "3" * 64, "cutoff": "0.70"},
     configs={"verify": {"model": "gemma", "prompt": "verify-v1"}},
 )
@@ -183,7 +183,7 @@ def classified_db(directory, rows=None, *, verify_size=10, labeler=None, cutoff=
         db, "r1", labeler or standins.ReplayJev(PROBE / "simple.jsonl"),
         ledger=ledger.Ledger(db, write_billing(directory / "billing.json"), cap_usd=Decimal("25")),
         limiter=limits.Limiter(requests_per_second=100_000, tokens_per_second=10**9),
-        setup=jev.load_setup(ROOT / "prompts", cutoff), backoff=(0, 0, 0),
+        setup=jev.load_setup(ROOT / "prompts", cutoff, prompt_name=jev.PROBE_PROMPT_FILE), backoff=(0, 0, 0),
     )  # fmt: skip
     return db, outcome
 
@@ -237,7 +237,7 @@ def full_run(directory, rows=None, *, stop_after=8, labeler=None, verify_size=10
         return classify.run(
             db, "r1", labeler, ledger=ledger.Ledger(db, write_billing(directory / "billing.json"), cap_usd=Decimal("25")),
             limiter=limits.Limiter(requests_per_second=100_000, tokens_per_second=10**9),
-            setup=jev.load_setup(ROOT / "prompts", 0.7), backoff=(0, 0, 0), **options,
+            setup=jev.load_setup(ROOT / "prompts", 0.7, prompt_name=jev.PROBE_PROMPT_FILE), backoff=(0, 0, 0), **options,
         )  # fmt: skip
 
     if stop_after:

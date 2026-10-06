@@ -200,14 +200,18 @@ class KnownAnswer(PilotCase):
 
 
 class Totals(PilotCase):
+    def blank_output_rate(self):
+        """The rates with the output-token price left blank, as it was until the usage page settled it."""
+        return [{**r, "usd_per_unit": ""} if r["item"] == "jev_output_tokens" else r for r in self.inputs["rates"]]
+
     def test_api_spend_local_compute_and_unknown_costs_are_three_separate_totals(self):
-        cold = self.measured()["cold"]
+        cold = self.measured(rates=self.blank_output_rate())["cold"]
         self.assertEqual(set(cold) >= {"api_usd", "local_usd_estimate", "unknown"}, True)
         self.assertGreater(cold["local_usd_estimate"], 0)
         self.assertTrue(any("output" in item["what"] for item in cold["unknown"]))
 
     def test_an_unknown_rate_stays_unknown_and_is_never_counted_as_zero_dollars(self):
-        cold = self.measured()["cold"]
+        cold = self.measured(rates=self.blank_output_rate())["cold"]
         unknown = next(item for item in cold["unknown"] if "output" in item["what"])
         self.assertGreater(unknown["units"], 0)
         self.assertNotIn("usd", unknown)

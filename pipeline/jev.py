@@ -90,7 +90,13 @@ def _two_decimals(cutoff):
     return value
 
 
-def load_setup(prompts_dir, cutoff, *, prompt_name="enrich-v1.json", features_name="features-v1.txt"):
+# The frozen enrich wording, a file in prompts/. Travis froze v2 on 2026-10-05 after the wording trial. The file
+# is part of label_config, so changing this name after the full run starts means a second full pass.
+PROMPT_FILE = "enrich-v2.json"
+PROBE_PROMPT_FILE = "enrich-v1.json"  # the wording of the 2026-10-04 probe; the saved pilot answers were made with it
+
+
+def load_setup(prompts_dir, cutoff, *, prompt_name=PROMPT_FILE, features_name="features-v1.txt"):
     prompts_dir = Path(prompts_dir)
     prompt = json.loads((prompts_dir / prompt_name).read_text(encoding="utf-8"))
     return Setup(

@@ -150,7 +150,7 @@ def add_arguments(ap):
     ap.add_argument("--go", action="store_true", help="really call Jev; without it nothing is sent")
     ap.add_argument("--standin", action="store_true", help="use the stand-in labeler: no network, no cost")
     ap.add_argument("--state", default=str(ROOT / "runs/state.sqlite"), help="the state file whose ledger these calls are charged to")
-    ap.add_argument("--prompt-file", default="enrich-v1.json")
+    ap.add_argument("--prompt-file", default=jev.PROMPT_FILE)
     ap.add_argument("--cutoff", type=float, default=0.70)
     ap.add_argument("--cap", default=str(ledger.CAP_USD))
 
