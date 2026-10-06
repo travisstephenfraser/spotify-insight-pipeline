@@ -14,6 +14,7 @@ from tests import fixtures
 
 sys.path.insert(0, str(fixtures.ROOT / "evals"))
 import common  # noqa: E402
+import cutoff_rows  # noqa: E402
 import cutoff_table  # noqa: E402
 import holdout_score  # noqa: E402
 import planted_cases  # noqa: E402
@@ -160,6 +161,41 @@ class OpeningSpend(unittest.TestCase):
     def test_a_stand_in_eval_records_no_opening_spend(self):
         with redirect_stdout(io.StringIO()), common.session(self.args(go=False, standin=True), "test") as paid:
             self.assertEqual(paid.ledger.spent_usd(), 0)
+
+
+class CutoffRows(EvalCase):
+    """The cut-off-half reviews the pilot does not cover: labeled once, with the frozen wording, for the cut-off table."""
+
+    def pilot_ids(self):
+        return {json.loads(line)["review_id"] for line in (fixtures.PROBE / "simple.jsonl").read_text().splitlines() if line.strip()}
+
+    def test_the_missing_rows_are_the_28_cut_off_half_reviews_outside_the_pilot(self):
+        todo = cutoff_rows.missing(self.pilot_ids())
+        _, cutoff_half = common.halves()
+        self.assertEqual(len(todo), 28)
+        self.assertTrue({i["id"] for i in todo} <= set(cutoff_half))
+        self.assertFalse({i["id"] for i in todo} & self.pilot_ids())
+        self.assertTrue(all(i["text"].strip() for i in todo))
+
+    def test_no_golden_review_can_be_among_them(self):
+        golden = {r["review_id"] for r in csv.DictReader(open(fixtures.ROOT / "evals/golden_50_labeled.csv", encoding="utf-8-sig", newline=""))}
+        self.assertFalse({i["id"] for i in cutoff_rows.missing(set())} & golden)
+
+    def test_each_answer_is_saved_with_its_lowest_top_probability(self):
+        items = cutoff_rows.missing(self.pilot_ids())[:3]
+        rows = cutoff_rows.run(self.paid(standins.ReplayJev()).ask, items)
+        self.assertEqual([r["review_id"] for r in rows], [i["id"] for i in items])
+        for row in rows:
+            self.assertIn(row["topic"], labels.TOPICS)
+            self.assertIn(row["intent"], labels.INTENTS)
+            self.assertTrue(0 <= row["min_top"] <= 1)
+
+    def test_the_table_reads_the_pilot_answers_and_these_rows_together(self):
+        flat = self.dir / "rows.jsonl"
+        flat.write_text(json.dumps({"review_id": "extra-1", "topic": "other", "intent": "praise", "severity": 1, "min_top": 0.55}) + "\n")
+        answers = cutoff_table.answers_from_files([fixtures.PROBE / "simple.jsonl", flat])
+        self.assertEqual(len(answers), 101)
+        self.assertEqual(answers["extra-1"], {"topic": "other", "intent": "praise", "severity": 1, "min_top": 0.55})
 
 
 class Wording(EvalCase):
