@@ -321,10 +321,12 @@ class Replay(PilotCase):
 
 class Pilot(unittest.TestCase):
     def test_the_paid_pilot_refuses_without_go_and_starts_nothing(self):
+        evidence = COST / "pilot_calls.jsonl"  # there since the real pilot of 2026-10-05; absent in a copy without it
+        before = evidence.read_bytes() if evidence.exists() else None
         done = subprocess.run([sys.executable, "-m", "cost", "pilot"], cwd=fixtures.ROOT, capture_output=True, text=True)
         self.assertEqual(done.returncode, 2)
         self.assertIn("--go", done.stdout)
-        self.assertFalse((COST / "pilot_calls.jsonl").exists())
+        self.assertEqual(evidence.read_bytes() if evidence.exists() else None, before)
 
     def test_replay_with_no_pilot_evidence_says_so_instead_of_inventing_numbers(self):
         with tempfile.TemporaryDirectory() as tmp:

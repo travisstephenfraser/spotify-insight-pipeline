@@ -4,7 +4,7 @@
 
 This is my final assignment for a Berkeley Haas course on building with AI: advise Spotify on where the next quarter of product effort should go, and make the answer inspectable. The one idea that shaped it is that models only read language and write prose; code owns everything that can be counted. Record accounting, validation, budgets, retries, ranking and every exported number are code. A model never counts, sorts or decides what runs next. That split is enforced, not promised: the supplied checker (`check_submission.py`) passes on an end-to-end test run, and eight deliberate breaks are each named by it.
 
-**Status: built and tested with stand-in models. No real run has been made.** Every stage runs and is tested end to end with stand-ins that replay saved answers. No paid call, pilot, gate or full run has been made with this code yet, so this README reports no result from one. Where a number below was measured, it comes from the tool-choice probes of 2026-10-04 and says so; everything else is marked as not run or as an estimate.
+**Status: built, tested, and run once for real on 100 reviews. No large run has been made.** Every stage is tested end to end with stand-ins that replay saved answers. On 2026-10-05 the 100-review pilot ran every stage with the real models, stopped once and resumed, and its export passes the supplied checker ([`runs/pilot-cold/`](runs/pilot-cold/run_summary.json)). The 500, 10,000 and full-file runs have not been made, so this README reports no result from them. Each number below says where it was measured.
 
 The repo was built with an AI coding assistant (Claude Code); commits carry its co-author line. Design decisions, the hand labels and every go to spend money are mine. An agent reading this repo should start with [`CLAUDE.md`](CLAUDE.md).
 
@@ -294,7 +294,7 @@ python3 -m unittest discover -s tests -t .
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 475 tests in 13.180s
+Ran 475 tests in 12.431s
 
 OK (skipped=1)
 ```
@@ -338,7 +338,21 @@ The brief lists the evidence the README must hold. Each item is answered below w
 
 ### Results summary
 
-Not run yet. No full run, gate or pilot has been made with this pipeline, so there are no completed or quarantined counts, no cache-reuse figure, no golden agreement, no verifier disagreement and no full-run cost or time to report.
+Only the 100-review pilot has been run (2026-10-05). No 500, 10,000 or full-file run has been made, so there is no full-run count, no cache-reuse figure from real copies, no golden agreement and no full-run cost or time to report.
+
+The pilot, measured ([`runs/pilot-cold/`](runs/pilot-cold/run_summary.json), [`cost/report.md`](cost/report.md), [`docs/validation-log.md`](docs/validation-log.md) entry 25):
+
+| Measure | Result |
+|---|---|
+| Reviews | 100 of 100 labeled, 0 quarantined; stopped at 50 and resumed |
+| Supplied checker | `pass`, no flags |
+| Jev | 100 requests, 0 failed, 990 input tokens a request, $0.0042 |
+| Verifier (Gemma, blind, all 100) | 100 predictions, 0 failures; same topic, intent and severity as Jev on 83 (40 of 52 complaints, 43 of 48 others) |
+| Issues | 52 complaints or cancellations in 8 issues; usability first (severity sum 37), then other 29, playback 22, billing 20 |
+| Memo (Gemma) | Passed the code check on the fourth attempt; three attempts were rejected |
+| Warm pass | 0 calls of any role |
+| Time, cold | 62 seconds end to end, one worker |
+| One full pass, projected from this pilot | $20.39 with exact-text reuse, $21.41 with 5% retries, $27.35 with no reuse (estimates) |
 
 What was measured before the build, in throwaway probes on 2026-10-04 (small samples, single runs; evidence in [`experiments/2026-10-04/`](experiments/2026-10-04/README.md) and [`docs/validation-log.md`](docs/validation-log.md)):
 
@@ -360,7 +374,7 @@ See [Architecture](#architecture): the six stages, where code ends and a model b
 
 ### One real review traced end to end
 
-Not run yet. A real trace needs a real run. The export writes everything a trace needs: `records.jsonl` (the label and its `label_config`), `calls.jsonl` (the request that produced it), the verifier's prediction, `membership.csv`, `ranking.csv` and `claims.csv`.
+Not written up yet. The pilot's files hold everything a trace needs: [`records.jsonl`](runs/pilot-cold/grading/records.jsonl) (the label and its `label_config`), [`calls.jsonl`](runs/pilot-cold/grading/calls.jsonl) (the request that produced it), the verifier's prediction ([`verify_predictions.jsonl`](runs/pilot-cold/verify_predictions.jsonl)), `membership.csv`, `ranking.csv` and `claims.csv`. The traced review in the final README comes from the full run.
 
 ### Golden-set comparison and system checks
 
@@ -376,7 +390,7 @@ Implemented in [`pipeline/rank.py`](pipeline/rank.py) and checked against the su
 
 ### Decision memo
 
-Not run yet. No memo has been written by a real model. The memo stage and its code check are built (`pipeline/memo.py`); a memo that cites an unknown ID, changes a number, separates a claim from its issue, or speaks of revenue or churn is rejected.
+The pilot's memo is [`runs/pilot-cold/memo.md`](runs/pilot-cold/memo.md), written by Gemma from 100 reviews; the memo that counts comes from the full run. The code check (`pipeline/memo.py`) rejects a memo that cites an unknown ID, changes a number, separates a claim from its issue, or speaks of revenue or churn. On the pilot it rejected three of Gemma's four attempts.
 
 ### Submission checklist
 
@@ -390,7 +404,7 @@ Not run yet. No memo has been written by a real model. The memo stage and its co
 
 ## Running it for real
 
-Only step 2 has been done (2026-10-05, 68 requests). A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
+Steps 2 and 3 have been done (2026-10-05). A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
 
 1. Start the local model server and load `google/gemma-4-26b-a4b-qat`.
 2. Wording trial on the tuning cases only: `python3 evals/wording_trial.py --go`.
@@ -413,7 +427,7 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 
 ## Known limitations and what I would do next
 
-- **No real run yet.** Everything above the model clients is tested; the clients are tested against a local test server only. Fix: the gates above, in order.
+- **No large run yet.** The 100-review pilot is the only real run. Sustained speed, real copies, and the guards that need 500 reviews are untested with real models. Fix: the gates above, in order.
 - **One labeler.** No second person labeled anything, so nothing measures how firm the hand labels are. My severity labels differ from two outside raters' more than my topic and intent labels do. Fix: every score against hand labels is shown two ways, and the instructor's private sample is the outside check.
 - **One issue per topic.** An issue names a topic, not a single defect, and `other` can rank high with nothing specific to fix. Fix: sub-issues inside a topic, decided after the first full pass.
 - **The quote and the topic come from separate questions** and can point at different sentences. How often is unmeasured.

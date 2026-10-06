@@ -15,4 +15,4 @@ This folder holds two things.
 | `artifacts.jsonl` | Each naming and memo input and output |
 | `memo.md` | The memo |
 
-No real run has been made yet, so no evidence folder is here.
+`pilot-cold/` is the 100-review pilot of 2026-10-05, with its grading export in `pilot-cold/grading/`. The warm pass, `pilot-warm`, made no call and has no folder.

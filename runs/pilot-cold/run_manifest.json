@@ -1,0 +1,42 @@
+{
+  "code_commit": "1a0c0bc95cef90650e26b164642cd09b6ade1f32",
+  "code_hash": "f2293a169c51fea206c5fc9688af6183a236cf3710a0b82aad067d07edffd987",
+  "content_hashes": {
+    "cutoff": "0.70",
+    "features": "77a29326a7f4d864c2b18f3692e21204d7ca9000709123c3034aa9b061c18747",
+    "prompt:enrich-v2.json": "020fe73936ba3ed5b57fbc84a653822d5051c4629dbce89e82e6b59e8e34893d",
+    "splitter": "13c5defcb10625761ba212b932627cba242512b5d2d8fbddbe05628d0855cb4b"
+  },
+  "created_utc": "2026-10-06T00:53:31+00:00",
+  "exported_utc": "2026-10-06T00:56:24+00:00",
+  "input_file": "cost_100.csv",
+  "input_sha256": "c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e",
+  "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+  "models": [
+    "enrich: jev-1.13.0",
+    "group: google/gemma-4-26b-a4b-qat",
+    "memo: google/gemma-4-26b-a4b-qat",
+    "verify: google/gemma-4-26b-a4b-qat"
+  ],
+  "outputs": {
+    "calls.jsonl": "2be72df9b70708be089d7d019836cb8fe16e3d6b367d6abeb72a1d7e1b451dca",
+    "checkpoint_after.json": "26afed153e041be18e730ac54f2c987443fc0a6c53638a12fbbdd1e730bee92b",
+    "checkpoint_before.json": "185fe609619938a0f72273f9ea84579b70db9572d6f67d07b0eb8249d2b68090",
+    "claims.csv": "85ac83ea7ce521bd6300c292cee2c5a1721b0db2ab4cc2353be030e79aa809c5",
+    "ingestion.json": "4277d2569fec08d8e534d9d4fb985971db358423b836f1078d3d92ce65d85087",
+    "membership.csv": "d2bd135149421ceaaa4d8e4afc5532bf1d48a023e33f9f8ced7198229710698e",
+    "ranking.csv": "6cffcd4d05e6f49ce15866bf4e87e03066d228f19c4b7070b2092859a90123e4",
+    "records.jsonl": "5fa00bb6a82ae47a6ba5b70d7f39adb4b8a6f2b26a491730108bfcd0ba83e55d",
+    "run.json": "e179834945838936edba194d98dee0c46bb23e31b490b638de6439e4c5448f9e"
+  },
+  "run": "pilot-cold",
+  "sample_seed": "sample-v1",
+  "seed": "berkeley-fall-2026-assignment-5-v1",
+  "stage_configs": {
+    "prompt_file": "enrich-v2.json",
+    "standin": false,
+    "warm_from": null
+  },
+  "verify_seed": "verify-v1",
+  "verify_size": 5000
+}

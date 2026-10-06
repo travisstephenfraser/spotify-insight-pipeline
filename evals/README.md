@@ -30,4 +30,8 @@ Every paid call goes through the same spend ledger as the pipeline, so the $35 c
 
 ## Results
 
-None from a real model with this code yet. Earlier measurements, made with throwaway scripts on 2026-10-04, are in `experiments/2026-10-04/README.md` and `docs/validation-log.md`.
+- `wording_trial_out.json`: the wording trial of 2026-10-05 (validation log entry 23). The candidate wording met every pass mark and is frozen.
+- The 100-review pilot's labels against the development labels and the raters' shared answer: `experiments/2026-10-05/pilot-100/gate_read_out.txt` (validation log entry 25).
+- The holdout and the golden 50 have not been scored.
+
+Earlier measurements, made with throwaway scripts on 2026-10-04, are in `experiments/2026-10-04/README.md` and `docs/validation-log.md`.
