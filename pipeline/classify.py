@@ -394,17 +394,20 @@ def settle_guards(db, run, failed, accept=()):
     return failed
 
 
-NESTED_FIELDS = ("topic", "intent", "severity", "sentiment", "evidence_quote", "needs_review")
+NESTED_LABELS = ("topic", "intent", "severity")
 
 
-def nested_differences(db, run, against):
-    """Reviews labeled in both runs whose labels differ: (how many were compared, [(review_id, [fields])]).
+def nested_report(db, run, against):
+    """How the reviews labeled in both runs compare.
 
-    Each gate's input sits inside the next one's, so a review seen at both gates must keep its
-    labels (spec item 25). A difference stops the gate and Travis rules: Jev's documents say
-    identical requests can return different answers.
+    Each gate's input sits inside the next one's. Jev does not repeat itself exactly: on the
+    same 100 requests 45 minutes apart it changed severity on 2 and moved its tone score on 69,
+    by 0.03 or less on nine in ten (2026-10-05). So a gate is judged on the share of reviews
+    whose topic, intent or severity changed; the quote, the review flag and the tone score are
+    counted and reported.
     """
-    select = ", ".join(f"a.{f} AS new_{f}, b.{f} AS old_{f}" for f in NESTED_FIELDS)
+    fields = (*NESTED_LABELS, "sentiment", "evidence_quote", "needs_review")
+    select = ", ".join(f"a.{f} AS new_{f}, b.{f} AS old_{f}" for f in fields)
     rows = db.execute(
         f"SELECT r.review_id, {select} FROM reviews r "
         "JOIN results a ON a.run=r.run AND a.text_key=r.text_key "
@@ -413,5 +416,13 @@ def nested_differences(db, run, against):
         "WHERE r.run=? AND r.status='completed' ORDER BY r.run_order",
         (against, run),
     ).fetchall()
-    differ = [(r["review_id"], [f for f in NESTED_FIELDS if r[f"new_{f}"] != r[f"old_{f}"]]) for r in rows]
-    return len(rows), [(rid, fields) for rid, fields in differ if fields]
+    labels_changed = [(r["review_id"], [f for f in NESTED_LABELS if r[f"new_{f}"] != r[f"old_{f}"]]) for r in rows]
+    moves = [abs(r["new_sentiment"] - r["old_sentiment"]) for r in rows]
+    return {
+        "compared": len(rows),
+        "labels": [(rid, changed) for rid, changed in labels_changed if changed],
+        "quote": sum(r["new_evidence_quote"] != r["old_evidence_quote"] for r in rows),
+        "flag": sum(r["new_needs_review"] != r["old_needs_review"] for r in rows),
+        "tone_moved": sum(m > 0 for m in moves),
+        "tone_max": max(moves, default=0.0),
+    }

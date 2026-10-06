@@ -82,6 +82,48 @@ class BuildRequest(unittest.TestCase):
             jev.build_request("word " * 20_000, setup().prompt)  # 100,000 bytes is about 41,000 tokens
 
 
+class SeverityRule(unittest.TestCase):
+    """The contract gives severity 1 to praise, unclear content and a pure request. Code applies that to every
+    label it exports (Travis's ruling, 2026-10-05), because Jev gives 2 to many boycott slogans it calls unclear."""
+
+    def answer(self, text, intent, severity):
+        s = setup()
+        made = stand_in_answer(text, s.prompt)
+        for name, choice in (("intent", intent), ("severity", severity)):
+            made[name] = {"type": "choice", "choice": choice, "probabilities": {k: float(k == choice) for k in made[name]["probabilities"]}}
+        return jev.to_record(text, made, features=s.features, cutoff=s.cutoff, label_config=s.label_config)
+
+    def test_praise_unclear_and_request_always_carry_severity_1(self):
+        for intent in ("praise", "unclear", "request"):
+            for severity in ("annoyance", "degraded", "blocked", "serious_harm"):
+                with self.subTest(intent=intent, severity=severity):
+                    self.assertEqual(self.answer("Boycott Spotify", intent, severity)["severity"], 1)
+
+    def test_a_complaint_or_cancellation_keeps_the_severity_jev_gave(self):
+        for intent in ("complaint", "cancellation"):
+            for severity, number in (("annoyance", 2), ("degraded", 3), ("blocked", 4), ("serious_harm", 5)):
+                with self.subTest(intent=intent, severity=severity):
+                    self.assertEqual(self.answer("The app keeps crashing", intent, severity)["severity"], number)
+
+    def test_on_the_probes_real_answers_the_rule_changes_exactly_the_one_known_review(self):
+        """Known answer, counted before the rule was coded: 1 of the 100 saved answers is `unclear` with `annoyance`."""
+        known, changed = fixtures.probe_records(), []
+        for saved in fixtures.saved_jev():
+            rec = record(saved)
+            if rec["intent"] in labels.NO_PROBLEM:
+                self.assertEqual(rec["severity"], 1)
+            if rec["severity"] != known[saved["review_id"]]["severity"]:
+                changed.append(saved["review_id"])
+        self.assertEqual(changed, ["9e3a706c-f502-4664-a23f-33f3480eca64"])
+
+    def test_the_ranking_is_untouched_because_only_complaints_and_cancellations_are_ranked(self):
+        known = fixtures.probe_records()
+        for saved in fixtures.saved_jev():
+            rec = record(saved)
+            if rec["intent"] in ("complaint", "cancellation"):
+                self.assertEqual(rec["severity"], known[saved["review_id"]]["severity"])
+
+
 class ToRecord(unittest.TestCase):
     def test_the_100_saved_answers_become_100_valid_records_with_the_probes_labels(self):
         known = fixtures.probe_records()
@@ -89,7 +131,8 @@ class ToRecord(unittest.TestCase):
             rec = record(saved)
             labels.validate(saved["request"]["state"], rec)
             want = known[saved["review_id"]]
-            self.assertEqual((rec["topic"], rec["intent"], rec["severity"]), (want["topic"], want["intent"], want["severity"]))
+            # The probe kept Jev's severity as given. The pipeline applies the contract's fixed rule on top of it.
+            self.assertEqual((rec["topic"], rec["intent"], rec["severity"]), (want["topic"], want["intent"], labels.by_rule(want["intent"], want["severity"])))
             self.assertEqual(rec["evidence_quote"], want["quote"])
             self.assertEqual(rec["sentiment"], want["sentiment"])
 

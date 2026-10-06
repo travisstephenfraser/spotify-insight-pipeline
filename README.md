@@ -17,7 +17,7 @@ Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name       Gemma 26B, local
 Memo       Claude Sonnet 5.5 (Anthropic API), one call a run
-Tests      509 automated (508 run with no outside network; 1 skipped unless the 97 MB file is present)
+Tests      518 automated (517 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-05
 ```
 
@@ -290,12 +290,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-509 tests: 508 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+518 tests: 517 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 509 tests in 13.527s
+Ran 518 tests in 13.076s
 
 OK (skipped=1)
 ```
@@ -435,7 +435,7 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 ## Known limitations and what I would do next
 
 - **No large run yet.** The pilot and the 500 gate are the only real runs. Sustained speed over minutes and the full file's review-bombing bursts are untested. Fix: the gates above, in order.
-- **Jev does not repeat itself exactly.** The same 100 reviews, labeled twice an hour apart with the same wording, changed severity on 2 and the review flag on 3; the tone score moved by 0.03 or less on 9 in 10. A rerun of the full file would not reproduce every label.
+- **Jev does not repeat itself exactly.** The same 100 reviews, labeled twice an hour apart with the same wording, changed severity on 2 and the review flag on 3; the tone score moved by 0.03 or less on 9 in 10. A rerun of the full file would not reproduce every label. The gate check on reviews seen at two gates allows for this: it stops only when more than 5 in 100 change topic, intent or severity.
 - **One labeler.** No second person labeled anything, so nothing measures how firm the hand labels are. My severity labels differ from two outside raters' more than my topic and intent labels do. Fix: every score against hand labels is shown two ways, and the instructor's private sample is the outside check.
 - **One issue per topic.** An issue names a topic, not a single defect, and `other` can rank high with nothing specific to fix. Fix: sub-issues inside a topic, decided after the first full pass.
 - **The quote and the topic come from separate questions** and can point at different sentences. How often is unmeasured.

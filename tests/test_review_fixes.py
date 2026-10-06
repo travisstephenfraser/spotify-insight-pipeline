@@ -419,6 +419,46 @@ class Finding6GateChecks(TmpCase):
         self.assertIn(row["review_id"], text)
         self.assertIn("severity", text)
 
+    def change(self, sql, n=1):
+        db = self.db()
+        keys = [r["text_key"] for r in db.execute("SELECT text_key FROM reviews WHERE run='gate-small' AND status='completed' ORDER BY run_order LIMIT ?", (n,))]
+        for key in keys:
+            db.execute(f"UPDATE results SET {sql} WHERE run='gate-big' AND text_key=?", (key,))
+        return keys
+
+    def test_a_tone_score_that_moves_a_little_does_not_stop_the_gate_and_its_size_is_reported(self):
+        """Jev's tone score moved on 69 of 100 reviews between two identical runs, by 0.03 or less on nine in ten."""
+        self.two_runs()
+        self.change("sentiment = sentiment + 0.02", n=12)
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-small")
+        self.assertEqual(code, 0, text)
+        self.assertIn("tone score moved on 12", text)
+        self.assertIn("0.02", text)
+
+    def test_a_changed_flag_or_quote_is_counted_and_does_not_stop_the_gate(self):
+        self.two_runs()
+        self.change("needs_review = 1 - needs_review", n=2)
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-small")
+        self.assertEqual(code, 0, text)
+        self.assertIn("review flag changed on 2", text)
+
+    def test_label_changes_within_the_allowed_rate_pass_and_are_still_listed(self):
+        self.two_runs()
+        self.change("severity = CASE severity WHEN 5 THEN 4 ELSE severity + 1 END", n=1)
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-small", "--max-rate", "0.10")
+        self.assertEqual(code, 0, text)
+        self.assertIn("1 of 12", text)
+        self.assertIn("severity", text)
+
+    def test_a_rate_of_zero_asks_for_every_label_to_be_kept(self):
+        self.two_runs()
+        self.change("severity = CASE severity WHEN 5 THEN 4 ELSE severity + 1 END", n=1)
+        code, text = self.cli("nested", "--run", "gate-big", "--against", "gate-small", "--max-rate", "0")
+        self.assertEqual(code, 4)
+
+    def test_the_default_rate_is_five_in_a_hundred(self):
+        self.assertEqual(cli.parser().parse_args(["nested", "--run", "a", "--against", "b"]).max_rate, 0.05)
+
     def test_a_run_compared_with_itself_is_refused(self):
         """Every label equals itself, so this would read as a pass and prove nothing."""
         self.two_runs()

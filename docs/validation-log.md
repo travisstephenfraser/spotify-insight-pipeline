@@ -46,6 +46,7 @@ Update 2026-10-05: both hand-labeled files are frozen (entries 16 and 18). Later
 | 28 | Which model writes the memo, and a fault in the memo check | The pipeline's own check under a choosing rule written first; then the memos' text read against the check | 3 models, 2 trials each | 4 of 6 first attempts rejected for one reason; the check was wrong; corrected, all 6 pass; cheapest chosen | $0.79 (Anthropic) |
 | 29 | The pilot again with the paid memo model, and Jev against itself | The instructor's checker; the first pilot's labels | 100 reviews, every stage | Checker `pass`; warm pass 0 calls; Jev changed severity on 2 of 100 and the flag on 3 between identical runs | $0.0042 and $0.045 |
 | 30 | The 500 gate | The instructor's checker; the pilot's labels on the shared 100 | 500 reviews, 16 workers | Checker `pass`; 21 copies reused; 71.5 requests a second; every pass mark met but the nested one | $0.0199 and $0.025 |
+| 31 | Two rulings coded: the severity rule and the nested check | Counts made before the code; the nested numbers measured earlier by a separate script | 100 saved answers; two pairs of real runs | The rule changes the one known review of 100; the nested command gives 2 of 100 and 1 of 100, as measured | none |
 
 Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gate on 2026-10-05, about $0.088 to Jev (the provider's usage page read $0.056 after the wording trial, entry 24) and $0.070 to the memo model. Outside the ledger: the memo comparison $0.79 (Anthropic), Fable 5.1 $1.12 and Astra 6 $2.77 as outside raters. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
@@ -288,7 +289,7 @@ Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gat
 - **Result, as it fell, holdout:** topic 28 of 28, intent 24 of 28, severity 13 of 28, all three 13 of 28. The four intent differences are reviews the raters call `unclear` and Jev calls `cancellation`. All fifteen severity differences are the raters' 1 against Jev's 2, eleven of them on reviews Jev itself calls `unclear`.
 - **Result, planted cases:** 22 of 25. Contract rules 9 of 9, slogans 4 of 4, non-English 3 of 3, injections 3 of 4 (I3 moved the answer to topic `support`, intent `request`), no letters 3 of 5 (a thumbs-up and two hearts read as `unclear` where `praise` was expected).
 - **Against the probe wording on 2026-10-04 (entry 6):** then 21 of 25, missing 2 injections and 2 slogans. The frozen wording gets both slogans and one more injection, and loses two emoji-only cases it had right. One review in the pilot's 100 moved the same way, `praise` to `unclear`.
-- **A pattern the pipeline does not yet handle:** the contract gives severity 1 to praise, unclear content and pure requests. Jev gives 2 to many boycott slogans it calls `unclear`. Applying that fixed rule to Jev's labels by code would read 24 of 28 here. On the pilot's 100 ordinary reviews it would change 1 label of 48. The code deliberately does not apply the rule to exported labels; whether it should is Travis's ruling, not yet made.
+- **A pattern the pipeline does not yet handle:** the contract gives severity 1 to praise, unclear content and pure requests. Jev gives 2 to many boycott slogans it calls `unclear`. Applying that fixed rule to Jev's labels by code would read 24 of 28 here. On the pilot's 100 ordinary reviews it would change 1 label of 48. At the time the code deliberately did not apply the rule to exported labels. Travis ruled the same evening that it should (entry 31).
 - **Evidence:** `evals/holdout_score_prompt-v2.json`.
 - **Limits:** scored once and never to be used to change the wording. If the severity rule is adopted, the 24 of 28 is not a clean held-back figure, because the pattern was seen here first. 30 reviews of one kind.
 
@@ -332,6 +333,15 @@ Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gat
 - **Evidence:** `runs/gate-500/`.
 - **Limits:** agreement between two models is not accuracy, but three complaints in ten get a different severity from the second engine, and severity is what the ranking adds up. No hand label has been compared at this size.
 
+### 31. Two rulings coded: the severity rule and the nested check
+
+- **What:** Travis ruled on 2026-10-05 that the contract's fixed severity rule applies to the pipeline's own labels, and that the nested check may be loosened. Both were coded test-first.
+- **The severity rule, known answer:** counted before the code was written, 1 of the probe's 100 saved answers is `unclear` with a severity above 1 (review `9e3a706c`). A test requires the mapping to change exactly that review and no complaint or cancellation. At the 500 gate the rule would change 5 of 259 no-problem labels; Gemma's 256 already obey it. With it, the two engines agree on 365 of 500 instead of 363.
+- **The nested check, known answer:** the loosened command was run on the real state file. The two pilots: 2 of 100 labels changed, quote 1, flag 3, tone score moved on 69 by at most 0.115. The 500 gate against the rerun pilot: 1 of 100, flag 2. These are the figures a separate script gave in entries 29 and 30.
+- **The stop:** a gate stops when more than 5 in 100 shared reviews change topic, intent or severity. If Jev's true rate were 2 in 100, six or more changes in 100 would happen about 1.5 times in 100 by chance (binomial), so a stop means something moved. The number is the assistant's, under delegation.
+- **Evidence:** `tests/test_jev_mapping.py` class `SeverityRule`; `tests/test_review_fixes.py` class `Finding6GateChecks`.
+- **Limits:** the runs already exported (`pilot-cold`, `pilot2-cold`, `gate-500`) were made before the rule and keep their labels as exported. The rule was adopted after the holdout showed the pattern, so the holdout's 24 of 28 under the rule is not a clean held-back figure. The 5 in 100 rests on two samples of 100.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
@@ -348,5 +358,5 @@ Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gat
 - **Small samples.** 29 hand labels, 25 made-up cases, 60 boycott reviews, 100 pilot reviews.
 - **Single runs on one day.** No result here has been repeated on another day except Jev's rerun in entry 7.
 - **The golden 50 is labeled and frozen (entry 18) but not scored**, so there is still no accuracy figure of any kind.
-- **Jev is not fully repeatable** (entry 29), and the two engines agree on only six complaints in ten (entry 30). Neither has been turned into a rule yet.
+- **Jev is not fully repeatable** (entry 29); the gate check now allows for it (entry 31). The two engines agree on only six complaints in ten (entry 30), and nothing yet says which is right.
 - **Nothing has run for real.** The pipeline is built and tested with stand-ins (entry 21) and its code has had one independent reading (entry 22). The real runs so far are the wording trial (entry 23), two 100-review pilots (entries 25 and 29) and the 500 gate (entry 30). No 10,000 or full run has been made.

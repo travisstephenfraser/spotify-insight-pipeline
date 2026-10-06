@@ -169,7 +169,9 @@ def to_record(text, answer, *, features, cutoff, label_config):
         record = {
             "topic": answer["topic"]["choice"],
             "intent": answer["intent"]["choice"],
-            "severity": labels.SEVERITY[severity_name],
+            # The contract's fixed rule: praise, unclear content and a pure request report no problem, so severity 1.
+            # Jev answers severity as its own question and gives 2 to many slogans it calls unclear. Its answer is kept raw.
+            "severity": labels.by_rule(answer["intent"]["choice"], labels.SEVERITY[severity_name]),
             "sentiment": labels.sentiment_from_tone(answer["tone"]["score"]),
             "entities": entities(text, features),
             "evidence_quote": quote,

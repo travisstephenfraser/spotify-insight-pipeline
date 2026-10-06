@@ -367,21 +367,32 @@ def cmd_memo(db, a):
 
 
 def cmd_nested(db, a):
-    """The gate check that reviews seen at two gates kept their labels (spec item 25)."""
+    """The gate check on reviews labeled at two gates (spec items 25 and 37)."""
     if a.run == a.against:
         raise Refused("a run compared with itself always agrees; name the earlier, smaller run with --against")
     state.load_run(db, a.run)
     state.load_run(db, a.against)
-    compared, differ = classify.nested_differences(db, a.run, a.against)
+    report = classify.nested_report(db, a.run, a.against)
+    compared, changed = report["compared"], report["labels"]
     if not compared:
         raise Refused(f"runs {a.run} and {a.against} have no completed review in common, so there is nothing to compare")
-    if differ:
-        print(f"{len(differ)} of {compared} reviews labeled in both runs changed between {a.against} and {a.run}:")
-        for review_id, fields in differ:
+    rate = len(changed) / compared
+    print(f"{compared} reviews are labeled in both runs ({a.against} and {a.run})")
+    if changed:
+        print(f"topic, intent or severity changed on {len(changed)} of {compared} ({rate:.1%}):")
+        for review_id, fields in changed:
             print(f"  {review_id}: {', '.join(fields)}")
-        print("This stops the gate. Jev's documents say identical requests can return different answers; it is your call.")
+    else:
+        print("every one kept its topic, intent and severity")
+    print(
+        f"the quoted sentence changed on {report['quote']}; the review flag changed on {report['flag']}; "
+        f"the tone score moved on {report['tone_moved']}, by at most {report['tone_max']:.3f}"
+    )
+    if rate > a.max_rate:
+        print(f"This stops the gate: more than {a.max_rate:.0%} of the labels changed. Jev's own variation was 1 to 2 in 100 when measured; it is your call.")
         return GUARD
-    print(f"{compared} reviews are labeled in both runs and every one kept its labels")
+    if changed:
+        print(f"Within the allowed {a.max_rate:.0%}: Jev does not repeat itself exactly.")
     return OK
 
 
@@ -452,6 +463,7 @@ def parser():
     n = sub.add_parser("nested", parents=[common], help="check that reviews labeled in two runs kept their labels")
     n.add_argument("--run", required=True)
     n.add_argument("--against", required=True, help="the earlier, smaller run")
+    n.add_argument("--max-rate", type=float, default=0.05, help="the share of reviews whose topic, intent or severity may change before the gate stops (default 0.05)")
 
     k = sub.add_parser("rank", parents=[common], help="rebuild ranking.csv from committed files; no model, no state file")
     k.add_argument("--grading", default=str(ROOT / "grading"))
