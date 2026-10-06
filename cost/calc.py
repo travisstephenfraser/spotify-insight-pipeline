@@ -12,7 +12,7 @@ from pathlib import Path
 
 STAGES = ("classify", "verify", "group", "memo")
 ROLE = {"classify": "enrich", "verify": "verify", "group": "group", "memo": "memo"}
-LOCAL_STAGES = ("verify", "group", "memo")  # run on this machine; they have no API charge
+LOCAL_STAGES = ("verify", "group", "memo")  # run on this machine unless a paid model is named for the stage in rates.csv
 PILOT_FILES = ("pilot_records.jsonl", "pilot_calls.jsonl", "usage.csv")
 
 
@@ -56,6 +56,16 @@ def _rate(rates, item):
     return Decimal(row["usd_per_unit"]) if row and row["usd_per_unit"].strip() else None
 
 
+def _paid(rates, name, model):
+    """The (input, output) prices for a stage a paid model ran, or None when the stage ran on this machine.
+
+    A stage is paid when rates.csv names its model on the row `<stage>_input_tokens`. A blank price is unknown."""
+    row = next((r for r in rates if r["item"] == f"{name}_input_tokens"), None)
+    if row is None or not model or row["model"] != model:
+        return None
+    return _rate(rates, f"{name}_input_tokens"), _rate(rates, f"{name}_output_tokens")
+
+
 def _stage(calls, usage_row, role):
     mine = [c for c in calls if c.get("role") == role]
     succeeded = sum(c["outcome"] == "succeeded" for c in mine)
@@ -94,7 +104,16 @@ def measured(*, calls, rates, usage, local, records=(), **_):
         api, unknown = Decimal(0), []
         for name, stage in stages.items():
             stage["api_usd"] = Decimal(0)
-            stage["local_usd_estimate"] = stage["seconds"] * usd_per_second if name in LOCAL_STAGES else Decimal(0)
+            paid = _paid(rates, name, stage["model"]) if name in LOCAL_STAGES else None
+            stage["paid"] = paid is not None
+            stage["local_usd_estimate"] = stage["seconds"] * usd_per_second if name in LOCAL_STAGES and not paid else Decimal(0)
+            if paid:
+                for tokens, rate, what in ((stage["input_tokens"], paid[0], "input"), (stage["output_tokens"], paid[1], "output")):
+                    if rate is None:
+                        if tokens:
+                            unknown.append({"what": f"{name} {what} tokens at an unknown rate", "units": tokens, "unit": "token"})
+                    else:
+                        stage["api_usd"] += tokens * rate
             if name == "classify":
                 if rate_in is None:
                     unknown.append({"what": "Jev input tokens at an unknown rate", "units": stage["input_tokens"], "unit": "token"})
@@ -211,12 +230,18 @@ def project(
         seconds = stage["seconds"] * Decimal(requests) / Decimal(stage["requests"]) if stage["requests"] else Decimal(0)
         return {"requests": requests, "api_usd": Decimal(0), "local_usd_estimate": seconds * usd_per_second, "seconds": seconds, "unknown": []}
 
+    def memo_case():
+        """One memo whatever the row count. A paid memo carries what the pilot's memo cost, failed attempts included."""
+        if cold["memo"].get("paid"):
+            return {"requests": 1, "api_usd": cold["memo"]["api_usd"], "local_usd_estimate": Decimal(0), "seconds": cold["memo"]["seconds"], "unknown": []}
+        return {**local_case("memo", cold["memo"]["requests"] or 1), "requests": 1}
+
     def case(requests, text_bytes, text_count, retries, bill_output):
         stages = {
             "classify": classify_case(requests, text_bytes, text_count, retries, bill_output),
             "verify": local_case("verify", min(verify, nonempty)),
             "group": local_case("group", min(issues, cold["group"]["requests"] or issues)),
-            "memo": {**local_case("memo", cold["memo"]["requests"] or 1), "requests": 1},  # one memo, added once
+            "memo": memo_case(),  # one memo, added once
         }
         return {
             "stages": stages,

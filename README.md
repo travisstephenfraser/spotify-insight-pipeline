@@ -16,7 +16,7 @@ State      one SQLite file, write-ahead mode
 Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name/memo  Gemma 26B, local
-Tests      479 automated (478 run with no outside network; 1 skipped unless the 97 MB file is present)
+Tests      509 automated (508 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-05
 ```
 
@@ -289,12 +289,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-479 tests: 478 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+509 tests: 508 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 479 tests in 12.658s
+Ran 509 tests in 13.294s
 
 OK (skipped=1)
 ```

@@ -434,7 +434,8 @@ def _evidence(
         role["input_tokens"] += c["input_tokens"] or 0
         role["output_tokens"] += c["output_tokens"] or 0
         role["calls_with_unknown_usage"] += not c["usage_known"]
-    spent = kept = Decimal(0)
+    spent = kept = memo_spent = Decimal(0)
+    memo_requests = {r[0] for r in db.execute("SELECT request_id FROM calls WHERE run=? AND role='memo'", (run,))}
     for row in db.execute(
         "SELECT * FROM ledger WHERE run=? AND kind IN ('actual','kept')", (run,)
     ):
@@ -442,7 +443,10 @@ def _evidence(
             row["input_tokens"] * Decimal(row["usd_per_mtok_in"])
             + row["output_tokens"] * Decimal(row["usd_per_mtok_out"])
         ) / 1_000_000
-        spent += usd
+        if row["request_id"] in memo_requests:
+            memo_spent += usd
+        else:
+            spent += usd
         kept += usd if row["kind"] == "kept" else 0
     _write_json(
         folder / "run_summary.json",
@@ -479,9 +483,10 @@ def _evidence(
             "spend": {
                 "cap_usd": str(cap_usd),
                 "jev_usd_this_run": str(spent),
+                "memo_model_usd_this_run": str(memo_spent),
                 "of_which_reservations_kept_for_unknown_usage_usd": str(kept),
-                "note": "Computed from the ledger at the rates stored on each row. Output tokens are counted at the rate in "
-                "pipeline/billing.json; whether the provider bills them is settled against its usage page.",
+                "note": "Computed from the ledger at the rates stored on each row, which come from pipeline/billing.json. "
+                "Jev and the memo model spend against the one cap.",
             },
             "resume": {
                 "boundary_session": result["boundary_session"],

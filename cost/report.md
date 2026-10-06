@@ -41,6 +41,8 @@ Replayed offline from the saved pilot files: `pilot_calls.jsonl`, `pilot_records
 |---|---|---|---|---|
 | jev_input_tokens | token | 0.000000042 USD | https://docs.typesafe.ai/models | 2026-10-04 |
 | jev_output_tokens | token | 0 USD | TypeSafe usage page | 2026-10-05 |
+| memo_input_tokens | token | 0.000002 USD | https://platform.claude.com/docs/en/about-claude/pricing | 2026-10-05 |
+| memo_output_tokens | token | 0.00001 USD | https://platform.claude.com/docs/en/about-claude/pricing | 2026-10-05 |
 
 Local compute is an estimate: measured seconds times 60 W times $0.40 per kWh. Both are assumptions in `local_compute.csv`.
 

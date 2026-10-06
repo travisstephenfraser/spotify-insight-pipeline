@@ -331,16 +331,16 @@ def close_crashed_sessions(db, run):
 # ---- The save protocol (spec section 4, "How a request is saved") ----
 
 
-def begin_attempt(db, ledger, *, request_id, run, role, review_ids, model, label_config, session_id, reserve_tokens):
+def begin_attempt(db, ledger, *, request_id, run, role, review_ids, model, label_config, session_id, reserve_tokens, reserve_output_tokens=0):
     """Commit the intent to send one request, with its reservation. No commit, no send.
 
-    `ledger` is None for the local roles, which spend no Jev money. Raises the ledger's
+    `ledger` is None for calls to the local model, which spend no money. Raises the ledger's
     CapReached, writing nothing, when the reservation would pass the cap.
     """
     try:
         with tx(db):
             if ledger is not None:
-                ledger.reserve(request_id, run, reserve_tokens)
+                ledger.reserve(request_id, run, reserve_tokens, reserve_output_tokens)
             try:
                 db.execute(
                     "INSERT INTO calls (request_id, run, role, review_ids_json, model, label_config, outcome, started_utc, "

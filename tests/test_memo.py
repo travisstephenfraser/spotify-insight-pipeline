@@ -107,10 +107,24 @@ class Check(MemoCase):
         right = f"{self.top['issue_id']} has {c['value']} complaints [{c['claim_id']}]."
         self.assertEqual(self.problems(self.good + "\n" + right), [])
 
-    def test_a_claim_and_its_issue_must_share_a_sentence(self):
+    def test_a_claim_in_a_paragraph_that_never_names_its_issue_fails(self):
         c = self.claim(self.top["issue_id"], "severity_sum")
         problems = self.problems(self.good + f"\nThe severity sum is {c['value']} [{c['claim_id']}].")
-        self.assertTrue(any(c["claim_id"] in p and "same sentence" in p for p in problems), problems)
+        self.assertTrue(any(c["claim_id"] in p and "same paragraph" in p for p in problems), problems)
+
+    def test_a_claim_may_follow_its_issue_in_a_later_sentence_of_the_same_paragraph(self):
+        """Three frontier models and the local one all wrote "issue-x ranks first. It has 37 [CL-004]." (2026-10-05)."""
+        c = self.claim(self.top["issue_id"], "severity_sum")
+        text = self.good + f"\n{self.top['issue_id']} ranks first. It has a severity sum of {c['value']} [{c['claim_id']}]."
+        self.assertEqual(self.problems(text), [])
+
+    def test_a_comparison_may_name_another_issue_in_the_sentence_that_cites_the_claim(self):
+        if len(self.pack["ranking"]) < 2:
+            self.skipTest("needs two issues")
+        other = self.pack["ranking"][1]["issue_id"]
+        c = self.claim(self.top["issue_id"], "severity_sum")
+        text = self.good + f"\n- {self.top['issue_id']} ranks first. Its severity sum of {c['value']} [{c['claim_id']}] is above that of {other}."
+        self.assertEqual(self.problems(text), [])
 
     def test_a_claim_cited_for_another_issue_fails(self):
         if len(self.pack["ranking"]) < 2:
@@ -118,7 +132,7 @@ class Check(MemoCase):
         other = self.pack["ranking"][1]["issue_id"]
         c = self.claim(self.top["issue_id"], "severity_sum")
         problems = self.problems(self.good + f"\n{other} has a severity sum of {c['value']} [{c['claim_id']}].")
-        self.assertTrue(any("same sentence" in p for p in problems), problems)
+        self.assertTrue(any("same paragraph" in p for p in problems), problems)
 
     def test_a_recommendation_that_does_not_name_rank_one_fails(self):
         text = re.sub(r"(## Recommendation\n)(.*?)(\n## )", r"\1Fix the app in general.\3", self.good, flags=re.S)
@@ -232,6 +246,37 @@ class Write(MemoCase):
                 self.assertEqual(fake.calls, [])
             finally:
                 db.close()
+
+
+
+class RealMemos(unittest.TestCase):
+    """Memos real models wrote for the pilot's evidence pack on 2026-10-05, judged against that same pack.
+
+    The first version of the check rejected most of them for a pronoun: a claim cited in the
+    sentence after the one that names its issue. These hold the corrected rule to real text.
+    """
+
+    FOLDER = fixtures.ROOT / "experiments/2026-10-05/memo-model"
+
+    def setUp(self):
+        self.pack = json.loads((self.FOLDER / "pack.json").read_text(encoding="utf-8"))
+
+    def test_a_memo_that_attributes_every_claim_correctly_passes(self):
+        text = (self.FOLDER / "claude-sonnet-5-5-trial1-attempt1.md").read_text(encoding="utf-8")
+        self.assertIn("It ranks first, with a priority score of 37 [CL-004]", text)
+        self.assertEqual(memo.check(text, self.pack), [])
+
+    def test_the_same_memo_with_a_claim_moved_under_another_issue_is_rejected(self):
+        text = (self.FOLDER / "claude-sonnet-5-5-trial1-attempt1.md").read_text(encoding="utf-8")
+        moved = text.replace("- issue-other, the runner-up: priority score 29 [CL-008].", "- issue-other, the runner-up: priority score 37 [CL-004].")
+        self.assertNotEqual(moved, text)
+        self.assertTrue(any("CL-004" in p and "issue-usability" in p for p in memo.check(moved, self.pack)))
+
+    def test_the_same_memo_with_a_number_changed_is_rejected(self):
+        text = (self.FOLDER / "claude-sonnet-5-5-trial1-attempt1.md").read_text(encoding="utf-8")
+        changed = text.replace("severity sum 37 [CL-002]", "severity sum 73 [CL-002]")
+        self.assertNotEqual(changed, text)
+        self.assertTrue(any("73" in p for p in memo.check(changed, self.pack)))
 
 
 if __name__ == "__main__":

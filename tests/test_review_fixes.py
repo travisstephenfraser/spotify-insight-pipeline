@@ -499,7 +499,8 @@ class SmallerFixes(StagedCase):
         db.execute("DELETE FROM artifacts WHERE run='r1' AND role='group'")
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            code = cli._warm(db, argparse.Namespace(run="warm", warm_from="r1"), standins.StandinGemma(loaded=False))
+            down = standins.StandinGemma(loaded=False)
+            code = cli._warm(db, argparse.Namespace(run="warm", warm_from="r1"), down, down)
         self.assertEqual(code, cli.NOT_FINISHED)
         self.assertNotIn("0 calls of any role", out.getvalue())
 

@@ -64,6 +64,10 @@ def pilot_steps(db, cold, warm):
     return steps
 
 
+def _provider(stage, model):
+    return "Anthropic" if str(model).startswith("claude-") else PROVIDER[stage]
+
+
 def usage_rows(db, run, which):
     """One row per stage and one for the whole run. A stage's seconds are its session clock."""
     row = state.load_run(db, run)
@@ -81,7 +85,7 @@ def usage_rows(db, run, which):
         requests_total += requests
         rows.append(
             {
-                "run_id": run, "pass": which, "stage": stage, "provider": PROVIDER[stage] if calls else "",
+                "run_id": run, "pass": which, "stage": stage, "provider": _provider(stage, calls[0]["model"]) if calls else "",
                 "model": calls[0]["model"] if calls else "", "config": calls[0]["label_config"] if calls else "",
                 "batch_size": 1, "workers": max((s["workers"] for s in sessions), default=0), "requests": requests,
                 "attempts": len(calls), "succeeded": succeeded, "failed": len(calls) - succeeded,
