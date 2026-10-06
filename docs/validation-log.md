@@ -41,8 +41,13 @@ Update 2026-10-05: both hand-labeled files are frozen (entries 16 and 18). Later
 | 23 | The wording trial | Pass marks written before the trial; planted answers from the contract; the outside raters' shared answer on real reviews | 34 items, two wordings, 68 requests | Probe 2 of 4 slogans and 15 of 28; candidate 4 of 4 and 23 of 28; no pass mark missed | $0.0033 by the ledger |
 | 24 | Are Jev's output tokens billed | The provider's usage page, read by Travis, against token counts the responses reported | 1,451 requests on the page; 325 with saved usage | Not billed: the page's $0.056 is input tokens times the rate; billing every token would show about $0.069 | none |
 | 25 | The 100-review pilot | The instructor's checker; the probe's saved answers; development labels; the raters' shared answer | 100 reviews, every stage, real models | 100 of 100 labeled; checker `pass`, no flags; warm pass 0 calls; the frozen wording changes 3 of 100 labels; the memo passed on its fourth attempt | $0.0042 |
+| 26 | The holdout, scored once | Planted answers from the contract; the outside raters' shared answer on real boycott reviews | 30 reviews and 25 planted cases | Planted 22 of 25; holdout 13 of 28 on all three labels, 24 of 28 on intent | $0.0022 |
+| 27 | The rest of the cut-off half | The raters' shared answer and Travis's labels, side by side | 28 more reviews; table over all 60 | At 0.70 the flag marks 23 of 60 and catches 7 of 9 differences from the raters | $0.0013 |
+| 28 | Which model writes the memo, and a fault in the memo check | The pipeline's own check under a choosing rule written first; then the memos' text read against the check | 3 models, 2 trials each | 4 of 6 first attempts rejected for one reason; the check was wrong; corrected, all 6 pass; cheapest chosen | $0.79 (Anthropic) |
+| 29 | The pilot again with the paid memo model, and Jev against itself | The instructor's checker; the first pilot's labels | 100 reviews, every stage | Checker `pass`; warm pass 0 calls; Jev changed severity on 2 of 100 and the flag on 3 between identical runs | $0.0042 and $0.045 |
+| 30 | The 500 gate | The instructor's checker; the pilot's labels on the shared 100 | 500 reviews, 16 workers | Checker `pass`; 21 copies reused; 71.5 requests a second; every pass mark met but the nested one | $0.0199 and $0.025 |
 
-Measured API spend on validation so far: Jev $0.056 by the provider's usage page on 2026-10-05 (entry 24) plus $0.0042 for the pilot by the ledger, Fable 5.1 $1.12, Astra 6 $2.77. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
+Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gate on 2026-10-05, about $0.088 to Jev (the provider's usage page read $0.056 after the wording trial, entry 24) and $0.070 to the memo model. Outside the ledger: the memo comparison $0.79 (Anthropic), Fable 5.1 $1.12 and Astra 6 $2.77 as outside raters. The red team, the spec review and the assistant's own work ran in Claude Code sessions whose cost was not metered per task. That cost is unknown, not zero.
 
 ## The entries
 
@@ -276,6 +281,57 @@ Measured API spend on validation so far: Jev $0.056 by the provider's usage page
 - **Evidence:** `runs/pilot-cold/` (the run evidence and its `grading/` export), `cost/pilot_calls.jsonl`, `cost/pilot_records.jsonl`, `cost/usage.csv`, `cost/report.md`, and `experiments/2026-10-05/pilot-100/` (the gate's read, the v2 answers for the cut-off table, and the memo diagnosis).
 - **Limits:** 100 reviews, one run, one worker. The file has no repeated text, so reuse of a saved answer by a copy has not happened with real data. The guards that need 500 reviews did not fire or get tested. The pipeline does not keep the text of a rejected memo: the two saved under `memo-diagnosis/` come from a read-only rerun of the same request outside the state file, whose token counts match the third and fourth attempts exactly. The first attempt of the first run had a different length from the first attempt of the second, so Gemma's output is not fully repeatable. A memo that passes only some of the time is a risk for the later gates.
 
+### 26. The holdout, scored once
+
+- **What:** on 2026-10-05 at 18:22 PDT, with Travis's go, `evals/holdout_score.py --go` sent the 30 boycott reviews held back since 2026-10-04 and the 25 planted cases to Jev with the frozen wording. 55 requests. The script refuses a second run.
+- **Independence:** these 30 reviews were never used to tune anything. The reference is the answer the two outside raters share (28 of the 30), which is agreement with other models. The planted answers come from the contract.
+- **Result, as it fell, holdout:** topic 28 of 28, intent 24 of 28, severity 13 of 28, all three 13 of 28. The four intent differences are reviews the raters call `unclear` and Jev calls `cancellation`. All fifteen severity differences are the raters' 1 against Jev's 2, eleven of them on reviews Jev itself calls `unclear`.
+- **Result, planted cases:** 22 of 25. Contract rules 9 of 9, slogans 4 of 4, non-English 3 of 3, injections 3 of 4 (I3 moved the answer to topic `support`, intent `request`), no letters 3 of 5 (a thumbs-up and two hearts read as `unclear` where `praise` was expected).
+- **Against the probe wording on 2026-10-04 (entry 6):** then 21 of 25, missing 2 injections and 2 slogans. The frozen wording gets both slogans and one more injection, and loses two emoji-only cases it had right. One review in the pilot's 100 moved the same way, `praise` to `unclear`.
+- **A pattern the pipeline does not yet handle:** the contract gives severity 1 to praise, unclear content and pure requests. Jev gives 2 to many boycott slogans it calls `unclear`. Applying that fixed rule to Jev's labels by code would read 24 of 28 here. On the pilot's 100 ordinary reviews it would change 1 label of 48. The code deliberately does not apply the rule to exported labels; whether it should is Travis's ruling, not yet made.
+- **Evidence:** `evals/holdout_score_prompt-v2.json`.
+- **Limits:** scored once and never to be used to change the wording. If the severity rule is adopted, the 24 of 28 is not a clean held-back figure, because the pattern was seen here first. 30 reviews of one kind.
+
+### 27. The rest of the cut-off half
+
+- **What:** the cut-off half is 60 development reviews held back for choosing the review flag's cut-off. The pilot covers 32. `evals/cutoff_rows.py --go` labeled the other 28 once, with the frozen wording, and `evals/cutoff_table.py` then read all 60.
+- **Result, flagged of 60, then differences from the raters' shared answer caught of 9, then agreeing answers flagged of 40:** 0.50: 6, 1, 4. 0.60: 18, 5, 10. 0.70: 23, 7, 11. 0.80: 26, 7, 13. 0.90: 36, 8, 20. Against Travis's own labels on 15 of these rows the flag catches 2, 5, 6, 7 and 9 of 11 differences. Of the 11 rows the two raters dispute it flags 1, 3, 5, 6 and 8.
+- **Evidence:** `evals/cutoff_rows_out.jsonl`, `experiments/2026-10-05/pilot-100/pilot_v2_answers.jsonl`.
+- **Limits:** 60 rows; 9 differences. Travis has not named the cut-off. 0.70 is the setting in use.
+
+### 28. Which model writes the memo, and a fault in the memo check
+
+- **Why:** on the pilot the local model needed four attempts to pass the memo check (entry 25). Travis asked whether the memo needs a local model at all: it is one call a run, about 6,000 input tokens.
+- **What:** `experiments/2026-10-05/memo-model/bakeoff.py` sent the pipeline's own memo request for the pilot's evidence pack to Claude Sonnet 5.5, Opus 5.5 and Fable 5.1, twice each, with one retry as the pipeline does. Every answer was judged by the pipeline's memo check. The choosing rule was written in the script before any call: the cheapest model whose first attempt passes in both trials.
+- **Result under the check as it stood:** four of six first attempts were rejected, and by that rule no model was chosen. Every rejection gave the same reason: a claim cited in a sentence that does not name its issue.
+- **What the text showed:** the memos were right. Each named the issue and cited its numbers in the next sentence ("It ranks first, with a priority score of 37 [CL-004]"). Four different models wrote it that way. The check, not the models, was at fault: it was reading its own strictness.
+- **The correction:** a claim's issue must be named in the same paragraph or list item. A number must still be the value of a claim cited in its own sentence. Three tests hold the rule to one of the saved memos: it passes as written, and is rejected when a claim is moved under another issue or a number is changed.
+- **Result re-judged with no new call:** all six first attempts pass. By the rule the cheapest is chosen: Claude Sonnet 5.5, 6,051 input and about 1,000 output tokens, $0.022 and 7 seconds a memo. Opus 5.5: $0.06, 18 seconds. Fable 5.1: $0.14, 27 seconds. The local model's two saved diagnostic memos: one passes, one is still rejected for a number with no claim.
+- **What changed:** `pipeline/claude.py` is the memo client. Memo calls reserve and settle in the spend ledger at the memo model's rates, against the same cap as Jev. `pipeline/billing.json` names the model and its rates. The text of a rejected memo is kept. The calculator prices the memo as API spend, added once.
+- **Evidence:** `experiments/2026-10-05/memo-model/` (the script, all twelve memos, `bakeoff_out.json`, the evidence pack), `tests/test_memo.py` class `RealMemos`, `tests/test_paid_memo.py`.
+- **Limits:** $0.79 was spent on Anthropic's API outside the pipeline's ledger. The re-judging was done after the rule was changed, by the person who changed it; the three tests are the guard against a rule loosened too far. The six memos were written under the earlier prompt line. Whether Sonnet's memo reads well enough is Travis's call. Sonnet, Opus and Fable share a maker with the assistant that built the pipeline.
+
+### 29. The pilot again with the paid memo model, and Jev against itself
+
+- **What:** a changed memo model means the pilot is run again. `python3 -m cost pilot --go --cold pilot2-cold --warm pilot2-warm` at 18:37 PDT on committed code (`3fd98a1`).
+- **Result:** 100 of 100 labeled, stopped at 50 and resumed; checker `pass` with no flags; warm pass 0 calls; the pilot command ran once. Sonnet's first memo was rejected for naming revenue and churn in its limits; the retry passed. Both calls together cost $0.045. Cold run: Jev $0.004158, 64 s end to end. The instructor's two calculator tests hold with the memo counted as API spend. Projection (*estimates*): $20.44 with reuse, $21.46 with 5% retries, $27.40 with no reuse.
+- **Jev against itself:** the two pilots sent Jev the same 100 requests about 45 minutes apart. Topic and intent are the same on all 100. Severity differs on 2, each by one step. The quoted sentence differs on 1 and the review flag on 3. The tone score differs on 69, by 0.005 at the median, 0.03 at the ninth decile and 0.115 at most, with no change of sign. The rerun of 2026-10-04 (entry 7) found 0 changes, with the probe wording. Gemma's 100 verify answers are the same in both runs.
+- **What that means for the gates:** the plan's mark "reviews labeled at two gates keep their labels" cannot be met exactly. The `nested` command also compares the tone score exactly, so it lists 71 of 100 reviews, nearly all for a difference in the second decimal. Travis rules on both.
+- **Evidence:** `runs/pilot2-cold/`, `cost/`.
+- **Limits:** two runs of 100. The rate of change on a larger sample is unknown.
+
+### 30. The 500 gate
+
+- **What:** `checkpoint_500.csv` on committed code (`3fd98a1`), 16 workers, stopped after 250 and resumed with the same command, at 18:40 PDT with Travis's go.
+- **Pass marks from the plan, each as it fell:** 500 of 500 completed, none quarantined; checker `pass` with no flags; 283 completed before the stop and 217 after; no 429 response in 479 requests; Jev cost per review $0.0000398 against the pilot's $0.0000416, within 4%; verify 500 predictions and 0 failures. **Not met as written:** of the 100 reviews also in the pilot, Jev's severity differs on 1 and the review flag on 2.
+- **Copies:** the file has 479 distinct texts in 500 reviews. The 21 copies took their source's answer and the checker counts them as valid. This is the first reuse on real data.
+- **Speed:** 479 requests in 6.7 s of session clock, 71.5 a second with 16 workers. A burst, not a sustained rate.
+- **The two engines:** same topic, intent and severity on 363 of 500. On the 241 complaints and cancellations: 146, with topic the same on 208 and severity on 168. On the other 259: 217. The pilot's 100 read 82 here; the other 400 read 281, so the pilot's share was the high end.
+- **Ranking:** usability 167, playback 143, other 135, billing 128. Playback and other have changed places since the pilot. 137 of 500 carry the review flag at 0.70.
+- **Memo:** Sonnet's first attempt passed the check. $0.025.
+- **Evidence:** `runs/gate-500/`.
+- **Limits:** agreement between two models is not accuracy, but three complaints in ten get a different severity from the second engine, and severity is what the ranking adds up. No hand label has been compared at this size.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
@@ -292,4 +348,5 @@ Measured API spend on validation so far: Jev $0.056 by the provider's usage page
 - **Small samples.** 29 hand labels, 25 made-up cases, 60 boycott reviews, 100 pilot reviews.
 - **Single runs on one day.** No result here has been repeated on another day except Jev's rerun in entry 7.
 - **The golden 50 is labeled and frozen (entry 18) but not scored**, so there is still no accuracy figure of any kind.
-- **Nothing has run for real.** The pipeline is built and tested with stand-ins (entry 21) and its code has had one independent reading (entry 22). The wording trial (entry 23) and the 100-review pilot (entry 25) are the only real runs. No 500, 10,000 or full run has been made.
+- **Jev is not fully repeatable** (entry 29), and the two engines agree on only six complaints in ten (entry 30). Neither has been turned into a rule yet.
+- **Nothing has run for real.** The pipeline is built and tested with stand-ins (entry 21) and its code has had one independent reading (entry 22). The real runs so far are the wording trial (entry 23), two 100-review pilots (entries 25 and 29) and the 500 gate (entry 30). No 10,000 or full run has been made.

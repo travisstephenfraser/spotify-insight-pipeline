@@ -297,7 +297,7 @@ def cmd_status(db, a):
     if stuck:
         print(f"{stuck} review(s) are pending after failed rounds. If they keep failing: python3 -m pipeline quarantine-stuck --run {a.run} --reason api_failure_after_retries")
     led = ledger.Ledger(db, a.billing, cap_usd=Decimal(a.cap))
-    print(f"Jev spend in this state file: ${led.spent_usd():.4f} spent, ${led.reserved_usd():.4f} reserved, cap ${a.cap}")
+    print(f"Paid spend in this state file (Jev and the memo model): ${led.spent_usd():.4f} spent, ${led.reserved_usd():.4f} reserved, cap ${a.cap}")
     return OK
 
 

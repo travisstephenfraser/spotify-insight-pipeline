@@ -118,7 +118,7 @@ No summary of the design and no closing praise. Stop after the report.
 
 ## Part B. The design under review
 
-*This copy was made from the design file whose SHA-256 begins `5706d2ce61522a23`. Taken out: a status note about earlier reviews, a pointer to the authors' decision log, one paragraph and one list in which the authors state weaknesses they already know, pointers to earlier review files, and the final section, which summarized earlier reviews. One source note was reworded to name the measurement, not the review that made it. Section numbers are unchanged, and the design text is otherwise word for word.*
+*This copy was made from the design file whose SHA-256 begins `456b06072f20bb93`. Taken out: a status note about earlier reviews, a pointer to the authors' decision log, one paragraph and one list in which the authors state weaknesses they already know, pointers to earlier review files, and the final section, which summarized earlier reviews. One source note was reworded to name the measurement, not the review that made it. Section numbers are unchanged, and the design text is otherwise word for word.*
 
 **Spotify Insight Pipeline: design spec**
 
@@ -162,7 +162,7 @@ All **Decided**, 2026-10-04.
 | Weak spots | Tighter intent wording for slogans. Planted slogan and injection tests in `evals/`. Injections get a test only, no guard |
 | Fallback | None. Hard cases are flagged, never re-labeled |
 | Grouping | One issue per topic, eight at most. Code assigns. The group model only names and describes |
-| Writing model | Gemma 26B for issue names and the memo. Travis reads the pilot memo and rules on keeping it |
+| Writing model | Gemma 26B for issue names. Claude Sonnet 5.5 for the memo from 2026-10-05 (item 35); first decided as Gemma 26B for both, with Travis to rule after reading the pilot memo |
 | Budget | $35 of total Jev spend for the whole project (raised from $25 on 2026-10-05, item 34) |
 | Golden 50 | Labeled by Travis by hand. Scored once at the end. Never in a prompt, a cut-off or grouping |
 | Gates | 100, then 500, then 10,000, then the full file. Each needs an explicit go |
@@ -184,7 +184,7 @@ input CSV (any path)
    |          Gemma 26B       role "group": issue names and descriptions
 5. rank       code            counts, severity sums, means, order
    |
-6. memo       Gemma 26B       role "memo": recommendation from the ranked table and evidence pack
+6. memo       Sonnet 5.5      role "memo": recommendation from the ranked table and evidence pack
    |          code            checks every cited ID and number
 export        code            grading/, cost/, evals/, run evidence, then the supplied checker
 ```
@@ -334,7 +334,7 @@ One command rebuilds `ranking.csv` from `grading/records.jsonl` and `grading/mem
 
 **Failure and stop:** the command raises if a member review is missing from the records or is not a complaint or cancellation. It ends when the file is written.
 
-#### 6.6 Memo (Gemma 26B, role `memo`)
+#### 6.6 Memo (Claude Sonnet 5.5 from 2026-10-05, item 35; role `memo`)
 
 **Input, never the raw CSV:**
 
@@ -497,7 +497,7 @@ Rows marked Decided or Done carry Travis's ruling. Rows marked Delegated were ru
 | 23 | Slogan and injection cases | **Decided 2026-10-04.** 60 real boycott reviews picked by hash (`evals/boycott_60.csv`), 30 to tune on and 30 held back to score once. Two outside raters label them first; Travis labels blind only where they differ, plus a check sample. The raters matched the planted cases' answer key on 24 and 25 of 25 | 10 |
 | 24 | Cut-off evidence | **Decided 2026-10-04.** The outside raters label all 150 development rows blind. Travis hand-labels the rows where they differ plus 15 agreed rows picked by hash. The 121 rows labeled this way are then split by hash into a wording half and a cut-off half. The 29 rows labeled earlier stay out of the cut-off half, as item 20 rules. Every label records whether it came from Travis or from rater agreement | 6.1, 10 |
 | 25 | Guards | **Delegated 2026-10-05: accepted.** Bands around the previous gate's values in place of fixed thresholds; a test that verifier requests are identical with and without Jev's answers present; one planted failure per guard; the nested 100 must get identical labels at every gate. If the nested 100 differ between gates the run stops and lists the rows, and Travis rules: Jev's documents say identical requests can return different answers | 10 |
-| 26 | Memo check | **Delegated 2026-10-05: accepted.** Claim ID and issue ID in the same sentence; the recommendation names rank 1 or says why not; run facts recomputed from exported files; some quotes picked by hash beside the most severe | 6.6 |
+| 26 | Memo check | **Delegated 2026-10-05: accepted, then corrected the same day.** Claim ID and issue ID in the same paragraph or list item (first written as the same sentence, which rejected correct memos from four different models; item 35); the recommendation names rank 1 or says why not; run facts recomputed from exported files; some quotes picked by hash beside the most severe | 6.6 |
 | 27 | Output tokens and the limiter | **Decided 2026-10-04: settle it with a test batch.** Send a small known batch, then compare the usage page with input tokens times the rate. Until then output-token billing stays marked unknown. Accepted under the delegation of 2026-10-05: the token limiter uses bytes divided by 2.4, and `rates.csv` carries an output-token row. **Settled 2026-10-05:** output tokens are not billed. The usage page showed $0.056 for 1,640,194 tokens and 1,451 requests, which is input tokens times the rate; billing every token would have shown about $0.069. The ledger and the calculator price them at zero, and the page is read again after the 10,000 gate | 7 |
 | 28 | Gate pass marks | **Delegated 2026-10-05: accepted.** Before each gate runs, name the numbers that would block the next go. The implementation plan lists the marks for each gate, and each request for a go shows them | 11 |
 | 29 | Provider-side limit | **Delegated 2026-10-05: accepted. Human-only.** Travis checks whether the TypeSafe console offers a spending limit and sets it, before the first paid pipeline call | 7 |
@@ -506,3 +506,4 @@ Rows marked Decided or Done carry Travis's ruling. Rows marked Delegated were ru
 | 32 | Scores shown two ways | **Decided 2026-10-05.** Hand labels stay as frozen. Every score against them is reported twice: against the labels as written, and with the contract's fixed severity rule applied to the hand labels by code (intent `unclear`, `praise` or `request` means severity 1). No model answer enters the second reading. On the blind sheet the rule changes 8 of 39 hand labels, all boycott reviews labeled `unclear` with severity 2. On the golden 50 it changes 4, counted without showing a row or a value. The labeler's habit of giving severity 2 where both raters give 3 on complaints is covered by no rule and is disclosed as it stands | 10 |
 | 33 | Corrections from the plan review | **Delegated 2026-10-05.** Four changes that an outside reading of the implementation plan showed were needed, each checked before it was made. (a) Item 31: the code is identified by a hash of the package's source files, because a commit plus a "dirty" mark cannot tell two uncommitted edits apart; a real run needs a clean tree. (b) Each ledger row keeps the billing rates in force when it was written, so editing a rate file cannot shrink past spend and reopen room under the cap; operational rates are kept apart from the calculator's editable ones. (c) `usage.csv` carries each stage's and each run's clock seconds, so offline replay has its times without the state file. (d) A guard still raises for every input, but an input other than the supplied file can be restarted with the guard accepted by name and logged, because a small one-sided CSV can truly be one topic | 4, 8, 10 |
 | 34 | Budget raised | **Decided 2026-10-05.** Travis raised the cap on total Jev spend from $25 to $35. The calculator's estimates for one full pass at the time: $19.11 with exact-text reuse, $24.65 with 5% retries and output tokens billed at the input rate, $25.57 with no reuse. The cap is one number in the ledger's code, read by every command; the calculator's copy in `cost/assumptions.csv` is held equal to it by a test. | 2, 4, 7 |
+| 35 | Memo model | **Decided 2026-10-05.** After the local model needed four attempts on the pilot, Travis asked whether the memo needs a local model and said to proceed with a frontier one. Three Claude models wrote the pilot's memo twice each under a choosing rule fixed first: the cheapest whose first attempt passes the memo check in both trials. The comparison showed the check itself was at fault (item 26); with it corrected all six first attempts pass and the cheapest, Claude Sonnet 5.5, writes the memo: one call a run, about two cents. Issue naming stays with the local model. Memo spend is reserved and settled in the same ledger and counts against the same cap as Jev (item 34). The model and its rates are named once, in `pipeline/billing.json` | 2, 6.6, 7 |
