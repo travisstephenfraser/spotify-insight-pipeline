@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT / "evals")]
 import common  # noqa: E402
+from pipeline import jev  # noqa: E402
 import planted_cases  # noqa: E402
 
 
@@ -83,7 +84,7 @@ def main(argv=None):
     common.add_arguments(ap)
     ap.add_argument("--candidate", default="enrich-v2.json")
     a = ap.parse_args(argv)
-    with common.session(a, "wording trial, probe", "enrich-v1.json") as probe:
+    with common.session(a, "wording trial, probe", jev.PROBE_PROMPT_FILE) as probe:
         if probe is None:
             return 2
         first = run({"probe": probe.ask})

@@ -16,7 +16,7 @@ State      one SQLite file, write-ahead mode
 Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name/memo  Gemma 26B, local
-Tests      465 automated (464 run with no outside network; 1 skipped unless the 97 MB file is present)
+Tests      475 automated (474 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-05
 ```
 
@@ -289,12 +289,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-465 tests: 464 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+475 tests: 474 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 465 tests in 12.352s
+Ran 475 tests in 13.180s
 
 OK (skipped=1)
 ```
@@ -348,8 +348,8 @@ What was measured before the build, in throwaway probes on 2026-10-04 (small sam
 | Jev speed | 78 requests a second with 16 workers, for 6 seconds | measured |
 | Jev against 29 hand labels, all three fields | 24 (21 before five labels were revised) | measured |
 | Gemma 26B against the same labels | 23 | measured |
-| Money spent so far | Jev $0.0485; two outside raters $1.12 and $2.77 | measured |
-| One full pass, 484,189 distinct texts | about $19 | estimate |
+| Money spent so far | Jev $0.056 by the provider's usage page on 2026-10-05; two outside raters $1.12 and $2.77 | measured |
+| One full pass, 484,189 distinct texts | about $19 at the probe wording's request size; the frozen wording's requests are about 64 input tokens longer, about $1.30 more | estimate |
 | One full pass at 75 requests a second | about 1.8 hours | estimate |
 
 The calculator and its replay command are in [`cost/`](cost/README.md). Its measured-100 report does not exist yet because the paid pilot has not been run.
@@ -366,7 +366,7 @@ Not run yet. A real trace needs a real run. The export writes everything a trace
 
 - **Golden 50:** labeled by hand and frozen on 2026-10-05 before any model saw the texts ([`evals/golden_50_labeled.csv`](evals/golden_50_labeled.csv), SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`). Not scored yet: it is scored once, on the final setup, by [`evals/score_golden.py`](evals/score_golden.py), which gives two readings. The second applies the contract's rule that unclear text, praise and requests are severity 1; that rule would change 4 of the 50 hand labels.
 - **Independent verifier procedure:** [Architecture](#architecture) and `pipeline/verify.py`. Not run with a real model yet.
-- **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. A candidate wording for the slogans exists ([`prompts/enrich-v2.json`](prompts/enrich-v2.json)) and is unmeasured.
+- **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. On 2026-10-05 a wording trial on 34 items measured a new intent wording, [`prompts/enrich-v2.json`](prompts/enrich-v2.json): 4 of 4 planted slogans (the probe wording got 2 of 4) and the outside raters' shared intent on 23 of 28 real boycott reviews (the probe wording 15) ([`evals/wording_trial_out.json`](evals/wording_trial_out.json)). It is now the frozen wording. The injection cases have not been measured with it yet.
 - **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). The recording of a real interrupted run does not exist yet.
 - **Every check so far, with its limits:** [`docs/validation-log.md`](docs/validation-log.md).
 
@@ -390,7 +390,7 @@ Not run yet. No memo has been written by a real model. The memo stage and its co
 
 ## Running it for real
 
-Nothing here has been done yet. A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
+Only step 2 has been done (2026-10-05, 68 requests). A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
 
 1. Start the local model server and load `google/gemma-4-26b-a4b-qat`.
 2. Wording trial on the tuning cases only: `python3 evals/wording_trial.py --go`.
@@ -418,7 +418,7 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 - **One issue per topic.** An issue names a topic, not a single defect, and `other` can rank high with nothing specific to fix. Fix: sub-issues inside a topic, decided after the first full pass.
 - **The quote and the topic come from separate questions** and can point at different sentences. How often is unmeasured.
 - **Injections are tested, not guarded.** The measured miss rate is reported as a limit.
-- **Whether Jev bills its output tokens is unknown.** The ledger counts them at the input rate until a test batch is compared with the usage page, so it errs toward counting too much; the calculator reports them as unknown.
+- **Jev's output tokens are not billed, by one reading of the usage page.** On 2026-10-05 the page showed $0.056 for 1,640,194 tokens and 1,451 requests, which is input tokens times the rate; it would have shown about $0.069 if every token were billed ([`experiments/2026-10-05/billing/`](experiments/2026-10-05/billing/usage_page_check.py)). The ledger and the calculator price them at zero. The page is read again after the 10,000 gate.
 - **Sustained speed is unmeasured.** 78 requests a second was a 6-second burst.
 - **The verifier runs one request at a time.** About 53 minutes for 5,000 reviews by estimate.
 - **The memo check proves the numbers were copied correctly, not that the argument is sound.** A person reads the memo.

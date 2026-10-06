@@ -209,11 +209,13 @@ class Refusals(CliCase):
         prompts = self.dir / "prompts"
         shutil.copytree(fixtures.ROOT / "prompts", prompts)
         self.cli("run", "--run", "p", "--new", "--input", self.csv, "--standin", "--stop-after", "5", "--prompts", prompts)
-        path = prompts / "enrich-v1.json"
-        path.write_text(path.read_text().replace("What is the writer's intent?", "What does the writer intend?"))
+        path = prompts / jev.PROMPT_FILE
+        before = path.read_text()
+        path.write_text(before.replace("writer", "author", 1))
+        self.assertNotEqual(path.read_text(), before)
         code, text = self.cli("run", "--run", "p", "--standin", "--prompts", prompts)
         self.assertEqual(code, 2)
-        self.assertIn("prompt:enrich-v1.json", text)
+        self.assertIn(f"prompt:{jev.PROMPT_FILE}", text)
         self.assertEqual(self.db().execute("SELECT COUNT(*) FROM sessions").fetchone()[0], 1)
 
     def test_a_second_process_on_the_same_state_file_is_refused(self):

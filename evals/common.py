@@ -120,6 +120,11 @@ class Paid:
                 finish("failed", error=str(e)[:500], status=e.status)
                 last = e
                 continue
+            except jev.Rejected as e:
+                # The provider refused this one request as sent. The same request would be refused again, so the
+                # item has no answer and the script goes on to the next.
+                finish("failed", error=str(e)[:500], status=e.status)
+                return {"invalid": f"the provider refused this request: {e}"}
             except jev.Fatal as e:
                 finish("failed", error=str(e)[:500], status=e.status)
                 raise
@@ -145,7 +150,7 @@ def add_arguments(ap):
     ap.add_argument("--go", action="store_true", help="really call Jev; without it nothing is sent")
     ap.add_argument("--standin", action="store_true", help="use the stand-in labeler: no network, no cost")
     ap.add_argument("--state", default=str(ROOT / "runs/state.sqlite"), help="the state file whose ledger these calls are charged to")
-    ap.add_argument("--prompt-file", default="enrich-v1.json")
+    ap.add_argument("--prompt-file", default=jev.PROMPT_FILE)
     ap.add_argument("--cutoff", type=float, default=0.70)
     ap.add_argument("--cap", default=str(ledger.CAP_USD))
 
@@ -174,7 +179,10 @@ def session(a, purpose, prompt_file=None):
             from pipeline import cli
 
             cli._one_kind_per_state_file(db, standin=False)  # the cap must not split across two ledgers
-        paid = Paid(db, ledger.Ledger(db, ROOT / "pipeline/billing.json", cap_usd=Decimal(a.cap)), labeler, setup, purpose)
+        spend = ledger.Ledger(db, ROOT / "pipeline/billing.json", cap_usd=Decimal(a.cap))
+        if not a.standin and not db.execute("SELECT 1 FROM ledger WHERE kind='opening'").fetchone():
+            spend.opening(*cli.OPENING_SPEND)  # the probes made before the ledger existed count against the cap
+        paid = Paid(db, spend, labeler, setup, purpose)
         try:
             yield paid
         finally:

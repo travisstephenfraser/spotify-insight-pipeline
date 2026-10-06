@@ -292,6 +292,8 @@ def report(inputs, measured_, projection):
             lines += ["- Costs that are unknown, and are not counted as zero:"] + [
                 f"  - {u['what']}: {u['units']} {u['unit']}s" for u in m["unknown"]
             ]
+        else:
+            lines.append("- Costs that are unknown: none. Every unit above has a price in `rates.csv`.")
         lines.append("")
     lines += ["### Rates", "", "| Item | Unit | Price per unit | Source | Checked |", "|---|---|---|---|---|"]
     for item, r in rates.items():
@@ -330,6 +332,8 @@ def report(inputs, measured_, projection):
     ]
     for u in base["unknown"]:
         lines.append(f"- Unknown and not counted: {u['what']}, about {u['units']:,.0f} {u['unit']}s in the base case.")
+    if not base["unknown"]:
+        lines.append("- Unknown costs: none in the base case.")
     lines += [f"- Spending limit: ${projection['cap']}."] + [f"- **Warning:** {w}." for w in projection["warnings"]]
     lines += ["", "### Controls and assumptions", "", "| Item | Value | Note |", "|---|---|---|"]
     lines += [f"| {r['item']} | {r['value']} | {r['note']} |" for r in inputs["assumptions"]]
