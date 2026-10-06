@@ -235,7 +235,7 @@ def cmd_run(db, a):
             raise Refused(f"run {a.run} exists; drop --new to resume it")
         if not a.input:
             raise Refused("--new needs --input PATH.csv")
-        setup = jev.load_setup(a.prompts, 0.70 if a.cutoff is None else a.cutoff, prompt_name=a.prompt_file or jev.PROMPT_FILE)
+        setup = jev.load_setup(a.prompts, jev.CUTOFF if a.cutoff is None else a.cutoff, prompt_name=a.prompt_file or jev.PROMPT_FILE)
         if real and not a.go:
             rows = prepare.read_rows(a.input)
             return _would_spend(db, a, len({r["review_text"] for r in rows if r["review_text"].strip()}))
@@ -424,7 +424,7 @@ def parser():
     r.add_argument("--stop-after", type=int, help="stop classify after this many new completions, with work pending")
     r.add_argument("--max-hours", type=float)
     r.add_argument("--workers", type=int, default=1)
-    r.add_argument("--cutoff", type=float, help="needs_review cut-off; part of label_config (default 0.70)")
+    r.add_argument("--cutoff", type=float, help=f"needs_review cut-off; part of label_config (default {jev.CUTOFF:.2f}, the number Travis named)")
     r.add_argument("--verify-size", type=int, default=5000)
     r.add_argument("--seed", default=SEED)
     r.add_argument("--warm-from", help="take every result from this finished run and make no call (the cost pilot's warm pass)")

@@ -45,5 +45,32 @@ class FrozenWording(TmpCase):
         self.assertEqual(self.db().execute("SELECT label_config FROM runs WHERE run='old'").fetchone()[0], "jev-1.13.0/prompt-v1/schema-v1/cut-0.70")
 
 
+class NamedCutoff(TmpCase):
+    """The needs_review cut-off. Travis named 0.70 on 2026-10-05, from the table over the 60 held-back rows
+    and the 500 gate. It is part of label_config, so it cannot change once the full run has started."""
+
+    def test_the_cut_off_is_0_70(self):
+        self.assertEqual(jev.CUTOFF, 0.70)
+
+    def test_every_default_reads_the_one_number(self):
+        sys.path.insert(0, str(fixtures.ROOT / "evals"))
+        import common
+
+        ap = argparse.ArgumentParser()
+        common.add_arguments(ap)
+        self.assertEqual(ap.parse_args([]).cutoff, jev.CUTOFF)
+        self.assertEqual(jev.load_setup(fixtures.ROOT / "prompts").cutoff, jev.CUTOFF)
+
+    def test_a_new_run_that_names_no_cut_off_flags_below_0_70(self):
+        code, text = self.cli("run", "--run", "r", "--new", "--input", self.csv, "--standin", "--verify-size", "15")
+        self.assertEqual(code, 0, text)
+        db = self.db()
+        self.assertTrue(db.execute("SELECT label_config FROM runs WHERE run='r'").fetchone()[0].endswith("/cut-0.70"))
+        rows = db.execute("SELECT needs_review, min_top_probability FROM results WHERE run='r'").fetchall()
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual(bool(row["needs_review"]), row["min_top_probability"] < 0.70)
+
+
 if __name__ == "__main__":
     unittest.main()
