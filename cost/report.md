@@ -11,14 +11,14 @@ Replayed offline from the saved pilot files: `pilot_calls.jsonl`, `pilot_records
 
 | Stage | Provider | Model | Setup | Batch | Workers | Requests | Attempts | Failed | Input tokens | Output tokens | API cost | Local estimate | Time |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| classify | TypeSafe | jev-1.13.0 | jev-1.13.0/prompt-v2/schema-v1/cut-0.70 | 1 | 1 | 100 | 100 | 0 | 98996 | 21467 | $0.004158 | $0.000000 | 13.43 s |
-| verify | LM Studio (local) | google/gemma-4-26b-a4b-qat | google/gemma-4-26b-a4b-qat/verify-v1-85a7b171251f/schema-v1/max-200 | 1 | 1 | 100 | 100 | 0 | 69090 | 2017 | $0.000000 | $0.000171 | 25.69 s |
-| group | LM Studio (local) | google/gemma-4-26b-a4b-qat | google/gemma-4-26b-a4b-qat/group-v1-1a315732eeb2/schema-v1/max-300/quotes-30 | 1 | 1 | 8 | 8 | 0 | 4787 | 279 | $0.000000 | $0.000026 | 3.95 s |
-| memo | LM Studio (local) | google/gemma-4-26b-a4b-qat | google/gemma-4-26b-a4b-qat/memo-v1-af34c4657670/schema-v1/max-1500/quotes-5 | 1 | 1 | 1 | 4 | 3 | 20347 | 1835 | $0.000000 | $0.000129 | 19.34 s |
+| classify | TypeSafe | jev-1.13.0 | jev-1.13.0/prompt-v2/schema-v1/cut-0.70 | 1 | 1 | 100 | 100 | 0 | 98996 | 21465 | $0.004158 | $0.000000 | 13.22 s |
+| verify | LM Studio (local) | google/gemma-4-26b-a4b-qat | google/gemma-4-26b-a4b-qat/verify-v1-85a7b171251f/schema-v1/max-200 | 1 | 1 | 100 | 100 | 0 | 69090 | 2017 | $0.000000 | $0.000166 | 24.94 s |
+| group | LM Studio (local) | google/gemma-4-26b-a4b-qat | google/gemma-4-26b-a4b-qat/group-v1-1a315732eeb2/schema-v1/max-300/quotes-30 | 1 | 1 | 8 | 8 | 0 | 4780 | 271 | $0.000000 | $0.000024 | 3.65 s |
+| memo | Anthropic | claude-sonnet-5-5 | claude-sonnet-5-5/effort-low/memo-v1-1aa8174f53a3/schema-v1/max-1500/quotes-5 | 1 | 1 | 1 | 2 | 1 | 12057 | 2075 | $0.044864 | $0.000000 | 22.36 s |
 
-- API spend: $0.004158. Local compute (estimate): $0.000327.
-- API cost per 1,000 rows: $0.041578; per completed record: $0.00004158.
-- End to end: 62.42 s; throughput 1.60 rows a second.
+- API spend: $0.049022. Local compute (estimate): $0.000191.
+- API cost per 1,000 rows: $0.490218; per completed record: $0.00049022.
+- End to end: 64.17 s; throughput 1.56 rows a second.
 - Costs that are unknown: none. Every unit above has a price in `rates.csv`.
 
 ### Warm run
@@ -32,7 +32,7 @@ Replayed offline from the saved pilot files: `pilot_calls.jsonl`, `pilot_records
 
 - API spend: $0.000000. Local compute (estimate): $0.000000.
 - API cost per 1,000 rows: $0.000000; per completed record: $0.00000000.
-- End to end: 0.00 s; throughput 35919.54 rows a second.
+- End to end: 0.00 s; throughput 21533.16 rows a second.
 - Costs that are unknown: none. Every unit above has a price in `rates.csv`.
 
 ### Rates
@@ -52,11 +52,11 @@ All 660,622 rows accounted for; 660,609 nonempty outputs; 13 empty-text quaranti
 
 | Case | Jev requests | Attempts | Input tokens per request | API cost | Local estimate | Jev time at the rate cap | Jev time with one worker |
 |---|---|---|---|---|---|---|---|
-| Base: exact-text reuse | 484,189 | 484,189 | 1003 | $20.39 | $0.01 | 1.79 h | 18.07 h |
-| No reuse, for comparison | 660,609 | 660,609 | 986 | $27.35 | $0.01 | 2.45 h | 24.65 h |
-| Conservative: more retries, output tokens billed at the input rate | 484,189 | 508,398 | 1003 | $21.41 | $0.01 | 1.79 h | 18.07 h |
+| Base: exact-text reuse | 484,189 | 484,189 | 1003 | $20.44 | $0.01 | 1.79 h | 17.78 h |
+| No reuse, for comparison | 660,609 | 660,609 | 986 | $27.40 | $0.01 | 2.45 h | 24.26 h |
+| Conservative: more retries, output tokens billed at the input rate | 484,189 | 508,398 | 1003 | $21.46 | $0.01 | 1.79 h | 17.78 h |
 
-- Verify: 5,000 reviews, about 0.36 h on this machine. Naming: 8 calls. Memo: 1 call, added once.
+- Verify: 5,000 reviews, about 0.35 h on this machine. Naming: 8 calls. Memo: 1 call, added once.
 - Input tokens per request are scaled from the pilot by the full file's average text length (`text_volume.json`), because pilot reviews are not the average text.
 - Unknown costs: none in the base case.
 - Spending limit: $35.
