@@ -18,7 +18,11 @@ This folder holds two things.
 Each folder has its grading export in `grading/`.
 
 - `pilot-cold/`: the first 100-review pilot of 2026-10-05, with the local model writing the memo.
-- `pilot2-cold/`: the pilot run again the same day after the memo model changed. `cost/` is built from this one.
+- `pilot2-cold/`: the pilot run again the same day after the memo model changed.
+- `pilot3-cold/`: the pilot of 2026-10-06 with the contract's severity rule, made before the state-file fix of validation log entry 34.
+- `pilot4-cold/`: the pilot again an hour later, on the code the full run uses. `cost/` is built from this one.
 - `gate-500/`: the 500-review gate.
+- `gate-10k/`: the 10,000-review gate of 2026-10-06, the first run with the contract's severity rule in code.
+- `full/`: the full file, 660,622 reviews, on the night of 2026-10-06. Its three largest files are gzipped (`records.jsonl.gz`, `calls.jsonl.gz`, `run_log.jsonl.gz`). As for every run, the checker's own outputs (`local-reference.json`, 161.5 MB here, and `self-check.json`) are not committed; `python3 -m pipeline export` writes them again from the state file.
 
 The warm passes made no call and have no folder.

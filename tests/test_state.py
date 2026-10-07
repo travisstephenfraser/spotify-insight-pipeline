@@ -229,6 +229,27 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class Plans(TmpCase):
+    """What runs once for every finished request must not read every pending review of the run.
+
+    Found on 2026-10-06: at 565,000 pending reviews the planner took the status index for these
+    statements, 61 ms a request against 0.005 ms by the text index. The 10,000 gate was too small to show it.
+    """
+
+    def plan(self, sql, args):
+        return " | ".join(row[3] for row in self.connect().execute("EXPLAIN QUERY PLAN " + sql, args))
+
+    def test_marking_a_text_completed_finds_it_by_text(self):
+        plan = self.plan(state.MARK_TEXT_COMPLETED, (1, "run", "key"))
+        self.assertIn("reviews_by_text", plan)
+        self.assertNotIn("reviews_by_order", plan)
+
+    def test_quarantining_a_text_finds_it_by_text(self):
+        plan = self.plan(state.MARK_TEXT_QUARANTINED, ("why", "run", "run", "id"))
+        self.assertIn("reviews_by_text", plan)
+        self.assertNotIn("reviews_by_order", plan)
+
+
 class Durability(TmpCase):
     def test_the_default_waits_for_the_disk_on_every_commit(self):
         self.assertEqual(self.connect().execute("PRAGMA synchronous").fetchone()[0], 2)

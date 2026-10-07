@@ -331,6 +331,18 @@ def close_crashed_sessions(db, run):
 # ---- The save protocol (spec section 4, "How a request is saved") ----
 
 
+# One of these runs for every finished request, so each must find its rows by the text, not by reading every
+# pending review of the run. Left to itself the planner takes the status index: 61 ms a request on the full file.
+MARK_TEXT_COMPLETED = (
+    "UPDATE reviews INDEXED BY reviews_by_text SET status='completed', completed_session=? "
+    "WHERE run=? AND text_key=? AND status='pending'"
+)
+MARK_TEXT_QUARANTINED = (
+    "UPDATE reviews INDEXED BY reviews_by_text SET status='quarantined', reason=? WHERE run=? AND status='pending' AND text_key = "
+    "(SELECT text_key FROM reviews WHERE run=? AND review_id=?)"
+)
+
+
 def begin_attempt(db, ledger, *, request_id, run, role, review_ids, model, label_config, session_id, reserve_tokens, reserve_output_tokens=0):
     """Commit the intent to send one request, with its reservation. No commit, no send.
 
@@ -392,10 +404,7 @@ def finish_attempt(
                         json.dumps(result["raw"], ensure_ascii=False), result["model"],
                     ),
                 )  # fmt: skip
-                db.execute(
-                    "UPDATE reviews SET status='completed', completed_session=? WHERE run=? AND text_key=? AND status='pending'",
-                    (call["session_id"], call["run"], review["text_key"]),
-                )
+                db.execute(MARK_TEXT_COMPLETED, (call["session_id"], call["run"], review["text_key"]))
     except BaseException:
         if ledger is not None:
             ledger.reload()
@@ -432,8 +441,4 @@ def return_to_pending(db, run, review_id):
 
 def quarantine(db, run, review_id, reason):
     """The original and every copy of its text. A copy keeps its pointer; export leaves it off."""
-    db.execute(
-        "UPDATE reviews SET status='quarantined', reason=? WHERE run=? AND status='pending' AND text_key = "
-        "(SELECT text_key FROM reviews WHERE run=? AND review_id=?)",
-        (reason, run, run, review_id),
-    )
+    db.execute(MARK_TEXT_QUARANTINED, (reason, run, run, review_id))

@@ -1,0 +1,14 @@
+claim_id,issue_id,metric,value
+CL-001,issue-usability,complaint_count,1277
+CL-002,issue-usability,severity_sum,3311
+CL-003,issue-usability,mean_severity,2.592796
+CL-004,issue-usability,priority_score,3311
+CL-005,issue-other,complaint_count,1269
+CL-007,issue-other,mean_severity,2.096927
+CL-008,issue-other,priority_score,2661
+CL-011,issue-billing,mean_severity,2.913317
+CL-012,issue-billing,priority_score,2319
+CL-015,issue-playback,mean_severity,3.473525
+CL-016,issue-playback,priority_score,2296
+CL-021,issue-access,complaint_count,157
+CL-023,issue-access,mean_severity,3.949045

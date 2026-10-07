@@ -35,6 +35,6 @@ Every paid call goes through the same spend ledger as the pipeline, so the $35 c
 - The 100-review pilot's labels against the development labels and the raters' shared answer: `experiments/2026-10-05/pilot-100/gate_read_out.txt` (validation log entry 25).
 - `holdout_score_prompt-v2.json`: the holdout, scored once on 2026-10-05 (validation log entry 26).
 - `cutoff_rows_out.jsonl`: the 28 cut-off-half reviews outside the pilot, labeled once (entry 27).
-- The golden 50 has not been scored.
+- The golden 50 was scored once, on the full run, on 2026-10-06: `golden_score_full.json`. All three fields right on 30 of 50. It is not scored again.
 
 Earlier measurements, made with throwaway scripts on 2026-10-04, are in `experiments/2026-10-04/README.md` and `docs/validation-log.md`.
