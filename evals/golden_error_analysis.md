@@ -6,7 +6,7 @@ The golden 50 was scored once, on the full run (validation log entry 36): topic 
 - Case by case, with pass or fail for each field: [`golden_cases_full.csv`](golden_cases_full.csv), written by [`golden_cases.py`](golden_cases.py), which refuses unless its totals equal the saved score.
 - Counts and the three confusion tables: [`golden_score_full.json`](golden_score_full.json).
 
-**Who read them.** The 20 were read on 2026-10-07 by the AI assistant that built the pipeline, after the score was saved and with Travis's permission to open the label columns for this purpose. The readings are that assistant's, set against the wording of `GRADING_CONTRACT.md`. They are one reading, not a second labeler. The three translations are the assistant's and approximate.
+**Who read them.** The 20 were read by the AI assistant that built the pipeline, after the score was saved and with Travis's permission to open the label columns for this purpose. He gave it at about 23:57 on 2026-10-06, and this file was committed at 00:09 on 2026-10-07. The readings are that assistant's, set against the wording of `GRADING_CONTRACT.md`. They are one reading, not a second labeler. The three translations are the assistant's and approximate.
 
 ## The 20 by kind
 

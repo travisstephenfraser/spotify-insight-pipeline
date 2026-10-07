@@ -62,6 +62,16 @@ class Readme(unittest.TestCase):
         if not (has_pilot or has_export):
             self.assertIn("No real run has been made", text)
 
+    def test_the_memo_lines_quoted_in_the_readme_are_lines_of_the_memo(self):
+        text = (fixtures.ROOT / "README.md").read_text(encoding="utf-8")
+        memo = (fixtures.ROOT / "runs/full/memo.md").read_text(encoding="utf-8").splitlines()
+        section = text.split("### Decision memo", 1)[1].split("\n### ", 1)[0]
+        quoted = [line[2:] for line in section.splitlines() if line.startswith("> ")]
+        self.assertTrue(quoted, "the README quotes nothing from the memo")
+        for line in quoted:
+            with self.subTest(line=line[:60]):
+                self.assertIn(line, memo)
+
 
 if __name__ == "__main__":
     unittest.main()

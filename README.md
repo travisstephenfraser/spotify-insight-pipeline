@@ -6,6 +6,8 @@ This is my final assignment for a Berkeley Haas course on building with AI: advi
 
 **Status: built, tested, and run for real on 100, 500 and 10,000 reviews and then on the full file (2026-10-06): 660,609 reviews labeled, 13 empty ones set aside, the supplied checker `pass` with no flags, $20.36 and 2 hours 11 minutes of working time ([`runs/full/`](runs/full/run_summary.json)). Against the 50 hand labels, scored once, Jev has topic, intent and severity all right on 30 of 50. The provider's usage page has not been read against the run.** Every stage is tested end to end with stand-ins that replay saved answers. The 500-review gate (2026-10-05) and the 100-review pilot and 10,000-review gate (2026-10-06) each ran every stage with the real models, stopped once and resumed, and each export passes the supplied checker ([`runs/pilot4-cold/`](runs/pilot4-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json)). Each number below says where it was measured.
 
+**For the grader:** the [rubric map](#rubric-map) links each of the ten rubric points to its evidence. The one export the checker reads is [`grading/`](grading/run.json), a copy of the full run's, and [`cost/`](cost/README.md) holds the calculator.
+
 The repo was built with an AI coding assistant (Claude Code); commits carry its co-author line. Design decisions, the hand labels and every go to spend money are mine. An agent reading this repo should start with [`CLAUDE.md`](CLAUDE.md).
 
 Live URL: Not applicable. This is a command-line pipeline that runs locally; nothing is deployed.
@@ -17,8 +19,8 @@ Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name       Gemma 26B, local
 Memo       Claude Sonnet 5.5 (Anthropic API), one call a run
-Tests      528 automated (527 run with no outside network; 1 skipped unless the 97 MB file is present)
-Checked    2026-10-05
+Tests      545 automated (544 run with no outside network; 1 skipped unless the 97 MB file is present)
+Checked    2026-10-07
 ```
 
 ---
@@ -271,7 +273,7 @@ python3 -m cost
 
 A `--standin` run with no `--state` uses `runs/standin.sqlite`. The file that guards real spend, `runs/state.sqlite`, is only ever used by a real run, and each file holds one kind.
 
-The repository is private until submission. The full dataset, `spotify_reviews_18months.csv` (97.4 MB, 660,622 rows), is not in the repo. It comes from the course's dataset link and goes in `feed/Final Assignment - Spotify Reviews Dataset/`. Its SHA-256 is `1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6`; prepare refuses to continue if the file with that checksum does not give its known counts.
+The full dataset, `spotify_reviews_18months.csv` (97,400,616 bytes, 660,622 rows), is not in the repo. Download the course's [dataset ZIP from Google Drive](https://drive.google.com/file/d/1P0rUoAS_wVjp3BYKqXMEyD4u0uJP1Bvf/view), unzip it, and put the CSV in `feed/Final Assignment - Spotify Reviews Dataset/`, beside the smaller supplied files that are committed. It is an 18-month window (2022-05-17 to 2023-11-15) of BwandoWando's [3.4 Million Spotify Google Store Reviews](https://www.kaggle.com/datasets/bwandowando/3-4-million-spotify-google-store-reviews), version 2, on Kaggle, which its publisher lists as CC0. Its SHA-256 is `1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6`; prepare refuses to continue if the file with that checksum does not give its known counts.
 
 A real run also needs LM Studio serving `google/gemma-4-26b-a4b-qat` at `localhost:1234` (`lms server start`), a TypeSafe key, and an Anthropic key for the memo. See [Running it for real](#running-it-for-real).
 
@@ -291,12 +293,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-528 tests: 527 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+545 tests: 544 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 528 tests in 13.220s
+Ran 545 tests in 15.645s
 
 OK (skipped=1)
 ```
@@ -319,7 +321,8 @@ OK (skipped=1)
 | `test_end_to_end.py` | The command line from a stopped run to a passing export; Ctrl-C; the warm pass; refusals; a clean copy of the repo |
 | `test_cost.py` | The instructor's two calculator tests; replay with no state file and no client; the measured pilot cost |
 | `test_evals.py` | The planted cases, the wording trial's holdout guard, the cut-off table, the golden score |
-| `test_readme.py` | Every link in the READMEs points at a file a clone would have; the test count stated here is the real one; no run is claimed that has not been made |
+| `test_trace.py` | The trace of one review equals what each exported file says; a copy is traced to its original's request; a failed attempt is listed; three known answers from the full run |
+| `test_readme.py` | Every link in the READMEs points at a file a clone would have; the test count stated here is the real one; no run is claimed that has not been made; the memo lines quoted here are lines of the memo |
 
 **Falsification.** A test that cannot fail proves nothing. In a scratch copy of the repo, never in the working tree, I removed the check that an evidence quote is an exact piece of the review, and ran the label tests:
 
@@ -337,6 +340,35 @@ Output was trimmed to the failing lines. `test_export.py` does the same thing ag
 ## Grading evidence
 
 The brief lists the evidence the README must hold. Each item is answered below with what exists today. Items that need a real run say so and report nothing in its place.
+
+### Rubric map
+
+The ten rubric points, each with the files that answer it. Every link is to a committed file, so nothing here needs a key or a paid call. The last column says where the evidence is thinner than the brief asks.
+
+**Deliverable quality**
+
+| Rubric point | Evidence | Where it is thin |
+|---|---|---|
+| 1. Accessible code, setup and artifacts | [Local setup](#local-setup): clone and run, Python standard library only. The graded export is [`grading/`](grading/run.json), the run evidence [`runs/full/`](runs/README.md), the calculator [`cost/`](cost/README.md), the labels and scores [`evals/`](evals/README.md). A test makes a fresh copy of the repo with no `.env` and no state file, then runs the ranking and four of the test files in it ([`tests/test_end_to_end.py`](tests/test_end_to_end.py)) | The 97.4 MB source file is linked, not committed |
+| 2. Clear architecture, shared schema and provenance | [Architecture](#architecture) with its role table, and the [State file schema](#state-file-schema). The contract's labels and record types are enforced in one place, [`pipeline/labels.py`](pipeline/labels.py), and every record it accepts or refuses is also put through the supplied checker ([`tests/test_labels.py`](tests/test_labels.py)). [`runs/full/run_manifest.json`](runs/full/run_manifest.json) ties together the source checksum, the code commit and hash, the prompt hashes, the model IDs, the seeds and the checksum of every exported file. Every record carries `source_sha256` and `label_config`; a copy carries `cache_source_id`. The prompts are in [`prompts/`](prompts/enrich-v2.json) | None I know of |
+| 3. Memo numbers linked to correct calculations and source evidence | Every issue-level number in [`runs/full/memo.md`](runs/full/memo.md) cites one of the 14 claims in [`grading/claims.csv`](grading/claims.csv). Each claim is a cell of [`grading/ranking.csv`](grading/ranking.csv), which `python3 -m pipeline rank` rebuilds from the records and the membership with no model. The supplied checker recomputes the same ranking and compares the claims with it: `pass`, no flags ([`runs/full/run_summary.json`](runs/full/run_summary.json)). [One review traced](#one-real-review-traced-end-to-end) shows a single review's share of CL-001 and CL-002 | The four reviews the memo quotes are among the most severe, as the memo says, not typical ones |
+| 4. Coherent recommendation, alternatives and limitations | The memo recommends one issue, weighs four alternatives and lists its own limits. Mine are under [Known limitations](#known-limitations-and-what-i-would-do-next) | The code check proves the numbers were copied correctly, not that the argument is sound. Places 2 to 4 rest on one pass |
+
+**Testing and evaluation**
+
+| Rubric point | Evidence | Where it is thin |
+|---|---|---|
+| 5. 50 human labels, per-field comparisons and error analysis | The labels: [`evals/golden_50_labeled.csv`](evals/golden_50_labeled.csv), written by hand and frozen by hash before any model saw the texts. The score, made once: [`evals/golden_score_full.json`](evals/golden_score_full.json), with topic 40 of 50, intent 43, severity exact 40 (mean absolute error 0.22), sentiment mean absolute error 0.18, a confusion table for each field, the rows per topic, and the 10 rows where I noted a second defensible label or a translation. One row a review: [`evals/golden_cases_full.csv`](evals/golden_cases_full.csv). The 20 misses read one by one: [`evals/golden_error_analysis.md`](evals/golden_error_analysis.md). The tables are [below](#golden-set-comparison-and-system-checks) | One labeler. 30 of the 50 are `other` by hand, so the score says little about any one topic. The one-by-one readings are the AI assistant's |
+| 6. Independent verification, planted-error and injection tests | The verifier is another maker's model and never sees the first label: 5,000 blind predictions, 0 failures, the same three labels on 3,523, and all 1,477 disagreements listed ([`runs/full/verify_report.json`](runs/full/verify_report.json), [`runs/full/verify_predictions.jsonl`](runs/full/verify_predictions.jsonl), [`prompts/verify-v1.md`](prompts/verify-v1.md)). A wrong label planted on purpose in a copy is flagged by the comparison ([`evals/compare_check.py`](evals/compare_check.py)). 25 made-up cases with expected answers, scored once with the frozen wording: 22 of 25, injections 3 of 4 ([`evals/planted_cases.py`](evals/planted_cases.py), [`evals/holdout_score_prompt-v2.json`](evals/holdout_score_prompt-v2.json)). Outside reads of the spec, the plan and the code are in [`docs/validation-log.md`](docs/validation-log.md) | The verifier covers a sample of 5,000. The two engines agree on about 6 complaints in 10 and nothing says which is right. One injection in four moved the answer; injections are tested, not guarded |
+| 7. A real 100-review cold and warm pilot, a correct offline calculator, and demonstrated retry, spending and recovery controls | The pilot: [`cost/report.md`](cost/report.md), cold 100 of 100 for $0.0264 in 49.75 seconds, warm 0 calls. Its saved IDs, calls, usage and dated rates: [`cost/pilot_records.jsonl`](cost/pilot_records.jsonl), [`cost/pilot_calls.jsonl`](cost/pilot_calls.jsonl), [`cost/usage.csv`](cost/usage.csv), [`cost/rates.csv`](cost/rates.csv). `python3 -m cost` replays it with no key, and the instructor's two arithmetic tests are in [`tests/test_cost.py`](tests/test_cost.py). Retry: 24 attempts failed on the full run, and each passed when sent again; [one is shown below](#one-real-review-traced-end-to-end). Spending: one ledger, a $35 cap, the worst-case cost reserved before each request ([`pipeline/ledger.py`](pipeline/ledger.py)); the full run came to $20.36 against $20.42 estimated. Recovery: the full run was stopped by hand and resumed ([`grading/checkpoint_before.json`](grading/checkpoint_before.json), [`grading/checkpoint_after.json`](grading/checkpoint_after.json), [`runs/full/run_full_text.txt`](runs/full/run_full_text.txt)) | The record of the stop is a screenshot and the terminal's text, not a video. No real run reached the cap or met a 429, so those two stops are shown by tests only ([`tests/test_ledger.py`](tests/test_ledger.py), [`tests/test_limits.py`](tests/test_limits.py)). The provider's usage page has not been read against the full run |
+
+**Working result**
+
+| Rubric point | Evidence | Where it is thin |
+|---|---|---|
+| 8. Full ingestion, record coverage and successful classification | [`grading/ingestion.json`](grading/ingestion.json): 660,622 rows, 13 empty texts, 159,701 missing app versions, no repeated ID, the file's checksum as supplied. [`grading/records.jsonl.gz`](grading/records.jsonl.gz): one record for every source ID, 660,609 completed and 13 quarantined as `empty_review_text` ([`runs/full/quarantine.jsonl`](runs/full/quarantine.jsonl)). The supplied checker on `grading/`: `pass`, no flags, every row accounted for, every review with text validly classified, 176,420 valid exact-text reuses, coverage point 1.0 by its own arithmetic ([`runs/full/run_summary.json`](runs/full/run_summary.json)) | A valid record can still carry a wrong label; point 5 is the measure of that |
+| 9. A runnable staged program with bounded calls, saved handoffs and demonstrated resume | One command takes any CSV path and runs the six stages, and the same command resumes ([`pipeline/cli.py`](pipeline/cli.py), [Walkthrough](#walkthrough)). Bounded: each of the 484,213 enrich requests in [`grading/calls.jsonl.gz`](grading/calls.jsonl.gz) carries one review, against a limit of 50. Handoffs: each stage's output is saved before the next reads it ([State file schema](#state-file-schema)) and exported for every run under [`runs/`](runs/README.md). Resume: 8,939 requests are marked `initial` and 475,274 `resume`, and no resumed request names a review completed before the stop | The walkthrough at the top is a stand-in run. The real runs are the exports |
+| 10. A reproducible baseline ranking and a usable, grounded final output | `python3 -m pipeline rank` rebuilds [`grading/ranking.csv`](grading/ranking.csv) byte for byte from the records and the membership ([`pipeline/rank.py`](pipeline/rank.py); checked on the full run's files on 2026-10-07, validation log entry 38). The memo built on it is [`runs/full/memo.md`](runs/full/memo.md) | The ranking is exactly reproducible from the saved labels. The labels are not: a second paid pass would change about 3 in 100 |
 
 ### Results summary
 
@@ -392,7 +424,59 @@ See [Architecture](#architecture): the six stages, where code ends and a model b
 
 ### One real review traced end to end
 
-Not written up yet. The 500 gate's files hold everything a trace needs: [`records.jsonl`](runs/gate-500/grading/records.jsonl) (the label and its `label_config`), [`calls.jsonl`](runs/gate-500/grading/calls.jsonl) (the request that produced it), the verifier's prediction ([`verify_predictions.jsonl`](runs/gate-500/verify_predictions.jsonl)), `membership.csv`, `ranking.csv` and `claims.csv`. The traced review in the final README comes from the full run.
+Picked by rule, not by eye. Of the 5,000 reviews in the verify sample, 599 joined the first-ranked issue and were labeled by their own request; this is the first of them by review ID. None of the four reviews the memo quotes fell in the sample. The command reads committed files only, and the source CSV when it is there.
+
+```console
+$ python3 evals/trace_review.py 00d13536-bd53-4e93-9c76-22db75d384d5
+review 00d13536-bd53-4e93-9c76-22db75d384d5
+
+1 source   row hash 40af9736695222454f40a850d25a074f9f6fd5638dc8111c801d980230d4a337
+           hashed again from the file: the same
+           text: "Can't help to set as caller tune"
+           stars 4, likes 0, app 8.7.44.968, 2022-07-09 19:25:57
+2 enrich   usability / complaint / severity 4, sentiment -0.525, needs_review no
+           entities []
+           quote: "Can't help to set as caller tune"
+           the quote is an exact piece of the text: yes
+           label_config jev-1.13.0/prompt-v2/schema-v1/cut-0.70
+           request 7165bcebebdf4d74b5f3d4900d629be1: succeeded, phase resume, jev-1.13.0, 945 in, 204 out, 0.10 s, session 55
+3 verify   other / request / severity 1 (blind, request 513881a87f264d818860b0988d7d9651)
+           same as the record: topic no, intent no, severity no
+           a disagreement is reported and changes no label
+4 group    issue-usability
+5 rank     issue-usability is rank 1: 81756 complaints, severity sum 212158, mean 2.595014, score 212158
+           this review adds 1 to the count and 4 to the severity sum
+6 memo     claims about this issue: CL-001 complaint_count 81756, CL-002 severity_sum 212158, CL-003 mean_severity 2.595014, CL-004 priority_score 212158
+           cited in the memo: CL-001, CL-002, CL-003, CL-004
+           the memo quotes this review: no
+```
+
+| Step | Where it is saved |
+|---|---|
+| Source row and its hash | The source CSV; `source_sha256` on the record |
+| Enrichment | The record in [`grading/records.jsonl.gz`](grading/records.jsonl.gz); its request in [`grading/calls.jsonl.gz`](grading/calls.jsonl.gz), with time and session in [`runs/full/run_log.jsonl.gz`](runs/full/run_log.jsonl.gz) |
+| Verification | [`runs/full/verify_predictions.jsonl`](runs/full/verify_predictions.jsonl); the review is among the disagreements in [`runs/full/verify_report.json`](runs/full/verify_report.json) |
+| Issue membership | [`grading/membership.csv`](grading/membership.csv) |
+| Ranking | [`grading/ranking.csv`](grading/ranking.csv) |
+| Memo claim | [`grading/claims.csv`](grading/claims.csv), cited in [`runs/full/memo.md`](runs/full/memo.md) |
+
+**The same review is the ambiguous case.** The rule landed on a review the two engines read differently. Jev called it a usability complaint of severity 4. Gemma, blind, called it a request of severity 1 with no specific topic. The review flag is off, because Jev's lowest top probability was not under the 0.70 cut-off. The recorded handling is the design's: a disagreement is listed in the verify report and changes no label, since there is no fallback model. So the review counts as Jev labeled it, 1 in CL-001 and 4 in CL-002. The pipeline does not decide which engine is right. In the sample the two give the same three labels on 1,294 of 2,196 complaints and cancellations, so a case like this is common. Severity is what the ranking adds up, which is why the limits below say the severity sums lean high.
+
+**A failed case.** The first request for another review timed out after 30 seconds (output trimmed to the enrich block):
+
+```console
+$ python3 evals/trace_review.py a1d7bf6e-29bd-439f-b135-b7c059f4227b
+2 enrich   usability / complaint / severity 2, sentiment -0.505, needs_review no
+           entities ["shuffle"]
+           quote: "I don't like because its always shuffle"
+           the quote is an exact piece of the text: yes
+           label_config jev-1.13.0/prompt-v2/schema-v1/cut-0.70
+           request 1fe9e03f30fb483e8d6c86aba6a133f6: failed, phase resume, jev-1.13.0, usage unknown, 30.02 s, session 55
+             error: Temporary: TimeoutError: The read operation timed out
+           request 903641281ba44c9795bb51913be4b329: succeeded, phase resume, jev-1.13.0, 945 in, 206 out, 0.19 s, session 55
+```
+
+The recorded handling: a timeout, a 429 or a 5xx puts the review back in the queue, up to four times. The failed attempt stays in `calls.jsonl` with its own request ID and no usage, its reserved cost stays counted as spent, and the review is completed only by the request that succeeded. The full run had 24 such attempts (16 timeouts, 8 HTTP 520). Each passed when sent again and none left a review unlabeled. The 13 reviews with empty text are the other kind of failure: they are never sent, and are quarantined with the reason `empty_review_text` ([`runs/full/quarantine.jsonl`](runs/full/quarantine.jsonl)).
 
 ### Golden-set comparison and system checks
 
@@ -412,26 +496,40 @@ Not written up yet. The 500 gate's files hold everything a trace needs: [`record
   **The 20 misses, read one by one** ([`evals/golden_error_analysis.md`](evals/golden_error_analysis.md); case by case with pass or fail per field in [`evals/golden_cases_full.csv`](evals/golden_cases_full.csv); validation log entry 37). Six are severity one step apart, six sit on a topic boundary the contract draws, three are not in English, three are boycott or political text and two are short or doubtful praise. Read against the contract's wording, 3 are plain Jev errors, 4 are cases where the contract's own example points at Jev's label, 3 carry my fallback label for a language I did not read, and 10 are open. The three plain errors: premium-only controls put in usability where the contract says billing, lost controls read as a playback failure, and "Great..." read as unclear. The reading was made by the AI assistant after the score was saved, with my permission to open the labels; no label and no score changed.
 - **Independent verifier procedure:** [Architecture](#architecture) and `pipeline/verify.py`. Run with the real model at every gate and on the full run: 5,000 blind predictions and 0 failures there ([`runs/full/verify_report.json`](runs/full/verify_report.json)).
 - **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. On 2026-10-05 a wording trial on 34 items measured a new intent wording, [`prompts/enrich-v2.json`](prompts/enrich-v2.json): 4 of 4 planted slogans (the probe wording got 2 of 4) and the outside raters' shared intent on 23 of 28 real boycott reviews (the probe wording 15) ([`evals/wording_trial_out.json`](evals/wording_trial_out.json)). It is now the frozen wording. With it, scored once on 2026-10-05, the planted cases read 22 of 25: contract rules 9 of 9, slogans 4 of 4, non-English 3 of 3, injections 3 of 4 (one injected instruction moved the answer to topic `support`, intent `request`), and text with no letters 3 of 5 ([`evals/holdout_score_prompt-v2.json`](evals/holdout_score_prompt-v2.json), validation log entry 26). A deliberately wrong label is planted in a copy by [`evals/compare_check.py`](evals/compare_check.py), and the verifier's comparison flags each one.
-- **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. The record of it is a screenshot of that terminal session and its text, not a video: [`runs/full/run_full_screenshot.png`](runs/full/run_full_screenshot.png), [`runs/full/run_full_text.txt`](runs/full/run_full_text.txt). The two checkpoint files are [`checkpoint_before.json`](runs/full/grading/checkpoint_before.json) (131,072 completed) and [`checkpoint_after.json`](runs/full/grading/checkpoint_after.json) (660,609).
+- **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. The 131,072 reviews completed at the stop are 8,939 finished requests and the 122,133 copies of their texts; that the total is a power of two is chance, and the export rebuilds it (validation log entry 38). The record of it is a screenshot of that terminal session and its text, not a video: [`runs/full/run_full_screenshot.png`](runs/full/run_full_screenshot.png), [`runs/full/run_full_text.txt`](runs/full/run_full_text.txt). The two checkpoint files are [`checkpoint_before.json`](runs/full/grading/checkpoint_before.json) (131,072 completed) and [`checkpoint_after.json`](runs/full/grading/checkpoint_after.json) (660,609).
 - **Every check so far, with its limits:** [`docs/validation-log.md`](docs/validation-log.md).
 
 ### Baseline, aggregation rules, tie-break and scope
 
 Implemented in [`pipeline/rank.py`](pipeline/rank.py) and checked against the supplied checker's own arithmetic. Every completed complaint or cancellation joins exactly one issue, the one for its topic. For each issue: `complaint_count` is the number of members, `severity_sum` the sum of their severities, `mean_severity` the sum over the count to six decimals rounded half-up, and `priority_score` equals `severity_sum`. Order is score descending, then issue ID ascending. Praise, requests and unclear reviews are never members. Each copy counts as its own review. No trend analysis is in this version.
 
+What the totals do and do not cover:
+
+- **Incomplete classifications: none.** All 660,609 reviews with text carry a label. The 13 with empty text are quarantined: accounted for, not classified. 191,158 labels (28.9%) carry the review flag, and a flagged label still counts in the ranking.
+- **Missing data.** 159,701 rows have no app version. Nothing in the ranking uses it, so those rows are labeled like any other. Stars, likes, version and timestamp are kept exactly as read and never reach the classifier, which sees the text only.
+- **Review bias.** These are people who chose to write a Play Store review between May 2022 and November 2023. They are not a sample of Spotify's users, and the file holds no plan tier, revenue or confirmed cancellation. A `cancellation` label is what someone wrote, not what they did. Two months hold a quarter of the file: July 2023 (85,079 reviews) and October 2023 (89,104), where no other full month passes 42,000 ([`grading/ingestion.json`](grading/ingestion.json)). So the totals lean toward whatever drove those two bursts, and the first and last months are partial. A review whose text repeats another's is still its own row and counts once, as the contract requires; that is 176,420 of the 660,609.
+- **So the ranking says** how many complaints were written and how severe they were rated. It does not say how many users are affected, and nothing here estimates revenue or churn.
+
 ### Decision memo
 
-The memo is [`runs/full/memo.md`](runs/full/memo.md), written by Claude Sonnet 5.5 from the full run. It recommends the usability issue, which ranks first on severity sum though `other` holds more complaints. The memo is one call of about 6,000 input tokens, so a paid model costs about two cents; the choice among three models is recorded in [`experiments/2026-10-05/memo-model/`](experiments/2026-10-05/memo-model/bakeoff.py). The code check (`pipeline/memo.py`) rejects a memo that cites an unknown ID, changes a number, cites a claim in a paragraph that does not name its issue, or speaks of revenue or churn. A rejected memo's text is kept with the reasons.
+The memo is [`runs/full/memo.md`](runs/full/memo.md), written by Claude Sonnet 5.5 from the full run. Its recommendation, copied as written:
+
+> Put the next quarter's effort on issue-usability (repetitive playback and excessive advertisements). It ranks first, and I am not recommending a different issue. Its priority score is 212158 [CL-004], which comes from a severity sum of 212158 [CL-002] across 81756 complaints [CL-001]. It is the largest on severity sum, though not on complaint count.
+
+The file goes on to the supporting numbers, four alternatives, four quoted reviews with their IDs and six limits. Every issue-level number in it carries a claim ID from [`grading/claims.csv`](grading/claims.csv). `other` holds more complaints than usability (85,466 against 81,756) at a lower mean severity (2.06 against 2.60), which is why usability ranks first on severity sum. What is unresolved is stated in the memo's run facts: 13 reviews quarantined and 191,158 labels (28.9%) flagged for review. No review with text is left unclassified.
+
+The memo is one call of about 6,000 input tokens, so a paid model costs about two cents; the choice among three models is recorded in [`experiments/2026-10-05/memo-model/`](experiments/2026-10-05/memo-model/bakeoff.py). The code check (`pipeline/memo.py`) rejects a memo that cites an unknown ID, changes a number, cites a claim in a paragraph that does not name its issue, or speaks of revenue or churn. A rejected memo's text is kept with the reasons.
 
 ### Submission checklist
 
 | Item | State |
 |---|---|
-| `.env` absent from tracked files and history | Checked 2026-10-05: only `.env.example` is tracked |
+| `.env` absent from tracked files and history | Checked 2026-10-07: only `.env.example` is tracked, and a scan of the tree, the history and the gzipped exports finds nothing shaped like a key |
+| One `grading/` folder at the root | A copy of the full run's export, file for file. The supplied checker on it: `pass`, no flags (2026-10-07, validation log entry 38) |
 | Setup, calculator replay and ranking work in a clean copy with no key | Tested (`tests/test_end_to_end.py`, `tests/test_cost.py`) |
 | Importing or opening the calculator starts nothing; the paid pilot is a separate command | Tested |
-| Raw-data checksum recorded | Above, under Local setup |
-| Repo public, evidence links open signed out | Not yet: the repo is private until submission |
+| Raw-data source link and checksum recorded | Above, under Local setup |
+| Repo public, evidence links open signed out | The repo answers signed out (checked 2026-10-07). The links are checked against the tracked files by `tests/test_readme.py`; they have not each been opened signed out |
 
 ## Running it for real
 

@@ -15,7 +15,7 @@ This folder holds two things.
 | `artifacts.jsonl` | Each naming and memo input and output |
 | `memo.md` | The memo |
 
-Each folder has its grading export in `grading/`.
+Each folder has its grading export in `grading/`. The repo's root [`grading/`](../grading/run.json) is a copy of `full/grading/`, file for file: it is the one folder the grading contract asks for.
 
 - `pilot-cold/`: the first 100-review pilot of 2026-10-05, with the local model writing the memo.
 - `pilot2-cold/`: the pilot run again the same day after the memo model changed.

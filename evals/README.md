@@ -27,6 +27,7 @@ The golden label columns are never read into a prompt, an example, a cut-off or 
 | `golden_cases.py` | Lays the saved golden score out case by case; makes no new score | No |
 | `compare_check.py` | Changes labels on purpose in a copy and checks the comparison flags each one | No |
 | `feature_words.py` | Counts candidate feature words over the full file and drafts `prompts/features-v1.txt` | No |
+| `trace_review.py` | Follows one review through a run's saved files: source row, label, requests, the verifier's answer, issue, ranking row, memo claims | No |
 
 Every paid call goes through the same spend ledger as the pipeline, so the $35 cap covers it. `--standin` runs a script with the stand-in labeler and saves nothing here.
 
@@ -38,6 +39,6 @@ Every paid call goes through the same spend ledger as the pipeline, so the $35 c
 - `cutoff_rows_out.jsonl`: the 28 cut-off-half reviews outside the pilot, labeled once (entry 27).
 - The golden 50 was scored once, on the full run, on 2026-10-06: `golden_score_full.json`. All three fields right on 30 of 50. It is not scored again.
 - `golden_cases_full.csv`: the same score one review to a row, written by `golden_cases.py`, which refuses unless its totals equal the saved score.
-- `golden_error_analysis.md`: the 20 reviews where a field differs, read one by one on 2026-10-07 after the score was saved (validation log entry 37).
+- `golden_error_analysis.md`: the 20 reviews where a field differs, read one by one after the score was saved, on the night of 2026-10-06 and written up on 2026-10-07 (validation log entry 37).
 
 Earlier measurements, made with throwaway scripts on 2026-10-04, are in `experiments/2026-10-04/README.md` and `docs/validation-log.md`.
