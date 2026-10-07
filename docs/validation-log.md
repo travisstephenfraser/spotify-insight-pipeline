@@ -425,7 +425,7 @@ Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gat
 - **Quotes, read on all 50:** exact copies on 50. Of the 12 that are one sentence of a longer review, 11 carry the point of the label and 1 is cut mid-sentence at a line break in the source. Counted over the full file: 68 reviews hold a line break and 51 quotes are cut at one. **Known answer:** the count includes the golden review that showed it, and every partial quote was found in its source text.
 - **Entities:** 21 on 15 reviews, all words in the text; one in a doubtful sense.
 - **Evidence:** `evals/golden_error_analysis.md`, `evals/golden_cases_full.csv`.
-- **Limits:** the readings are those of the assistant that built the pipeline being judged, and Travis has not confirmed them. The three translations are approximate. The Premium what-if uses feature-word matches as a rough marker, not a count of paywalled-control complaints. The golden labels are now known to the assistant, so nothing built after this can be scored cleanly on them.
+- **Limits:** the readings are those of the assistant that built the pipeline being judged, and Travis has not confirmed them. (He read them on 2026-10-07: entry 43.) The three translations are approximate. The Premium what-if uses feature-word matches as a rough marker, not a count of paywalled-control complaints. The golden labels are now known to the assistant, so nothing built after this can be scored cleanly on them.
 
 ### 38. The root `grading/`, the ranking rebuilt, one review traced, and what the final README claims
 
@@ -498,6 +498,17 @@ Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gat
 - **Not touched:** `pipeline/` and `prompts/`, so the code hash is still `530c1e237f7c`. No number in any result changed. No paid call.
 - **Tests:** 8 new, 596 in all, 1 skipped. Each new test was seen to fail before the change it guards. Then fourteen deliberate breaks in a scratch copy, one at a time: a path, a name or a prompt put back, the first screenshot restored, a new picture, a path inside a gzipped export, each pattern made blind or too loose, the license changed. Every one turned its test red, and the unchanged copy passed before and after.
 - **Limits:** this cleans the files, not the history. Every earlier commit on GitHub still holds the paths, the name and the first screenshot, and the commit records carry the author's name and email as git always does. Removing them from history would mean rewriting every commit and changing every commit ID this log and the README cite; that was not done and is Travis's call. The first name in the prompt and in these documents stays: it is in the repo's address. The patterns know Mac machine names and the two usual home folders, so a machine named another way would be caught only inside a pasted prompt. `CLAUDE.md` and `docs/` still hold working notes about how the work was done; they were searched for paths, names and addresses, not reread line by line.
+
+### 43. The labeler's read of the 20 golden misses
+
+- **What:** on 2026-10-07 the assistant showed Travis all 20 cases of `evals/golden_error_analysis.md`, numbered, each with the hand label, Jev's label and the reading given in entry 37. He was away from the repo and answered in one message.
+- **His answer, as written:** "I agree with Jev on most of these as I just made the mistake and the language issue favors translation I didn't do and I don't count against agreement".
+- **What it settles:** he disputed no reading. The sort stands: 3 plain Jev errors, 4 where the contract's wording favors Jev, 3 fallback labels for a language not read, 10 open.
+- **Where he goes further than the sort:** it sides with Jev outright on 4; he sides with Jev on most of the 20 and calls his own label the mistake there. He named no cases, so no count is drawn from "most". On the three reviews not in English he takes the translation over his fallback label and does not count them against agreement.
+- **Independence:** none is claimed. This is the labeler judging his own labels after seeing Jev's answers, with the assistant's reading beside each case. It is his consent to the reading. The blind second sort of these 20 is the outside reviewer's (entry 39).
+- **What it does not change:** the labels stay frozen, the score stays 30 of 50, and the golden 50 is not scored again. With the three reviews not in English set aside, the same saved cases read 30 of 47. That is arithmetic on the saved score, given because he does not count them; it is not a score and nothing reports it as one.
+- **Evidence:** `evals/golden_error_analysis.md` ("The labeler's read"), the README's rubric map, row 5.
+- **Limits:** one message. He saw each case as the one-line summary in the analysis tables, not the full review text. No test holds this entry: it records what a person said.
 
 ## Rules adopted because of these checks
 
