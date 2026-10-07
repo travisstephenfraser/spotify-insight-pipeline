@@ -12,7 +12,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-ROOT = Path("/Users/travis/Developer/pepeclass/assign5-multiagent")
+ROOT = Path(__file__).resolve().parents[3]
 LABELS = ROOT / "evals/dev_150_labeled.csv"
 HERE = Path(__file__).parent
 TOPICS = [

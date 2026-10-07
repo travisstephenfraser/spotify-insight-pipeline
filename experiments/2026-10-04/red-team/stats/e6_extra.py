@@ -4,9 +4,10 @@ import csv
 import random
 import statistics
 import sys
+from pathlib import Path
 
 csv.field_size_limit(sys.maxsize)
-D = "/Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/"
+D = str(Path(__file__).resolve().parents[4] / "feed/Final Assignment - Spotify Reviews Dataset") + "/"
 
 
 def load(fn):

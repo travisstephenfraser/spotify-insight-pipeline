@@ -1,6 +1,6 @@
 # Experiments, 2026-10-04: tool choice and red team
 
-Throwaway probes run before any pipeline code existed. They are kept as the evidence behind the plan, not as code to reuse. Paths inside the scripts point at the machine and session they ran on.
+Throwaway probes run before any pipeline code existed. They are kept as the evidence behind the plan, not as code to reuse. Eight scripts named the repo by its full path on the machine they ran on. On 2026-10-07 that one line in each was changed to find the repo from the script's own place; it gives the same folder there, and nothing else in them was touched.
 
 Numbers below were copied from terminal output at run time. Raw model responses are in the `.jsonl` files.
 

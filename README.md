@@ -19,7 +19,7 @@ Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name       Gemma 26B, local
 Memo       Claude Sonnet 5.5 (Anthropic API), one call a run
-Tests      588 automated (587 run with no outside network; 1 skipped unless the 97 MB file is present)
+Tests      596 automated (595 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-07
 ```
 
@@ -293,12 +293,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-588 tests: 587 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+596 tests: 595 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 588 tests in 18.309s
+Ran 596 tests in 22.407s
 
 OK (skipped=1)
 ```
@@ -323,7 +323,8 @@ OK (skipped=1)
 | `test_evals.py` | The planted cases, the wording trial's holdout guard, the cut-off table, the golden score |
 | `test_trace.py` | The trace of one review equals what each exported file says; a copy is traced to its original's request; a failed attempt is listed; three known answers from the full run |
 | `test_whatif.py` | The severity what-if by hand on a small case, its refusal when the labels do not rebuild the exported ranking, and known answers from the full run |
-| `test_readme.py` | The recorded stop's counts are what its exported files say; every link in the READMEs points at a file a clone would have; the test count stated here is the real one; no run is claimed that has not been made; the memo lines quoted here are lines of the memo; every line the walkthrough shows is printed by its command |
+| `test_personal.py` | No tracked file holds a home-folder path, a machine's name or a pasted shell prompt with a host in it, the gzipped exports included; the screenshot is not the copy that showed the laptop's name |
+| `test_readme.py` | The license named here is the file at the root and leaves the course's material out; The recorded stop's counts are what its exported files say; every link in the READMEs points at a file a clone would have; the test count stated here is the real one; no run is claimed that has not been made; the memo lines quoted here are lines of the memo; every line the walkthrough shows is printed by its command |
 
 **Falsification.** A test that cannot fail proves nothing. In a scratch copy of the repo, never in the working tree, I removed the check that an evidence quote is an exact piece of the review, and ran the label tests:
 
@@ -499,7 +500,7 @@ The recorded handling: a timeout, a 429 or a 5xx puts the review back in the que
   **The 20 misses, read one by one** ([`evals/golden_error_analysis.md`](evals/golden_error_analysis.md); case by case with pass or fail per field in [`evals/golden_cases_full.csv`](evals/golden_cases_full.csv); validation log entry 37). Six are severity one step apart, six sit on a topic boundary the contract draws, three are not in English, three are boycott or political text and two are short or doubtful praise. Read against the contract's wording, 3 are plain Jev errors, 4 are cases where the contract's own example points at Jev's label, 3 carry my fallback label for a language I did not read, and 10 are open. The three plain errors: premium-only controls put in usability where the contract says billing, lost controls read as a playback failure, and "Great..." read as unclear. The reading was made by the AI assistant after the score was saved, with my permission to open the labels; no label and no score changed.
 - **Independent verifier procedure:** [Architecture](#architecture) and `pipeline/verify.py`. Run with the real model at every gate and on the full run: 5,000 blind predictions and 0 failures there ([`runs/full/verify_report.json`](runs/full/verify_report.json)).
 - **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. On 2026-10-05 a wording trial on 34 items measured a new intent wording, [`prompts/enrich-v2.json`](prompts/enrich-v2.json): 4 of 4 planted slogans (the probe wording got 2 of 4) and the outside raters' shared intent on 23 of 28 real boycott reviews (the probe wording 15) ([`evals/wording_trial_out.json`](evals/wording_trial_out.json)). It is now the frozen wording. With it, scored once on 2026-10-05, the planted cases read 22 of 25: contract rules 9 of 9, slogans 4 of 4, non-English 3 of 3, injections 3 of 4 (one injected instruction moved the answer to topic `support`, intent `request`), and text with no letters 3 of 5 ([`evals/holdout_score_prompt-v2.json`](evals/holdout_score_prompt-v2.json), validation log entry 26). A deliberately wrong label is planted in a copy by [`evals/compare_check.py`](evals/compare_check.py), and the verifier's comparison flags each one.
-- **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. The 131,072 reviews completed at the stop are 8,939 finished requests and the 122,133 copies of their texts; that the total is a power of two is chance, and the export rebuilds it (validation log entry 38). The record of it is a screenshot of that terminal session and its text, not a video: [`runs/full/run_full_screenshot.png`](runs/full/run_full_screenshot.png), [`runs/full/run_full_text.txt`](runs/full/run_full_text.txt). The two checkpoint files are [`checkpoint_before.json`](runs/full/grading/checkpoint_before.json) (131,072 completed) and [`checkpoint_after.json`](runs/full/grading/checkpoint_after.json) (660,609). A short recording of a real stop and resume was made on 2026-10-07, on a separate run of the 100-review file (`demo-100b`): [`runs/demo-100b/stop_resume.mov`](runs/demo-100b/stop_resume.mov), 107 seconds, no sound. Ctrl-C after 5.4 seconds left 38 completed and 62 pending. The same command without `--new` sent the other 62 and none of the 38 again, and the checker passed ([`checkpoint_before.json`](runs/demo-100b/grading/checkpoint_before.json), [`checkpoint_after.json`](runs/demo-100b/grading/checkpoint_after.json), [`calls.jsonl`](runs/demo-100b/grading/calls.jsonl), validation log entry 40).
+- **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. The 131,072 reviews completed at the stop are 8,939 finished requests and the 122,133 copies of their texts; that the total is a power of two is chance, and the export rebuilds it (validation log entry 38). The record of it is a screenshot of that terminal session and its text, not a video: [`runs/full/run_full_screenshot.png`](runs/full/run_full_screenshot.png), [`runs/full/run_full_text.txt`](runs/full/run_full_text.txt). The laptop's name in the shell prompt is covered in both; nothing else in them is changed (validation log entry 42). The two checkpoint files are [`checkpoint_before.json`](runs/full/grading/checkpoint_before.json) (131,072 completed) and [`checkpoint_after.json`](runs/full/grading/checkpoint_after.json) (660,609). A short recording of a real stop and resume was made on 2026-10-07, on a separate run of the 100-review file (`demo-100b`): [`runs/demo-100b/stop_resume.mov`](runs/demo-100b/stop_resume.mov), 107 seconds, no sound. Ctrl-C after 5.4 seconds left 38 completed and 62 pending. The same command without `--new` sent the other 62 and none of the 38 again, and the checker passed ([`checkpoint_before.json`](runs/demo-100b/grading/checkpoint_before.json), [`checkpoint_after.json`](runs/demo-100b/grading/checkpoint_after.json), [`calls.jsonl`](runs/demo-100b/grading/calls.jsonl), validation log entry 40).
 - **Every check so far, with its limits:** [`docs/validation-log.md`](docs/validation-log.md).
 
 ### An outside review, and the ranking with severity read lower
@@ -617,7 +618,12 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 
 ## License
 
-No license chosen yet; all rights reserved by default.
+[MIT](LICENSE), for what was written for this project: the code, the tests, the prompts, the documents and the results.
+
+It does not cover what came from others:
+
+- **Everything under [`feed/`](feed/) is the course's:** the brief, the grading contract, the calculator's specification, the checker, the dataset script and the review samples.
+- **The review texts**, wherever they are stored or quoted in this repo, come from a public Kaggle dataset whose publisher lists it as CC0. The source and its terms are in the dataset's own `README.md` under `feed/`.
 
 ## Contributing
 

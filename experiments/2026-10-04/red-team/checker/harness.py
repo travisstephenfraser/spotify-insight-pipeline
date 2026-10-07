@@ -19,7 +19,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 SCRATCH = Path(__file__).resolve().parent
-CHECKER_DIR = "/Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset"
+CHECKER_DIR = str(Path(__file__).resolve().parents[4] / "feed/Final Assignment - Spotify Reviews Dataset")
 CHECKER = CHECKER_DIR + "/check_submission.py"
 PY = "/opt/homebrew/bin/python3"
 sys.path.insert(0, CHECKER_DIR)
