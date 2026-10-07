@@ -1,0 +1,142 @@
+[
+  {
+    "index": 61,
+    "review_id": "9c3b36ee-5b2f-4757-8462-e2fa996e0c2b",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 62,
+    "review_id": "056c340f-c7ad-42d8-a275-37e46f1f4f24",
+    "topic": "usability",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 63,
+    "review_id": "1b3cc224-5edf-458d-b872-78e18f9a07d4",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 64,
+    "review_id": "08c07310-e802-4a88-bd97-2a5f240c0b44",
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 65,
+    "review_id": "66eb075f-ce78-447e-ae5e-58a01b9feb9b",
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 66,
+    "review_id": "6674074b-b3e5-42a7-a649-39bef4f79e74",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 67,
+    "review_id": "1d3c3988-6494-49f9-8ad2-249c6719b7b0",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 68,
+    "review_id": "30793892-3729-4250-80a7-b3fc6789230c",
+    "topic": "catalog",
+    "intent": "cancellation",
+    "severity": 3
+  },
+  {
+    "index": 69,
+    "review_id": "634045c3-9a77-4a44-8f0e-8bf509426e38",
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 70,
+    "review_id": "4aaf911e-2ab6-4ccb-a0b7-4c6336f729c8",
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 71,
+    "review_id": "ef1f0893-c367-4789-92a2-6bad340c00d7",
+    "topic": "catalog",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 72,
+    "review_id": "2b1d12ec-0d44-479f-9c97-8cf04dab52db",
+    "topic": "usability",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 73,
+    "review_id": "81d5d232-3b06-443d-b5f6-ce312c45a744",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 74,
+    "review_id": "e25cdf1b-24c0-41c8-ae6f-3601ec64d820",
+    "topic": "catalog",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 75,
+    "review_id": "97982fee-a65f-4fed-9dd5-9ffb31efbee0",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 76,
+    "review_id": "c35b785a-ebee-4841-8584-5f6436a137fb",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 77,
+    "review_id": "133e5e75-f71c-46c6-8749-520c8cf93e5b",
+    "topic": "catalog",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 78,
+    "review_id": "44b33350-d10b-417d-b1cd-4603c9a35633",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 79,
+    "review_id": "9c3429b1-69c6-4faa-8e8c-4f10ab41e0aa",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 80,
+    "review_id": "531beb2a-7343-4154-b9c8-4e10b76fed90",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 4
+  }
+]

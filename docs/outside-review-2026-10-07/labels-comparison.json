@@ -1,0 +1,1574 @@
+{
+  "summary": {
+    "random60": {
+      "topic": 53,
+      "intent": 57,
+      "severity": 56,
+      "all3": 50
+    },
+    "high20": {
+      "topic": 17,
+      "intent": 20,
+      "severity": 9,
+      "all3": 7
+    }
+  },
+  "differences": [
+    {
+      "index": 5,
+      "review_id": "80572ed3-e692-4243-9fa6-597de8b6e812",
+      "text": "Works well and has good play lists.",
+      "own": {
+        "topic": "catalog",
+        "intent": "praise",
+        "severity": 1
+      },
+      "pipeline": {
+        "topic": "usability",
+        "intent": "praise",
+        "severity": 1
+      },
+      "quote": "Works well and has good play lists.",
+      "fields": [
+        "topic"
+      ]
+    },
+    {
+      "index": 18,
+      "review_id": "8d7e352e-1c70-496d-8eda-2852e299c22a",
+      "text": "Wow",
+      "own": {
+        "topic": "other",
+        "intent": "praise",
+        "severity": 1
+      },
+      "pipeline": {
+        "topic": "other",
+        "intent": "unclear",
+        "severity": 1
+      },
+      "quote": "Wow",
+      "fields": [
+        "intent"
+      ]
+    },
+    {
+      "index": 24,
+      "review_id": "7167ddde-dca8-4200-90d3-68b2281ea303",
+      "text": "Good app but please decrease the ads",
+      "own": {
+        "topic": "usability",
+        "intent": "complaint",
+        "severity": 2
+      },
+      "pipeline": {
+        "topic": "usability",
+        "intent": "request",
+        "severity": 1
+      },
+      "quote": "Good app but please decrease the ads",
+      "fields": [
+        "intent",
+        "severity"
+      ]
+    },
+    {
+      "index": 26,
+      "review_id": "1336ad3d-d0a5-4573-820f-f59da83dde3f",
+      "text": "Cry nice",
+      "own": {
+        "topic": "other",
+        "intent": "praise",
+        "severity": 1
+      },
+      "pipeline": {
+        "topic": "other",
+        "intent": "unclear",
+        "severity": 1
+      },
+      "quote": "Cry nice",
+      "fields": [
+        "intent"
+      ]
+    },
+    {
+      "index": 28,
+      "review_id": "c1e7756f-8e08-4298-bd6b-300082f9ab98",
+      "text": "App is completely build with bugs ... seeking bar is not working. And the couldn't shuffle songs without premium account",
+      "own": {
+        "topic": "usability",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "catalog",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "App is completely build with bugs ...",
+      "fields": [
+        "topic",
+        "severity"
+      ]
+    },
+    {
+      "index": 33,
+      "review_id": "b818a92c-a7aa-4877-b49a-02c53430e29f",
+      "text": "Doesnt load my liked playlist even after reinstall.",
+      "own": {
+        "topic": "downloads",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "usability",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Doesnt load my liked playlist even after reinstall.",
+      "fields": [
+        "topic",
+        "severity"
+      ]
+    },
+    {
+      "index": 37,
+      "review_id": "8fe193da-4f33-4213-a10d-d87cc39e96fe",
+      "text": "The new update ruined everything for free users",
+      "own": {
+        "topic": "other",
+        "intent": "complaint",
+        "severity": 2
+      },
+      "pipeline": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "quote": "The new update ruined everything for free users",
+      "fields": [
+        "topic",
+        "severity"
+      ]
+    },
+    {
+      "index": 46,
+      "review_id": "3a7c08ea-59f2-4f5a-879f-388d8cdd85d3",
+      "text": "Spotify does not have an option to download songs like JioSaavn...so plzz add download option without any supcription like jio savan",
+      "own": {
+        "topic": "billing",
+        "intent": "request",
+        "severity": 1
+      },
+      "pipeline": {
+        "topic": "downloads",
+        "intent": "request",
+        "severity": 1
+      },
+      "quote": "Spotify does not have an option to download songs like JioSaavn...so plzz add download option without any supcription like jio savan",
+      "fields": [
+        "topic"
+      ]
+    },
+    {
+      "index": 48,
+      "review_id": "5b86c771-d4af-4af8-a21f-8c1c39b8f091",
+      "text": "It gives good service",
+      "own": {
+        "topic": "other",
+        "intent": "praise",
+        "severity": 1
+      },
+      "pipeline": {
+        "topic": "support",
+        "intent": "praise",
+        "severity": 1
+      },
+      "quote": "It gives good service",
+      "fields": [
+        "topic"
+      ]
+    },
+    {
+      "index": 51,
+      "review_id": "8ced144b-b230-4f13-a568-40a33974bb74",
+      "text": "Awesome music web,with eclectic artist platforms.",
+      "own": {
+        "topic": "catalog",
+        "intent": "praise",
+        "severity": 1
+      },
+      "pipeline": {
+        "topic": "other",
+        "intent": "praise",
+        "severity": 1
+      },
+      "quote": "Awesome music web,with eclectic artist platforms.",
+      "fields": [
+        "topic"
+      ]
+    },
+    {
+      "index": 64,
+      "review_id": "08c07310-e802-4a88-bd97-2a5f240c0b44",
+      "text": "Kitna paisa chahiye bhai...gareebo ko lootega to paap lagega...sudhar jao bhagwaan sab dekh raha hai..mera jigri dost lattu depression me chala gaya hai tum kameeno ke karan..lattu ki aah lagegi saalo tumhe",
+      "own": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 2
+      },
+      "pipeline": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 5
+      },
+      "quote": "Kitna paisa chahiye bhai...gareebo ko lootega to paap lagega...sudhar jao bhagwaan sab dekh raha hai..mera jigri dost lattu depression me chala gaya hai tum kameeno ke karan..lattu ki aah lagegi saalo tumhe",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 65,
+      "review_id": "66eb075f-ce78-447e-ae5e-58a01b9feb9b",
+      "text": "JUST FORCING YOU TO BUY PREMIUM MEMBERSHIP the very worst update i have ever seen. it's a very huge downgrade. i got frustrated while using it. if you try to search your favorite song and try to play then you have to furst purchase the premium membership ,then if you have to listen previous song then also you have to purchase the premium membership.unable to play favorite song, forward the song, previously it was my favorite song app and now it is my worst app. this is the my experience.....",
+      "own": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "if you try to search your favorite song and try to play then you have to furst purchase the premium membership ,then if you have to listen previous song then also you have to purchase the premium membership.unable to play favorite song, forward the song, previously it was my favorite song app and now it is my worst app.",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 67,
+      "review_id": "1d3c3988-6494-49f9-8ad2-249c6719b7b0",
+      "text": "Won't work all of a sudden. Stopped working, saw there was an update. Updated, still won't work. Super irritating.",
+      "own": {
+        "topic": "other",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "pipeline": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Updated, still won't work.",
+      "fields": [
+        "topic"
+      ]
+    },
+    {
+      "index": 68,
+      "review_id": "30793892-3729-4250-80a7-b3fc6789230c",
+      "text": "I'm considering getting rid of it as the only way to keep it from playing songs from its suggestions (which usually miss more than hit) is to turn it offline which eventually gets annoying. I also tried using a gift card I recieved but it won't allow me to use it. I tried going to \"spotify help.\" And it wasn't any use. I no longer see the point in using it if it won't let me use gift cards and keeps playing songs that I hate.",
+      "own": {
+        "topic": "catalog",
+        "intent": "cancellation",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "catalog",
+        "intent": "cancellation",
+        "severity": 4
+      },
+      "quote": "I no longer see the point in using it if it won't let me use gift cards and keeps playing songs that I hate.",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 69,
+      "review_id": "634045c3-9a77-4a44-8f0e-8bf509426e38",
+      "text": "What can I do if it said \" The subscription isn't available in your google play country\" when I want to buy premium",
+      "own": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "billing",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "What can I do if it said \" The subscription isn't available in your google play country\" when I want to buy premium",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 71,
+      "review_id": "ef1f0893-c367-4789-92a2-6bad340c00d7",
+      "text": "All Goood ..... but there is a problem I'm facing now a days that.... some of my songs getting removed when i search for them they show that this song is no more available",
+      "own": {
+        "topic": "catalog",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "catalog",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "some of my songs getting removed when i search for them they show that this song is no more available",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 72,
+      "review_id": "2b1d12ec-0d44-479f-9c97-8cf04dab52db",
+      "text": "Terrible, I just wanted to listen to a song and it gave me like 50 others, I than liked the song and went to liked and it didn't play the song instead it played a demo of the song, and finally, I tried to put it in a playlist but played suggested songs, and now you only get a limited amount of skips so I couldn't skip to my song",
+      "own": {
+        "topic": "usability",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "usability",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Terrible, I just wanted to listen to a song and it gave me like 50 others, I than liked the song and went to liked and it didn't play the song instead it played a demo of the song, and finally, I tried to put it in a playlist but played suggested songs, and now you only get a limited amount of skips so I couldn't skip to my song",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 74,
+      "review_id": "e25cdf1b-24c0-41c8-ae6f-3601ec64d820",
+      "text": "This new update SUCKS!!! Now I can’t click on an artist to see their top 5-10 songs? Who thought of this? This is how I discover new artists, check their top 5 on my phone, and also it’s nice to see how popular the songs are. It was also how I discovered or found my podcasts. This one’s gotta be reverted back or give us the option to revert back!!!",
+      "own": {
+        "topic": "catalog",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "usability",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Now I can’t click on an artist to see their top 5-10 songs?",
+      "fields": [
+        "topic",
+        "severity"
+      ]
+    },
+    {
+      "index": 76,
+      "review_id": "c35b785a-ebee-4841-8584-5f6436a137fb",
+      "text": "For the past 2 days, my app has booted me out every time I press on a song in my \"liked songs\". If I press on a song from any other Playlist it plays, but not my liked songs, which is my most frequently used Playlist. Then spotify says it has a bug and I need to update it. I updated it today and that did nothing. Other than this happening, the app is usually great. What can I do? Please help me.",
+      "own": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "For the past 2 days, my app has booted me out every time I press on a song in my \"liked songs\".",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 77,
+      "review_id": "133e5e75-f71c-46c6-8749-520c8cf93e5b",
+      "text": "Why all list of songs don't appear, hope tou do this, great app",
+      "own": {
+        "topic": "catalog",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "catalog",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Why all list of songs don't appear, hope tou do this, great app",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 78,
+      "review_id": "44b33350-d10b-417d-b1cd-4603c9a35633",
+      "text": "app constantly gets stuck loading when searching, either stuck on a loading bar or black screen and telling me that theres no wifi connection when there is and spotify is the only app with this issue neither of these options are fixable by closing the app or clearing the cache, i just have to wait for it fix itself",
+      "own": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "app constantly gets stuck loading when searching, either stuck on a loading bar or black screen and telling me that theres no wifi connection when there is and spotify is the only app with this issue neither of these options are fixable by closing the app or clearing the cache, i just have to wait for it fix itself",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 79,
+      "review_id": "9c3429b1-69c6-4faa-8e8c-4f10ab41e0aa",
+      "text": "Spotify is amazing, really. I have an issue though. Recently, I can't open links from the app. Once I click a link on Spotify, the app stops. Is this a bug or an issue from my end?",
+      "own": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 3
+      },
+      "pipeline": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Once I click a link on Spotify, the app stops.",
+      "fields": [
+        "severity"
+      ]
+    },
+    {
+      "index": 80,
+      "review_id": "531beb2a-7343-4154-b9c8-4e10b76fed90",
+      "text": "\"Simply the best music app\" - Tina Turner *Edit, when it works. Which, at the moment it absolutely isn't. 12/2022",
+      "own": {
+        "topic": "other",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "pipeline": {
+        "topic": "playback",
+        "intent": "complaint",
+        "severity": 4
+      },
+      "quote": "Which, at the moment it absolutely isn't.",
+      "fields": [
+        "topic"
+      ]
+    }
+  ],
+  "predictions": {
+    "08c07310-e802-4a88-bd97-2a5f240c0b44": {
+      "review_id": "08c07310-e802-4a88-bd97-2a5f240c0b44",
+      "source_sha256": "582b8574aef4f69fde7e40714974000f83d97f8247f00c9a6f5ae201965b62cb",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": -0.995,
+      "severity": 5,
+      "entities": [],
+      "evidence_quote": "Kitna paisa chahiye bhai...gareebo ko lootega to paap lagega...sudhar jao bhagwaan sab dekh raha hai..mera jigri dost lattu depression me chala gaya hai tum kameeno ke karan..lattu ki aah lagegi saalo tumhe",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "6674074b-b3e5-42a7-a649-39bef4f79e74": {
+      "review_id": "6674074b-b3e5-42a7-a649-39bef4f79e74",
+      "source_sha256": "8d45473b74af563235e8f62b24b611e398fdd87f2576672dd13f6f3cdfa07af6",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.6799999999999999,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "My spotify randomly stopped working one day and I tried updating, restarting the app, uninstalling the app......nothing has worked since.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "9d5f152e-16ca-4828-afd6-7de0c4deeddd": {
+      "review_id": "9d5f152e-16ca-4828-afd6-7de0c4deeddd",
+      "source_sha256": "2b41ddd9ecf3943bdb7d5caf4edbcfc9bb4c54028cba5ce0c7024e6c30e3ce1e",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.98,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Wonderful",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "3c2334be-6a3a-438a-8536-d4beaccefb94": {
+      "review_id": "3c2334be-6a3a-438a-8536-d4beaccefb94",
+      "source_sha256": "dbeccd0e9859482c7f71bb3b507406487341be51c695cd839c25e325616a391d",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "request",
+      "sentiment": 0.3600000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Spotify is a good app but my suggestion I hope you can add song history to be able to play back your song that you have been listening",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "2b1d12ec-0d44-479f-9c97-8cf04dab52db": {
+      "review_id": "2b1d12ec-0d44-479f-9c97-8cf04dab52db",
+      "source_sha256": "bf11562d7d8422c634fe4e2276a9a4e1066ecfa135fb917244b9ee8a4f826164",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "complaint",
+      "sentiment": -0.99,
+      "severity": 4,
+      "entities": [
+        "playlist",
+        "skip"
+      ],
+      "evidence_quote": "Terrible, I just wanted to listen to a song and it gave me like 50 others, I than liked the song and went to liked and it didn't play the song instead it played a demo of the song, and finally, I tried to put it in a playlist but played suggested songs, and now you only get a limited amount of skips so I couldn't skip to my song",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "087c7637-5646-4650-82f0-2c2b3481f401": {
+      "review_id": "087c7637-5646-4650-82f0-2c2b3481f401",
+      "source_sha256": "392f024532e8f7350424e89eb1dac056148fc7571ba57d7209a2e1d176f1d982",
+      "status": "completed",
+      "topic": "other",
+      "intent": "unclear",
+      "sentiment": -0.15000000000000002,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Bucott this app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "a97885d0-8b4a-4964-8e5f-d130662076d5": {
+      "review_id": "a97885d0-8b4a-4964-8e5f-d130662076d5",
+      "source_sha256": "d954c96dc8f3aca553f6f91bf1e3870aa213f4ba99500f2f7b31173939310a33",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.5,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Good",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "1d15724a-98ff-400a-8083-0d9afc801098"
+    },
+    "372b946c-0d3a-43e1-a50b-ddf18b163f04": {
+      "review_id": "372b946c-0d3a-43e1-a50b-ddf18b163f04",
+      "source_sha256": "e35c93d52b81895737dd152d394a5390a94a57915a59e528651a4ab09b1351b1",
+      "status": "completed",
+      "topic": "other",
+      "intent": "unclear",
+      "sentiment": -0.04500000000000004,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "BYOCOT SEWDEN",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "2df416f7-4b66-466e-80ed-fc945864ad62": {
+      "review_id": "2df416f7-4b66-466e-80ed-fc945864ad62",
+      "source_sha256": "b423226bdd43ef7e48df78341a284e568671dd75a4fabda88cd4b5ae43186b73",
+      "status": "completed",
+      "topic": "other",
+      "intent": "request",
+      "sentiment": 0.42500000000000004,
+      "severity": 1,
+      "entities": [
+        "wrapped"
+      ],
+      "evidence_quote": "I want the Spotify Wrapped again",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "d6d4c6db-4fb9-4c7c-b86f-e0b2edde4175": {
+      "review_id": "d6d4c6db-4fb9-4c7c-b86f-e0b2edde4175",
+      "source_sha256": "2be0b1d2394497135dd81a8e7a8e658a5b816c57744143a611baf94060a6afb7",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.995,
+      "severity": 2,
+      "entities": [
+        "update"
+      ],
+      "evidence_quote": "Worst update ever.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "c8394ae6-4d22-47bd-9cc5-69bd32afafe6": {
+      "review_id": "c8394ae6-4d22-47bd-9cc5-69bd32afafe6",
+      "source_sha256": "12a39dfdb9df76f996baad9234d49b5e0674817ee616325d9494e2155e69948b",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.8600000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Really A Good App",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "c35b785a-ebee-4841-8584-5f6436a137fb": {
+      "review_id": "c35b785a-ebee-4841-8584-5f6436a137fb",
+      "source_sha256": "8770b8c7e5b9cf5e50770140c237eacb6f0f86a73bac0d776156fc05082f6762",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.39,
+      "severity": 4,
+      "entities": [
+        "liked songs",
+        "playlist",
+        "update"
+      ],
+      "evidence_quote": "For the past 2 days, my app has booted me out every time I press on a song in my \"liked songs\".",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "701c6fb7-1e70-4810-8841-04afa2e8cf7c": {
+      "review_id": "701c6fb7-1e70-4810-8841-04afa2e8cf7c",
+      "source_sha256": "32f9cde62a1759225ea8b534542729b891977be73d7c25b20476482df2ed28eb",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "request",
+      "sentiment": 0.33499999999999996,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "It's very good if it's bit more cheaper 😅",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "e25cdf1b-24c0-41c8-ae6f-3601ec64d820": {
+      "review_id": "e25cdf1b-24c0-41c8-ae6f-3601ec64d820",
+      "source_sha256": "1ad29dfd00d19baea6de6e22cce393279f92b744b67e3a634cd7d70c41b349a2",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "complaint",
+      "sentiment": -1.0,
+      "severity": 4,
+      "entities": [
+        "update",
+        "podcast"
+      ],
+      "evidence_quote": "Now I can’t click on an artist to see their top 5-10 songs?",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "ed678243-fe54-45a0-a10f-ff054f599e5d": {
+      "review_id": "ed678243-fe54-45a0-a10f-ff054f599e5d",
+      "source_sha256": "5f080131b84a33dd51471c84fc7ac2e49bf6eee380b9516680739cbe2caf70ea",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.99,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Excellent",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "111f9048-f7bd-4be0-813e-76b8fc49f73f"
+    },
+    "9c3b36ee-5b2f-4757-8462-e2fa996e0c2b": {
+      "review_id": "9c3b36ee-5b2f-4757-8462-e2fa996e0c2b",
+      "source_sha256": "f9cad6dba593350c0caa1927cb19966a7478e99f6631fc6d2e1c8b31de74c6b7",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.575,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "Its not working from 3 days..",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "1f6b7d2e-2172-449a-9d7f-efe418d7b394": {
+      "review_id": "1f6b7d2e-2172-449a-9d7f-efe418d7b394",
+      "source_sha256": "68d6eca63e85f8d4cc85f7da225ed2dbc449a46f3dd328508638f5ca07d62b61",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.9850000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Brilliant",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "878d6241-200f-46c5-aa39-45745cd4a55e": {
+      "review_id": "878d6241-200f-46c5-aa39-45745cd4a55e",
+      "source_sha256": "cb82b57a09f6cc7da66a348d4e129b85028a8828b17a076f09b7790455212e28",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "complaint",
+      "sentiment": -0.41500000000000004,
+      "severity": 2,
+      "entities": [],
+      "evidence_quote": "Pengiriman cepat, gratis sampah, muter aja trus sampe tolol, ngaget ngagetin aja, iklan jgn yg ngagetin",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "cfc83148-28d7-4695-a6fa-71aeb330e127": {
+      "review_id": "cfc83148-28d7-4695-a6fa-71aeb330e127",
+      "source_sha256": "8f0d4817591a2133e2f836ee9520a53ef14a55cc6c27e3efdec28f513c8a7f21",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.94,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Super",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "6112667b-3d71-475c-b1a4-159b87f73d2b"
+    },
+    "945884c2-60b2-4063-bf34-48fe6d26026a": {
+      "review_id": "945884c2-60b2-4063-bf34-48fe6d26026a",
+      "source_sha256": "dab1ecf00d5702f619194011ab437b46eee186bf3fadb2ffaefd26fd81bca864",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.95,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "Can't even open.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "ed87f9dc-7043-4903-b66b-436f5c454952": {
+      "review_id": "ed87f9dc-7043-4903-b66b-436f5c454952",
+      "source_sha256": "87e568666ccfc91cd3907d87084fc5b2814208bee0acbbba33a0c99a7037721a",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.845,
+      "severity": 3,
+      "entities": [],
+      "evidence_quote": "Yes I can barely hear the music coming out of my phone what is the problem can it be turned up or what because this is ridiculous I have to hold it up to my head in order to be able to hear it what seems to be the problem can you fix it",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "1d3c3988-6494-49f9-8ad2-249c6719b7b0": {
+      "review_id": "1d3c3988-6494-49f9-8ad2-249c6719b7b0",
+      "source_sha256": "087ffd80a8558c205546d1740b10ecd4132514de9f00772ac1b6864e4fd011d7",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.835,
+      "severity": 4,
+      "entities": [
+        "update"
+      ],
+      "evidence_quote": "Updated, still won't work.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "b7178947-7b74-427b-9684-e5c442ca3fdf": {
+      "review_id": "b7178947-7b74-427b-9684-e5c442ca3fdf",
+      "source_sha256": "9608a33a0c39bd71567a45d188bf014719924a8f7ed65f338ef019efb128f50a",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.5900000000000001,
+      "severity": 2,
+      "entities": [],
+      "evidence_quote": "Why Spotify why you do it you ware best at a time but now I feel you don't need people you just need money.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "69cfa4d3-9868-45ec-981f-00393b458956": {
+      "review_id": "69cfa4d3-9868-45ec-981f-00393b458956",
+      "source_sha256": "49170c96d9643132c475ef2a458d4514b122b19a5651a556aa304c7d8572ec88",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.42999999999999994,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "So far so good",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "7167ddde-dca8-4200-90d3-68b2281ea303": {
+      "review_id": "7167ddde-dca8-4200-90d3-68b2281ea303",
+      "source_sha256": "449b04b913c81d2e2ce29bd039e88efd64683de064b2c4d90d3a72ecf233c04f",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "request",
+      "sentiment": 0.14500000000000002,
+      "severity": 1,
+      "entities": [
+        "ads"
+      ],
+      "evidence_quote": "Good app but please decrease the ads",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "80572ed3-e692-4243-9fa6-597de8b6e812": {
+      "review_id": "80572ed3-e692-4243-9fa6-597de8b6e812",
+      "source_sha256": "c00d4d575b1994fa567a3daac15722f625f951cedfda172618303d5671e3aeea",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "praise",
+      "sentiment": 0.52,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Works well and has good play lists.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "f318668e-0699-4338-9403-e2b8cd440b60": {
+      "review_id": "f318668e-0699-4338-9403-e2b8cd440b60",
+      "source_sha256": "116c2fd4fb341ec5dfa7f9901760e39cf87d4ae0edb113e90b30d296ba6f9ccd",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.605,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "👍🏻",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "9fcd58db-8443-4174-bc77-fe2e97d53ceb": {
+      "review_id": "9fcd58db-8443-4174-bc77-fe2e97d53ceb",
+      "source_sha256": "f2d150f50b3caab0fb36dc7539049c8a54368b1f5dd47b102284c12746dcac53",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.8500000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "This aap is really good 👍👍",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "6da164b9-bf3e-437a-afa8-c6ad82fe8ea5": {
+      "review_id": "6da164b9-bf3e-437a-afa8-c6ad82fe8ea5",
+      "source_sha256": "838e9808025e81fa4eeca4d3b6f1f869a3eeb0e0ec2038149f0a324e8fc18167",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.8,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "It's Beautiful place music 🎶🎵 lover's",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "44b33350-d10b-417d-b1cd-4603c9a35633": {
+      "review_id": "44b33350-d10b-417d-b1cd-4603c9a35633",
+      "source_sha256": "69756010baf2df46f42ed49f8d1d8fb1102052fd25deacab9cc6f51129e73f46",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.945,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "app constantly gets stuck loading when searching, either stuck on a loading bar or black screen and telling me that theres no wifi connection when there is and spotify is the only app with this issue neither of these options are fixable by closing the app or clearing the cache, i just have to wait for it fix itself",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "9ffed4b6-9792-4d02-b7b6-0ee649ad2bc1": {
+      "review_id": "9ffed4b6-9792-4d02-b7b6-0ee649ad2bc1",
+      "source_sha256": "6ceb0c2e3013856d4054b608d79b19dac007cbec2173be6008254653e06ba716",
+      "status": "completed",
+      "topic": "other",
+      "intent": "unclear",
+      "sentiment": 0.8799999999999999,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "💞🍀",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "c5f71daa-e808-4c3d-9f55-c088110123f0": {
+      "review_id": "c5f71daa-e808-4c3d-9f55-c088110123f0",
+      "source_sha256": "889a52d9637753e4e2a6d027a3a3bdc1af6ca78302e3ab09f3b3088d3bdbf287",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.815,
+      "severity": 4,
+      "entities": [
+        "update"
+      ],
+      "evidence_quote": "After the recent update, I can't even play albums.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "1b3cc224-5edf-458d-b872-78e18f9a07d4": {
+      "review_id": "1b3cc224-5edf-458d-b872-78e18f9a07d4",
+      "source_sha256": "8a75298cab331c4ec5167f528d52801a7cfb3b470197ca6e39c1cdec33a642aa",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.64,
+      "severity": 4,
+      "entities": [
+        "podcast",
+        "playlist",
+        "account"
+      ],
+      "evidence_quote": "I have tried reinstalling the app, reseting my phone, updating software and tried different accounts but nothing works.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "c6c3e38e-1089-4ca5-a7dd-f2d8e80c3c0b": {
+      "review_id": "c6c3e38e-1089-4ca5-a7dd-f2d8e80c3c0b",
+      "source_sha256": "8d6338818b110459f0d66daaff3c16159db4b0bed454b21ef684e8796f7dc60b",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 1.0,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "i love Spotify, thank you the best",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "68a5d92a-1dca-40ba-b9f8-fc61a24b12a8": {
+      "review_id": "68a5d92a-1dca-40ba-b9f8-fc61a24b12a8",
+      "source_sha256": "ba2bd0fcd34ec945de6dbb65252e65dc4ae0555c3124afeaedab746dceeb1e12",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -1.0,
+      "severity": 5,
+      "entities": [],
+      "evidence_quote": "This is a very very bad app and is a very data has hacking for our mobile",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "e4a46ede-48ca-43c6-bf21-9143cb887d02": {
+      "review_id": "e4a46ede-48ca-43c6-bf21-9143cb887d02",
+      "source_sha256": "ca10d8629b5eefeb32f9e99700db673df11b321f41f43884280383015f9589cf",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.54,
+      "severity": 2,
+      "entities": [
+        "update"
+      ],
+      "evidence_quote": "New update is literally annoying",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "634045c3-9a77-4a44-8f0e-8bf509426e38": {
+      "review_id": "634045c3-9a77-4a44-8f0e-8bf509426e38",
+      "source_sha256": "05ce1cc50a2bd087974ecfc7c8ffe0ecaf6002f235d0a80c5b8f28fabe954fd8",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": -0.41000000000000003,
+      "severity": 4,
+      "entities": [
+        "subscription",
+        "premium"
+      ],
+      "evidence_quote": "What can I do if it said \" The subscription isn't available in your google play country\" when I want to buy premium",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "133e5e75-f71c-46c6-8749-520c8cf93e5b": {
+      "review_id": "133e5e75-f71c-46c6-8749-520c8cf93e5b",
+      "source_sha256": "26da9585bbe3cbd58ff2377a91000a2cd0fa9c4aea31c04f1947d169cbdce221",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "complaint",
+      "sentiment": -0.125,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "Why all list of songs don't appear, hope tou do this, great app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "30793892-3729-4250-80a7-b3fc6789230c": {
+      "review_id": "30793892-3729-4250-80a7-b3fc6789230c",
+      "source_sha256": "429059d2b4999b929729b1fb9b8f5af135c584cfa689892a97647fa3ef270caf",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "cancellation",
+      "sentiment": -0.905,
+      "severity": 4,
+      "entities": [
+        "offline"
+      ],
+      "evidence_quote": "I no longer see the point in using it if it won't let me use gift cards and keeps playing songs that I hate.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "66eb075f-ce78-447e-ae5e-58a01b9feb9b": {
+      "review_id": "66eb075f-ce78-447e-ae5e-58a01b9feb9b",
+      "source_sha256": "f7ff08a949367e7cbda2430ce07f6c26a89f5e6f1713c54aed5b37039becd18a",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": -1.0,
+      "severity": 4,
+      "entities": [
+        "premium",
+        "update",
+        "search"
+      ],
+      "evidence_quote": "if you try to search your favorite song and try to play then you have to furst purchase the premium membership ,then if you have to listen previous song then also you have to purchase the premium membership.unable to play favorite song, forward the song, previously it was my favorite song app and now it is my worst app.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "ee18c406-7536-4d80-a52b-361c545ac21a": {
+      "review_id": "ee18c406-7536-4d80-a52b-361c545ac21a",
+      "source_sha256": "1e661e5021638735823d36e0ed08d355fbf96779e5dea3b67bbce01a0f837976",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.5049999999999999,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Nice app for music",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "af5e6f4b-2cf0-4bc7-b3f7-e5440f4273d0"
+    },
+    "81d5d232-3b06-443d-b5f6-ce312c45a744": {
+      "review_id": "81d5d232-3b06-443d-b5f6-ce312c45a744",
+      "source_sha256": "214c622ca98b7c7b50b24b8ab1c10b5be937198acd9375ce96fd69861743218b",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.99,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "Always showing No internet problem ...worst music app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "4f4f2e58-45ed-489e-ae7e-20987fe27627": {
+      "review_id": "4f4f2e58-45ed-489e-ae7e-20987fe27627",
+      "source_sha256": "2f7bfac8cae60800f290c06de358fbb8520d34cc35791b98c4db75f617169903",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.98,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Super hit app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "056c340f-c7ad-42d8-a275-37e46f1f4f24": {
+      "review_id": "056c340f-c7ad-42d8-a275-37e46f1f4f24",
+      "source_sha256": "573e5eec86e76170a1f02290069590a997ba8446d57d166a99b83ebffcc0b4bc",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "complaint",
+      "sentiment": -0.675,
+      "severity": 4,
+      "entities": [
+        "playlist",
+        "library",
+        "ads"
+      ],
+      "evidence_quote": "It won't show any of my Playlists or library-- the screen is black and no songs are available.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "c1e7756f-8e08-4298-bd6b-300082f9ab98": {
+      "review_id": "c1e7756f-8e08-4298-bd6b-300082f9ab98",
+      "source_sha256": "09c0ab12a21dc71ad0b3f5aa1f5bd7affc4c2b4ce5e7f4a5386ab9d56275e408",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "complaint",
+      "sentiment": -0.98,
+      "severity": 4,
+      "entities": [
+        "shuffle",
+        "premium",
+        "account"
+      ],
+      "evidence_quote": "App is completely build with bugs ...",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "5a9241c2-aa2c-4902-a442-e3ae86bbe647": {
+      "review_id": "5a9241c2-aa2c-4902-a442-e3ae86bbe647",
+      "source_sha256": "db9babd2a2c0373c5786437bae573a6dff0d55de9aba5a0b8a4da0434995114b",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": 0.03499999999999992,
+      "severity": 2,
+      "entities": [
+        "premium"
+      ],
+      "evidence_quote": "I like it it was great but how u have to pay for Premarin I hated premium like you have to pay $10 every month but it's a good app very nice but I hate premium like yeah you take away the premium",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "5b86c771-d4af-4af8-a21f-8c1c39b8f091": {
+      "review_id": "5b86c771-d4af-4af8-a21f-8c1c39b8f091",
+      "source_sha256": "152ccd9f7ef084bbc66c65bd23c60640160fb94cf82c43e3495387780ff8209b",
+      "status": "completed",
+      "topic": "support",
+      "intent": "praise",
+      "sentiment": 0.5049999999999999,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "It gives good service",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "6cd1fd8f-06e0-47d4-bcb0-336c1388ff44": {
+      "review_id": "6cd1fd8f-06e0-47d4-bcb0-336c1388ff44",
+      "source_sha256": "d4cfb06e989abeecd2c4948bb3db83c7ef6affad0a1307f1ebe0c2597ea16843",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "praise",
+      "sentiment": 0.8600000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Love the music from different artists all over the world.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "ea7d14bc-f556-407b-bdd7-1a6a213a903f": {
+      "review_id": "ea7d14bc-f556-407b-bdd7-1a6a213a903f",
+      "source_sha256": "d4b12a2c15b7234bdb3729d17332c6204dfef634d38133e8b40aaab8a17273ca",
+      "status": "completed",
+      "topic": "access",
+      "intent": "praise",
+      "sentiment": 0.9450000000000001,
+      "severity": 1,
+      "entities": [
+        "account"
+      ],
+      "evidence_quote": "It's an amazing app because unlike other music apps you just have to make a account and that's it.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "36cb69bb-a616-46b7-9b85-220194b102d5": {
+      "review_id": "36cb69bb-a616-46b7-9b85-220194b102d5",
+      "source_sha256": "20b1430dd34727c40b7e9eba504605fb7439b145f935da9fbfe65955a252df6d",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.95,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Best thing ever, don't really know what to say except that if you like music you should consider downloading the app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "e8bfef1f-006a-44b7-89f3-f188fe2e82ef": {
+      "review_id": "e8bfef1f-006a-44b7-89f3-f188fe2e82ef",
+      "source_sha256": "3a60556aa422266084db909b9e69d47b09a3a996f3bfd8cf1279bef691eb5000",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "praise",
+      "sentiment": 0.9650000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Spotify juda koʻp musiqalar bor.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "ef1f0893-c367-4789-92a2-6bad340c00d7": {
+      "review_id": "ef1f0893-c367-4789-92a2-6bad340c00d7",
+      "source_sha256": "45959951ad4e0db1663ff1045d27a2c19ef08f97f92fb8b7c2f839736d70ce8f",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "complaint",
+      "sentiment": -0.33499999999999996,
+      "severity": 4,
+      "entities": [
+        "search"
+      ],
+      "evidence_quote": "some of my songs getting removed when i search for them they show that this song is no more available",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "05b17f84-96fb-4b23-a199-3601ea94d8ad": {
+      "review_id": "05b17f84-96fb-4b23-a199-3601ea94d8ad",
+      "source_sha256": "a4e412143e5bf9b641f978cfb2f50339ca0cccf09d9b4cc5db477f0877bc8d07",
+      "status": "completed",
+      "topic": "other",
+      "intent": "unclear",
+      "sentiment": 0.665,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Jai Shri Ram 🙏🏻🚩",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "3a7c08ea-59f2-4f5a-879f-388d8cdd85d3": {
+      "review_id": "3a7c08ea-59f2-4f5a-879f-388d8cdd85d3",
+      "source_sha256": "b75538e9ef1f28a7666a70cf0880d2210d8ede3cd6fd9eb642a2593f1a38a930",
+      "status": "completed",
+      "topic": "downloads",
+      "intent": "request",
+      "sentiment": -0.515,
+      "severity": 1,
+      "entities": [
+        "download"
+      ],
+      "evidence_quote": "Spotify does not have an option to download songs like JioSaavn...so plzz add download option without any supcription like jio savan",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "8454f126-3062-4222-a1ca-115176930074": {
+      "review_id": "8454f126-3062-4222-a1ca-115176930074",
+      "source_sha256": "683a767084615f86353181b21f7e163c85bb60eef507b2d2727a2d7e425a86aa",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "request",
+      "sentiment": 0.15999999999999992,
+      "severity": 1,
+      "entities": [
+        "update"
+      ],
+      "evidence_quote": "Unfortunately I can't do the same with the app...",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "97982fee-a65f-4fed-9dd5-9ffb31efbee0": {
+      "review_id": "97982fee-a65f-4fed-9dd5-9ffb31efbee0",
+      "source_sha256": "ecd5d383909213d9fa4d1c93adf224a4dbb3f116726081a30bd98a8a23904d60",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.685,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "I always get \"No internet available\" error even if the internet is working",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "e4219d1e-89c7-4a06-82b3-7f202ac2fad1": {
+      "review_id": "e4219d1e-89c7-4a06-82b3-7f202ac2fad1",
+      "source_sha256": "9192b4f2b17b92d0fb441f434d63f673308a621f97ac2bb3ddb7f6ab5a4c6de1",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.845,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Very nice Spotify app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "a9afa9d2-0678-46fe-a548-0747184bd6cb": {
+      "review_id": "a9afa9d2-0678-46fe-a548-0747184bd6cb",
+      "source_sha256": "cb2320b1046207c318781cd86e2548efe1edf72a2f809ed4f9b91681e5e757a7",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.97,
+      "severity": 2,
+      "entities": [],
+      "evidence_quote": "I hate yo this app",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "4b4a312d-45fb-4122-bf3f-08c3c1cad049": {
+      "review_id": "4b4a312d-45fb-4122-bf3f-08c3c1cad049",
+      "source_sha256": "d5c435c61e71bf97e15fbdeab6a2fc2fb381429746f9ac05a1b4bf8debe9d32d",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "praise",
+      "sentiment": 0.51,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Pretty good and has a lot of music to choose from compared to Apple Music.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "f086a305-46f6-4371-b717-8b53efb27872": {
+      "review_id": "f086a305-46f6-4371-b717-8b53efb27872",
+      "source_sha256": "aee770b0cd85458c42742a268c8f719f7f96d53885c304c720cd1f6c97971186",
+      "status": "completed",
+      "topic": "other",
+      "intent": "cancellation",
+      "sentiment": -0.79,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Uninstall",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "095e2ca3-ab78-4526-b6a3-03204000b429": {
+      "review_id": "095e2ca3-ab78-4526-b6a3-03204000b429",
+      "source_sha256": "251098d7fb096b4107372321fc560902a06d093963098d6c2525143f0e5397aa",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.865,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Great music",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "9d851b7f-a738-449b-a841-de8076f13276"
+    },
+    "1454d775-5f0e-4607-b8ea-d9ed5829f2a2": {
+      "review_id": "1454d775-5f0e-4607-b8ea-d9ed5829f2a2",
+      "source_sha256": "d77ba022c35407615cf74f2615428f1132780df3bdbe144b0902f623c7c669c7",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": -0.945,
+      "severity": 3,
+      "entities": [
+        "premium"
+      ],
+      "evidence_quote": "We need to buy a premium even for playing a specific part of a song, what a useless move by Spotify.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "8ced144b-b230-4f13-a568-40a33974bb74": {
+      "review_id": "8ced144b-b230-4f13-a568-40a33974bb74",
+      "source_sha256": "97c3b31dbb5504164e147856ab045483d360b523140b5cce447a3fd868dba4c5",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.5800000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Awesome music web,with eclectic artist platforms.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "4aaf911e-2ab6-4ccb-a0b7-4c6336f729c8": {
+      "review_id": "4aaf911e-2ab6-4ccb-a0b7-4c6336f729c8",
+      "source_sha256": "4e0b2e56fbb57bebeb9b5b87e9d0d0146b7af4d5263a103c437c459641e8ac6d",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": -0.945,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "We cannot play music without premion what is this app is ruined",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "b818a92c-a7aa-4877-b49a-02c53430e29f": {
+      "review_id": "b818a92c-a7aa-4877-b49a-02c53430e29f",
+      "source_sha256": "64d2a09f9f45a64e10bb1bd887e5381c556e371328f845c994d42378c9e98caa",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "complaint",
+      "sentiment": -0.64,
+      "severity": 4,
+      "entities": [
+        "playlist"
+      ],
+      "evidence_quote": "Doesnt load my liked playlist even after reinstall.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "8d7e352e-1c70-496d-8eda-2852e299c22a": {
+      "review_id": "8d7e352e-1c70-496d-8eda-2852e299c22a",
+      "source_sha256": "3f114139b48d5617ad4273588934e0efd6cbdc5ec2dcc9f7f5be97e6f439d015",
+      "status": "completed",
+      "topic": "other",
+      "intent": "unclear",
+      "sentiment": 0.3899999999999999,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Wow",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "d0e849ca-2d53-40b0-a4d3-0b6f38f12584"
+    },
+    "9c3429b1-69c6-4faa-8e8c-4f10ab41e0aa": {
+      "review_id": "9c3429b1-69c6-4faa-8e8c-4f10ab41e0aa",
+      "source_sha256": "840b15b0f3a42d739ed4dd666733f362a8987248c09a63b30f9f350216d0db94",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.040000000000000036,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "Once I click a link on Spotify, the app stops.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "1336ad3d-d0a5-4573-820f-f59da83dde3f": {
+      "review_id": "1336ad3d-d0a5-4573-820f-f59da83dde3f",
+      "source_sha256": "c5642b11c87d20133c3e6ab7295e92bd74052d68d38233c51a203d171557f807",
+      "status": "completed",
+      "topic": "other",
+      "intent": "unclear",
+      "sentiment": -0.35,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Cry nice",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "8fe193da-4f33-4213-a10d-d87cc39e96fe": {
+      "review_id": "8fe193da-4f33-4213-a10d-d87cc39e96fe",
+      "source_sha256": "fae5db748bcc97228eb3d0e7e873fa07dc8cda33eca70a10a8f5bf1b02542778",
+      "status": "completed",
+      "topic": "billing",
+      "intent": "complaint",
+      "sentiment": -0.985,
+      "severity": 3,
+      "entities": [
+        "update"
+      ],
+      "evidence_quote": "The new update ruined everything for free users",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "c104cb65-30cd-4bd9-b045-eae5a03acd22": {
+      "review_id": "c104cb65-30cd-4bd9-b045-eae5a03acd22",
+      "source_sha256": "985951f044081035736de8b0640fc248121b4366e8a60e49461557c460851a2f",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.9450000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Love it.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "e89c32b9-af2c-4ef1-bc91-ed58c3a8f407": {
+      "review_id": "e89c32b9-af2c-4ef1-bc91-ed58c3a8f407",
+      "source_sha256": "96025b7cb086d2c695229d4fc17e3442244ba61e8aa09f887123109e3da02cdd",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.55,
+      "severity": 2,
+      "entities": [],
+      "evidence_quote": "I don't like",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "dc874ca7-4a3c-456c-8957-b5043328d536": {
+      "review_id": "dc874ca7-4a3c-456c-8957-b5043328d536",
+      "source_sha256": "a1f40494b2eb42a594fbb9d3d732180694e1e7969a51e103c9cd9fcb0b764df4",
+      "status": "completed",
+      "topic": "catalog",
+      "intent": "complaint",
+      "sentiment": -0.915,
+      "severity": 3,
+      "entities": [
+        "lyrics",
+        "skip"
+      ],
+      "evidence_quote": "They randomly removed my lyrics and won't let me skip songs I don't like cause of limited skips.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "532c5332-5926-4fd9-8054-473ca6af6b0f": {
+      "review_id": "532c5332-5926-4fd9-8054-473ca6af6b0f",
+      "source_sha256": "cce45cc7cdb328360c25af2acb19da588d01a4b6133dbb87abfa60d2ff75c39d",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.96,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Super 😘",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "7955e61c-d3c3-4bb7-a04d-8cf055422b92": {
+      "review_id": "7955e61c-d3c3-4bb7-a04d-8cf055422b92",
+      "source_sha256": "b3243ec280c3da9ff676b8493d0e976d2a537b318586ea66286ec95b29e29bd5",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "request",
+      "sentiment": 0.7150000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Pay small artists more and you get 5 stars.",
+      "needs_review": true,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "35e952ef-432e-474a-b418-940a72f252da": {
+      "review_id": "35e952ef-432e-474a-b418-940a72f252da",
+      "source_sha256": "2db7f3fd3f16b4f6e2695775f7c7f82b85086ed6653dae21214710e93947e7f3",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.9950000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Very good app .",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "b50af8ce-3895-4367-84ec-692028cb0196": {
+      "review_id": "b50af8ce-3895-4367-84ec-692028cb0196",
+      "source_sha256": "3fdba663e99dd1fb68860fa6747b3827b1de7c112ad0649160d94370fca97d23",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.9650000000000001,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Awesome",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+      "cache_source_id": "051540ac-7d80-406a-aad4-87fbf9bb7ce7"
+    },
+    "86737267-7d67-4239-aaab-168e5b72aad1": {
+      "review_id": "86737267-7d67-4239-aaab-168e5b72aad1",
+      "source_sha256": "4b3f0289f591e28693069683512bcf6d2572c8551e170a0e5fd094dea3948441",
+      "status": "completed",
+      "topic": "other",
+      "intent": "praise",
+      "sentiment": 0.6499999999999999,
+      "severity": 1,
+      "entities": [],
+      "evidence_quote": "Doesn't get better than that.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "047c2ab8-b19a-4ae2-960a-99e4d1b7971b": {
+      "review_id": "047c2ab8-b19a-4ae2-960a-99e4d1b7971b",
+      "source_sha256": "760f7d09c42520f8c692859d444b4d737bb3bebbee0115b69b24a550a0b169cb",
+      "status": "completed",
+      "topic": "usability",
+      "intent": "praise",
+      "sentiment": 0.79,
+      "severity": 1,
+      "entities": [
+        "update",
+        "playlist"
+      ],
+      "evidence_quote": "update: since my last review they added a way to organize playlists and rearrange songsd, love the app.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "8c36690c-d0ac-4b7c-86f4-418391d8e604": {
+      "review_id": "8c36690c-d0ac-4b7c-86f4-418391d8e604",
+      "source_sha256": "c9bd23dcd862a536a52e25cab7655be6b4664696eedf20e6fe306d34e9002052",
+      "status": "completed",
+      "topic": "other",
+      "intent": "complaint",
+      "sentiment": -0.995,
+      "severity": 2,
+      "entities": [],
+      "evidence_quote": "The Spotify company has become extremely money oriented and has stripped the app from all its original positives and has turned it into negatives.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    },
+    "531beb2a-7343-4154-b9c8-4e10b76fed90": {
+      "review_id": "531beb2a-7343-4154-b9c8-4e10b76fed90",
+      "source_sha256": "c4d41c5898a81afce0583f5ead5d6fdf4f08b510aeb8d34f3fb61c9a5722ac39",
+      "status": "completed",
+      "topic": "playback",
+      "intent": "complaint",
+      "sentiment": -0.485,
+      "severity": 4,
+      "entities": [],
+      "evidence_quote": "Which, at the moment it absolutely isn't.",
+      "needs_review": false,
+      "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70"
+    }
+  }
+}

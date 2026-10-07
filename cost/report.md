@@ -40,7 +40,7 @@ Replayed offline from the saved pilot files: `pilot_calls.jsonl`, `pilot_records
 | Item | Unit | Price per unit | Source | Checked |
 |---|---|---|---|---|
 | jev_input_tokens | token | 0.000000042 USD | https://docs.typesafe.ai/models | 2026-10-04 |
-| jev_output_tokens | token | 0 USD | TypeSafe usage page | 2026-10-05 |
+| jev_output_tokens | token | 0 USD | TypeSafe usage page | 2026-10-07 |
 | memo_input_tokens | token | 0.000002 USD | https://platform.claude.com/docs/en/about-claude/pricing | 2026-10-05 |
 | memo_output_tokens | token | 0.00001 USD | https://platform.claude.com/docs/en/about-claude/pricing | 2026-10-05 |
 
@@ -54,7 +54,7 @@ All 660,622 rows accounted for; 660,609 nonempty outputs; 13 empty-text quaranti
 |---|---|---|---|---|---|---|---|
 | Base: exact-text reuse | 484,189 | 484,189 | 1003 | $20.42 | $0.01 | 1.79 h | 18.28 h |
 | No reuse, for comparison | 660,609 | 660,609 | 986 | $27.37 | $0.01 | 2.45 h | 24.94 h |
-| Conservative: more retries, output tokens billed at the input rate | 484,189 | 508,398 | 1003 | $21.44 | $0.01 | 1.79 h | 18.28 h |
+| Conservative: 5% more attempts, output tokens billed at the input rate | 484,189 | 508,398 | 1003 | $26.02 | $0.01 | 1.88 h | 19.19 h |
 
 - Verify: 5,000 reviews, about 0.34 h on this machine. Naming: 7 calls. Memo: 1 call, added once.
 - Input tokens per request are scaled from the pilot by the full file's average text length (`text_volume.json`), because pilot reviews are not the average text.
@@ -85,4 +85,6 @@ All 660,622 rows accounted for; 660,609 nonempty outputs; 13 empty-text quaranti
 
 - `item_cost = billed_units x price_per_unit`; `total_cost = sum(item_cost)`. A price per million tokens is divided by 1,000,000 first.
 - A stage's time is its session clock, not the sum of its request times. A run's time is the sum of its sessions; idle time between a stop and a resume is left out.
-- Projected Jev cost = attempts x input tokens per request x input rate, where attempts = requests x (1 + retry rate).
+- Projected Jev cost = attempts x input tokens per request x input rate, where attempts = requests x (1 + retry rate). Output tokens are added at the rate in `rates.csv`.
+- The conservative case bills output tokens at the input rate or the rate in `rates.csv`, whichever is higher, in case the output price there is read too low.
+- Jev time at the rate cap = attempts / requests per second. With one worker = attempts x the pilot's seconds per attempt.

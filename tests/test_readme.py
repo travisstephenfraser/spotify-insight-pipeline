@@ -1,5 +1,9 @@
+import json
 import re
+import shlex
 import subprocess
+import sys
+import tempfile
 import unittest
 
 from tests import fixtures
@@ -71,6 +75,79 @@ class Readme(unittest.TestCase):
         for line in quoted:
             with self.subTest(line=line[:60]):
                 self.assertIn(line, memo)
+
+
+class Walkthrough(unittest.TestCase):
+    """The README's terminal session, run again. It went stale once: the outside review of 2026-10-07 ran it and got other numbers."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.section = (fixtures.ROOT / "README.md").read_text(encoding="utf-8").split("\n## Walkthrough\n", 1)[1].split("\n## ", 1)[0]
+        cls.block = cls.section.split("```console\n", 1)[1].split("```", 1)[0]
+        cls.steps = []  # (the command, the lines the README shows under it)
+        for line in cls.block.splitlines():
+            if line.startswith("$ "):
+                cls.steps.append((line[2:], []))
+            elif line.strip():
+                cls.steps[-1][1].append(line)
+
+    def test_every_line_the_walkthrough_shows_is_printed_by_its_command_in_that_order(self):
+        self.assertEqual([shlex.split(command)[:4] for command, _ in self.steps], [["python3", "-m", "pipeline", "run"]] * 2 + [["python3", "-m", "pipeline", "export"]])
+        with tempfile.TemporaryDirectory() as tmp:
+            for command, shown in self.steps:
+                args = [a.replace("/tmp/dry", tmp) for a in shlex.split(command)[1:]]
+                self.assertIn("--standin" if args[2] == "run" else "export", args)  # nothing here may reach a real model
+                done = subprocess.run([sys.executable, *args], cwd=fixtures.ROOT, capture_output=True, text=True)
+                printed = (done.stdout + done.stderr).splitlines()
+                self.assertTrue(shown, command)
+                at = 0
+                for line in shown:
+                    with self.subTest(command=" ".join(args[1:4]), line=line[:70]):
+                        self.assertIn(line, printed[at:])
+                        at = printed.index(line, at) + 1 if line in printed[at:] else at
+
+    def test_a_figure_the_walkthrough_quotes_from_its_own_output_is_in_that_output(self):
+        prose = self.section.split("```console\n", 1)[0] + self.section.split("```", 2)[2]
+        quoted = re.findall(r'"(\d+ of \d+)"', prose)
+        self.assertTrue(quoted, "the walkthrough explains no figure from its output")
+        for figure in quoted:
+            self.assertIn(figure, self.block)
+
+
+class RecordedStop(unittest.TestCase):
+    """The 100-review run whose stop and resume is on video. What the README says of it is read from its exported files.
+
+    The known answer from outside those files is the video itself: after the stop, the status command prints
+    "completed 38, pending 62" (validation log entry 40).
+    """
+
+    DEMO = fixtures.ROOT / "runs/demo-100b"
+
+    @classmethod
+    def setUpClass(cls):
+        grading = cls.DEMO / "grading"
+        cls.before = set(json.loads((grading / "checkpoint_before.json").read_text(encoding="utf-8"))["completed_ids"])
+        cls.after = set(json.loads((grading / "checkpoint_after.json").read_text(encoding="utf-8"))["completed_ids"])
+        calls = [json.loads(line) for line in (grading / "calls.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+        cls.enrich = [c for c in calls if c["role"] == "enrich"]
+
+    def test_the_stop_saved_38_reviews_and_the_resume_finished_all_100(self):
+        self.assertEqual((len(self.before), len(self.after)), (38, 100))
+        self.assertLess(self.before, self.after)
+
+    def test_no_review_finished_before_the_stop_was_sent_again(self):
+        first = {r for c in self.enrich if c["phase"] == "initial" and c["outcome"] == "succeeded" for r in c["review_ids"]}
+        later = [r for c in self.enrich if c["phase"] == "resume" for r in c["review_ids"]]
+        self.assertEqual(first, self.before)
+        self.assertEqual(len(later), 62)
+        self.assertEqual(len(set(later)), 62)
+        self.assertFalse(first & set(later))
+
+    def test_the_readme_links_the_recording_and_gives_the_counts_it_shows(self):
+        text = (fixtures.ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertTrue((self.DEMO / "stop_resume.mov").exists())
+        self.assertIn("(runs/demo-100b/stop_resume.mov)", text)
+        self.assertIn("38 completed and 62 pending", text)
 
 
 if __name__ == "__main__":

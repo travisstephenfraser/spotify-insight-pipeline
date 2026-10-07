@@ -296,6 +296,18 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 - **`docs/final-review-brief.md`** is the one file to hand an outside reviewer of the whole repo (another maker's model, a fresh clone, no paid call). It quotes no result on purpose and holds this file, the rest of `docs/` and the error analysis back until its last pass. If you are that reviewer and this file was loaded, set it aside as the brief says. When the report comes back, compare it with the validation log and add an entry.
 - **For Travis before submitting:** 13 lines under `docs/` and `experiments/2026-10-04/` hold a home-directory path and `runs/full/run_full_text.txt` shows the laptop's name. No key is in the tree, the history or the gzipped exports.
 
+**Outside review and its fixes, 2026-10-07** (validation log entry 39). No paid call. `pipeline/` and `prompts/` untouched; the code hash is still `530c1e237f7c`.
+
+- **The review** is in `docs/outside-review-2026-10-07/`: OpenAI's Codex, a fresh clone, the brief's six passes. **It read `main` at `2caac91`, two commits behind `final/readme`**, because the brief said to clone the default branch. About half its findings were about things already on the branch. The brief now asks for the commit to expect.
+- **It confirmed every figure it recounted**, all eight ranking rows and all 14 claims, and the checker on the full export.
+- **Fixed:** the calculator's conservative row (labeled as billing output tokens, and did not; it now reads $26.02 and 1.88 h where it read $21.44 and 1.79 h; the base case is unchanged at $20.42); the README walkthrough's stale output ($0.0019, $0.0039, 20 of 100), now run by a test; `cost/README.md`'s "double a price" sentence.
+- **Sized, not fixed:** severity 4 leans high by its reading (ten of 19 sampled 4s read as 3). `python3 evals/severity_whatif.py` recounts the ranking: with every 4 as 3, usability is still first and playback and billing change places (at 34% of the 4s). Counting only 4s and 5s, playback leads.
+- **The memo check** ties a number to a claim ID, not to the word beside it. Travis's answer on 2026-10-07: a read of the memo is the check, no extra script. The assistant read all 14 cited numbers against `claims.csv`; his own read of `runs/full/memo.md` is still owed. `pipeline/memo.py` is unchanged.
+- **The recording exists** (validation log entry 40): `runs/demo-100b/stop_resume.mov`, a real 100-review run Travis stopped with Ctrl-C at 38 of 100 and resumed. An earlier take, `demo-100`, is in the state file only. The two takes cost $0.0498 and $0.0502, and the ledger reads $21.0760 of $35. `python3 -m pipeline export` writes to the root `grading/` unless `--out` is given: always name `--out` for any run but `full`.
+- **Earlier notes above that say "$21.44 with 5% retries" are right about what that figure was.** It is no longer what the report prints for the conservative case.
+- **The usage page was read after the full run** (validation log entry 41): $20.79, 602,455,939 tokens, 495,150 requests on 2026-10-07 at about 12:35 PDT. The rise since the 2026-10-05 reading equals what the state file logged, to the token, and the dollars are input tokens only. Output tokens are not billed. `python3 experiments/2026-10-07/billing/usage_page_check.py` replays it. Next reading should show 495,250 requests and 602,576,401 tokens.
+- **Travis read the submitted memo on 2026-10-07 and let it stand.** Still his: a license (none chosen; the README says all rights reserved), the readings in `evals/golden_error_analysis.md`, the portal.
+
 ## How to work with Travis here
 
 - This is a guided walk-through, not an autonomous build. Explain each step, confirm he understands it, and get his decision before acting. Do not choose a tool, model, threshold, budget or schema on his behalf.
@@ -334,7 +346,7 @@ python3 "$D/check_submission.py" check     --reference local-reference.json --su
 The pipeline's own commands (see `README.md` for the full list):
 
 ```sh
-python3 -m unittest discover -s tests -t .                      # 545 tests, no outside network, no key
+python3 -m unittest discover -s tests -t .                      # 588 tests, no outside network, no key
 python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
 python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
 python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the TypeSafe and Anthropic keys, LM Studio
@@ -342,6 +354,7 @@ python3 -m pipeline status --run NAME
 python3 -m pipeline export --run NAME --evidence runs/NAME     # grading/, run evidence, then the supplied checker
 python3 -m pipeline rank                                        # ranking from committed files; no model, no state file
 python3 evals/trace_review.py REVIEW_ID                         # one review through the committed files of the full run
+python3 evals/severity_whatif.py                                # the ranking recounted with severity read lower; changes no label
 python3 -m cost                                                 # offline replay of the calculator
 python3 -m cost pilot --go                                      # REAL: the paid 100-review pilot; run again to pick up where it stopped
 python3 -m cost evidence                                        # write the pilot files again from finished runs

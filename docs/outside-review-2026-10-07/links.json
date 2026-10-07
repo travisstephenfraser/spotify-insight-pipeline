@@ -1,0 +1,107 @@
+[
+  {
+    "url": "https://ai.google.dev/gemini-api/docs/thinking",
+    "status": 200,
+    "final": "https://ai.google.dev/gemini-api/docs/thinking"
+  },
+  {
+    "url": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "status": 200,
+    "final": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  {
+    "url": "https://docs.github.com/en/get-started/git-basics/ignoring-files",
+    "status": 200,
+    "final": "https://docs.github.com/en/get-started/git-basics/ignoring-files"
+  },
+  {
+    "url": "https://docs.ollama.com/capabilities/thinking",
+    "status": 200,
+    "final": "https://docs.ollama.com/capabilities/thinking"
+  },
+  {
+    "url": "https://docs.typesafe.ai/introduction/quickstart",
+    "status": 200,
+    "final": "https://docs.typesafe.ai/introduction/quickstart"
+  },
+  {
+    "url": "https://docs.typesafe.ai/models",
+    "status": 200,
+    "final": "https://docs.typesafe.ai/models"
+  },
+  {
+    "url": "https://docs.typesafe.ai/primitives/choice",
+    "status": 200,
+    "final": "https://docs.typesafe.ai/primitives/choice"
+  },
+  {
+    "url": "https://docs.typesafe.ai/primitives/noul",
+    "status": 200,
+    "final": "https://docs.typesafe.ai/primitives/noul"
+  },
+  {
+    "url": "https://docs.typesafe.ai/primitives/score",
+    "status": 200,
+    "final": "https://docs.typesafe.ai/primitives/score"
+  },
+  {
+    "url": "https://drive.google.com/file/d/1P0rUoAS_wVjp3BYKqXMEyD4u0uJP1Bvf/view",
+    "status": 200,
+    "final": "https://drive.google.com/file/d/1P0rUoAS_wVjp3BYKqXMEyD4u0uJP1Bvf/view"
+  },
+  {
+    "url": "https://github.com/travisstephenfraser/spotify-insight-pipeline",
+    "status": 200,
+    "final": "https://github.com/travisstephenfraser/spotify-insight-pipeline"
+  },
+  {
+    "url": "https://github.com/travisstephenfraser/spotify-insight-pipeline.git",
+    "status": 200,
+    "final": "https://github.com/travisstephenfraser/spotify-insight-pipeline"
+  },
+  {
+    "url": "https://github.com/travisstephenfraser/spotify-insight-pipeline/blob/main/runs/full/grading/records.jsonl.gz",
+    "status": 200,
+    "final": "https://github.com/travisstephenfraser/spotify-insight-pipeline/blob/main/runs/full/grading/records.jsonl.gz"
+  },
+  {
+    "url": "https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety",
+    "status": 200,
+    "final": "https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety"
+  },
+  {
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "status": 200,
+    "final": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "url": "https://platform.claude.com/docs/en/manage-claude/authentication",
+    "status": 200,
+    "final": "https://platform.claude.com/docs/en/manage-claude/authentication"
+  },
+  {
+    "url": "https://platform.claude.com/docs/en/models/overview",
+    "status": 200,
+    "final": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/travisstephenfraser/spotify-insight-pipeline/main/README.md",
+    "status": 200,
+    "final": "https://raw.githubusercontent.com/travisstephenfraser/spotify-insight-pipeline/main/README.md"
+  },
+  {
+    "url": "https://submissions-portal-eight.vercel.app",
+    "status": 200,
+    "final": "https://submissions-portal-eight.vercel.app"
+  },
+  {
+    "url": "https://www.anthropic.com/news/claude-sonnet-5",
+    "status": 200,
+    "final": "https://www.anthropic.com/news/claude-sonnet-5"
+  },
+  {
+    "url": "https://www.kaggle.com/datasets/bwandowando/3-4-million-spotify-google-store-reviews",
+    "status": 200,
+    "final": "https://www.kaggle.com/datasets/bwandowando/3-4-million-spotify-google-store-reviews"
+  }
+]

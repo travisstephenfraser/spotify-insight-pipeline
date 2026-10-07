@@ -1,0 +1,114 @@
+{
+  "accepted_guards": [],
+  "calls": {
+    "enrich": {
+      "calls_with_unknown_usage": 0,
+      "failed": 0,
+      "input_tokens": 98996,
+      "output_tokens": 21466,
+      "succeeded": 100
+    },
+    "group": {
+      "calls_with_unknown_usage": 0,
+      "failed": 0,
+      "input_tokens": 4787,
+      "output_tokens": 276,
+      "succeeded": 8
+    },
+    "memo": {
+      "calls_with_unknown_usage": 0,
+      "failed": 1,
+      "input_tokens": 12089,
+      "output_tokens": 2189,
+      "succeeded": 1
+    },
+    "verify": {
+      "calls_with_unknown_usage": 0,
+      "failed": 0,
+      "input_tokens": 69090,
+      "output_tokens": 2017,
+      "succeeded": 100
+    }
+  },
+  "checker": {
+    "coverage": {
+      "accounted_fraction": 1.0,
+      "duplicate_ids": 0,
+      "expected": 100,
+      "invalid_or_unresolved": 0,
+      "labelable": 100,
+      "labelable_completion_fraction": 1.0,
+      "missing": 0,
+      "quarantined": 0,
+      "received_lines": 100,
+      "unique_expected_ids": 100,
+      "valid_cache_reuses": 0,
+      "valid_completed": 100,
+      "valid_completion_fraction": 1.0
+    },
+    "coverage_point": 1.0,
+    "issue_counts": {},
+    "status": "pass"
+  },
+  "code_overrides": [],
+  "notes": [],
+  "quarantine_reasons": {},
+  "resume": {
+    "boundary_session": 66,
+    "completed_after": 100,
+    "completed_before": 38
+  },
+  "run": "demo-100b",
+  "sessions": [
+    {
+      "ended_how": "interrupted",
+      "seconds": 5.408,
+      "session_id": 66,
+      "stage": "classify",
+      "started_utc": "2026-10-07T19:21:04+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 11.034,
+      "session_id": 67,
+      "stage": "classify",
+      "started_utc": "2026-10-07T19:21:31+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 24.886,
+      "session_id": 68,
+      "stage": "verify",
+      "started_utc": "2026-10-07T19:21:42+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 3.58,
+      "session_id": 69,
+      "stage": "group",
+      "started_utc": "2026-10-07T19:22:07+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 16.817,
+      "session_id": 70,
+      "stage": "memo",
+      "started_utc": "2026-10-07T19:22:13+00:00",
+      "workers": 1
+    }
+  ],
+  "spend": {
+    "cap_usd": "35",
+    "jev_usd_this_run": "0.004157832",
+    "memo_model_usd_this_run": "0.046068",
+    "note": "Computed from the ledger at the rates stored on each row, which come from pipeline/billing.json. Jev and the memo model spend against the one cap.",
+    "of_which_reservations_kept_for_unknown_usage_usd": "0"
+  },
+  "statuses": {
+    "completed": 100
+  }
+}

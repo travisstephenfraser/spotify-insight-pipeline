@@ -5,7 +5,7 @@ Hand a fresh reviewer this one file. It holds everything the reviewer needs from
 **For whoever starts the review** (the reviewer may read this too):
 
 - Use a model from a different maker than the builder's. The project was built with Claude.
-- Push first. The reviewer sees only what is on GitHub, so name the branch or commit you want reviewed.
+- Push first, and give the reviewer the commit to expect: the output of `git rev-parse HEAD` in your own checkout. The reviewer sees only what is on GitHub. On 2026-10-07 a reviewer cloned the default branch while the finished work sat on an unmerged branch, and reviewed a tree two commits old (validation log entry 39).
 - Run it in a fresh clone, never in the working folder. The working folder holds `.env`, the state file with the spend ledger, and session notes.
 - If you can, put the 97 MB source CSV in place for it. Without that file the instructor's checker cannot be run on the real export.
 - Give it nothing else: no handoff, no summary, no list of worries. A reviewer handed a suspicion tends to return it confirmed.
@@ -40,7 +40,7 @@ git rev-parse HEAD        # goes in your report
 python3 --version         # the README says which version it needs
 ```
 
-Review the default branch unless you were given a branch or commit.
+You should have been given a commit to expect. If `git rev-parse HEAD` prints another one, check out the commit you were given, or stop and ask. With no commit given, review the default branch and say so at the top of your report. A clone with no `grading/` folder at its root is an old commit.
 
 The full source file is not in the repository. The README's Local setup section says where to get it and where it goes. If you can get it, check its SHA-256 against the README and `manifest.json` before using it. If you cannot, say so; every check below marked **[full file]** then goes under "Could not check".
 

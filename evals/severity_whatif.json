@@ -1,0 +1,193 @@
+{
+ "what": "The exported ranking recounted with the severity scale read other ways. No label is changed.",
+ "members": 291865,
+ "severity_counts": {
+  "issue-access": {
+   "1": 50,
+   "2": 264,
+   "3": 293,
+   "4": 9436,
+   "5": 310
+  },
+  "issue-billing": {
+   "1": 897,
+   "2": 11992,
+   "3": 26712,
+   "4": 7950,
+   "5": 933
+  },
+  "issue-catalog": {
+   "1": 718,
+   "2": 4690,
+   "3": 6499,
+   "4": 3825,
+   "5": 63
+  },
+  "issue-downloads": {
+   "1": 217,
+   "2": 738,
+   "3": 1898,
+   "4": 3730,
+   "5": 224
+  },
+  "issue-other": {
+   "1": 5364,
+   "2": 74351,
+   "3": 2260,
+   "4": 2486,
+   "5": 1005
+  },
+  "issue-playback": {
+   "1": 327,
+   "2": 4560,
+   "3": 12869,
+   "4": 24614,
+   "5": 133
+  },
+  "issue-support": {
+   "1": 16,
+   "2": 365,
+   "3": 100,
+   "4": 201,
+   "5": 19
+  },
+  "issue-usability": {
+   "1": 955,
+   "2": 42097,
+   "3": 28001,
+   "4": 10509,
+   "5": 194
+  }
+ },
+ "readings": {
+  "as_labeled": {
+   "title": "The labels as exported: the sum of severities",
+   "order": [
+    "issue-usability",
+    "issue-other",
+    "issue-playback",
+    "issue-billing",
+    "issue-catalog",
+    "issue-access",
+    "issue-downloads",
+    "issue-support"
+   ],
+   "totals": {
+    "issue-usability": 212158,
+    "issue-other": 175815,
+    "issue-playback": 147175,
+    "issue-billing": 141482,
+    "issue-catalog": 45210,
+    "issue-access": 40751,
+    "issue-downloads": 23427,
+    "issue-support": 1945
+   }
+  },
+  "four_as_three": {
+   "title": "Every 4 counted as 3",
+   "order": [
+    "issue-usability",
+    "issue-other",
+    "issue-billing",
+    "issue-playback",
+    "issue-catalog",
+    "issue-access",
+    "issue-downloads",
+    "issue-support"
+   ],
+   "totals": {
+    "issue-usability": 201649,
+    "issue-other": 173329,
+    "issue-billing": 133532,
+    "issue-playback": 122561,
+    "issue-catalog": 41385,
+    "issue-access": 31315,
+    "issue-downloads": 19697,
+    "issue-support": 1744
+   }
+  },
+  "high_as_three": {
+   "title": "Every 4 and 5 counted as 3",
+   "order": [
+    "issue-usability",
+    "issue-other",
+    "issue-billing",
+    "issue-playback",
+    "issue-catalog",
+    "issue-access",
+    "issue-downloads",
+    "issue-support"
+   ],
+   "totals": {
+    "issue-usability": 201261,
+    "issue-other": 171319,
+    "issue-billing": 131666,
+    "issue-playback": 122295,
+    "issue-catalog": 41259,
+    "issue-access": 30695,
+    "issue-downloads": 19249,
+    "issue-support": 1706
+   }
+  },
+  "count_only": {
+   "title": "Every complaint counted once",
+   "order": [
+    "issue-other",
+    "issue-usability",
+    "issue-billing",
+    "issue-playback",
+    "issue-catalog",
+    "issue-access",
+    "issue-downloads",
+    "issue-support"
+   ],
+   "totals": {
+    "issue-other": 85466,
+    "issue-usability": 81756,
+    "issue-billing": 48484,
+    "issue-playback": 42503,
+    "issue-catalog": 15795,
+    "issue-access": 10353,
+    "issue-downloads": 6807,
+    "issue-support": 701
+   }
+  },
+  "blocked_only": {
+   "title": "Only complaints rated 4 or 5, each counted once",
+   "order": [
+    "issue-playback",
+    "issue-usability",
+    "issue-access",
+    "issue-billing",
+    "issue-downloads",
+    "issue-catalog",
+    "issue-other",
+    "issue-support"
+   ],
+   "totals": {
+    "issue-playback": 24747,
+    "issue-usability": 10703,
+    "issue-access": 9746,
+    "issue-billing": 8883,
+    "issue-downloads": 3954,
+    "issue-catalog": 3888,
+    "issue-other": 3491,
+    "issue-support": 220
+   }
+  }
+ },
+ "first": {
+  "as_labeled": "issue-usability",
+  "four_as_three": "issue-usability",
+  "high_as_three": "issue-usability",
+  "count_only": "issue-other",
+  "blocked_only": "issue-playback"
+ },
+ "break_even": [
+  {
+   "ahead": "issue-playback",
+   "behind": "issue-billing",
+   "share_of_fours": "0.3416"
+  }
+ ]
+}

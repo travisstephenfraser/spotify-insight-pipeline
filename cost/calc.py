@@ -207,10 +207,11 @@ def project(
         api = attempts * tokens * rate_in if rate_in is not None else Decimal(0)
         unknown = []
         out_tokens = attempts * out_per_request
-        if rate_out is not None:
-            api += out_tokens * rate_out
-        elif bill_output_at_input_rate and rate_in is not None:
-            api += out_tokens * rate_in
+        # The conservative case does not trust a stated output rate below the input rate: the zero in rates.csv is read
+        # from the usage page, not from a price list. Until 2026-10-07 the stated rate won whenever there was one, so this case never applied.
+        out_rate = max(rate_out or Decimal(0), rate_in) if bill_output_at_input_rate and rate_in is not None else rate_out
+        if out_rate is not None:
+            api += out_tokens * out_rate
         elif out_tokens:
             unknown.append({"what": "Jev output tokens at an unknown rate", "units": out_tokens, "unit": "token"})
         return {
@@ -220,8 +221,8 @@ def project(
             "output_tokens_per_request": out_per_request,
             "api_usd": api,
             "local_usd_estimate": Decimal(0),
-            "seconds_one_worker": Decimal(requests) * classify["seconds"] / n,
-            "seconds": Decimal(requests) / max_rps,
+            "seconds_one_worker": attempts * classify["seconds"] / Decimal(classify["attempts"]),  # a retry is a request too
+            "seconds": attempts / max_rps,
             "unknown": unknown,
         }
 
@@ -339,7 +340,12 @@ def report(inputs, measured_, projection):
         "| Case | Jev requests | Attempts | Input tokens per request | API cost | Local estimate | Jev time at the rate cap | Jev time with one worker |",
         "|---|---|---|---|---|---|---|---|",
     ]
-    names = {"base": "Base: exact-text reuse", "no_reuse": "No reuse, for comparison", "conservative": "Conservative: more retries, output tokens billed at the input rate"}
+    extra = projection["conservative"]["stages"]["classify"]["attempts"] / Decimal(projection["conservative"]["stages"]["classify"]["requests"] or 1) - 1
+    names = {
+        "base": "Base: exact-text reuse",
+        "no_reuse": "No reuse, for comparison",
+        "conservative": f"Conservative: {extra:.0%} more attempts, output tokens billed at the input rate",
+    }
     for name, title in names.items():
         c = projection[name]
         s = c["stages"]["classify"]
@@ -368,7 +374,11 @@ def report(inputs, measured_, projection):
         "",
         "- `item_cost = billed_units x price_per_unit`; `total_cost = sum(item_cost)`. A price per million tokens is divided by 1,000,000 first.",
         "- A stage's time is its session clock, not the sum of its request times. A run's time is the sum of its sessions; idle time between a stop and a resume is left out.",
-        "- Projected Jev cost = attempts x input tokens per request x input rate, where attempts = requests x (1 + retry rate).",
+        "- Projected Jev cost = attempts x input tokens per request x input rate, where attempts = requests x (1 + retry rate). "
+        "Output tokens are added at the rate in `rates.csv`.",
+        "- The conservative case bills output tokens at the input rate or the rate in `rates.csv`, whichever is higher, "
+        "in case the output price there is read too low.",
+        "- Jev time at the rate cap = attempts / requests per second. With one worker = attempts x the pilot's seconds per attempt.",
         "",
     ]
     return "\n".join(lines)
