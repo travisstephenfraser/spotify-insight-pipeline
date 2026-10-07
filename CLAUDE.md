@@ -265,7 +265,9 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 - **Travis gave the go for the full run without the usage page**, knowing it had not landed. Worst case if output tokens are billed: about $24.6 for the pass (*estimate*), under the cap.
 - **The stop by hand works:** a stand-in run stopped by a real interrupt signal, resumed and exported passes the checker. A stand-in run named `rehearse-ctrlc-1006` is in `runs/standin.sqlite`.
 - **The memo's first attempt was rejected on 2 of 4 real runs.** If the full run ends with "memo: not written", run the same command again.
-- The dry run's cost line still uses the probe wording's rate ($0.0039 per 100) and says $18.88 for the full pass. The ledger and the calculator are right. Left alone on purpose: fixing it changes the code hash just before the full run.
+- The dry run's cost line still uses the probe wording's rate ($0.0039 per 100) and says $18.88 for the full pass. The ledger and the calculator are right.
+
+**A full-file rehearsal found a slow statement, 2026-10-06** (validation log entry 34). A stand-in run on the full file saved 15 requests a second where 1,490 was measured at 10,000 reviews. The statement that marks a finished text completed was reading every pending review (61 ms at 565,000 pending; 0.005 ms by the text index). Fixed test-first in `pipeline/state.py` (`MARK_TEXT_COMPLETED`, `MARK_TEXT_QUARANTINED`, both `INDEXED BY reviews_by_text`); the same rehearsal then saved 2,209 a second. 523 tests. The code hash is now `530c1e237f7c`. Unfixed, the full pass would have taken about 4 hours (*estimate*) at the same cost. **Rule from this: rehearse any new size with the stand-in before paying for it.** Verify, grouping, the memo and export are still unrehearsed at full size.
 
 ## How to work with Travis here
 
@@ -305,7 +307,7 @@ python3 "$D/check_submission.py" check     --reference local-reference.json --su
 The pipeline's own commands (see `README.md` for the full list):
 
 ```sh
-python3 -m unittest discover -s tests -t .                      # 521 tests, no outside network, no key
+python3 -m unittest discover -s tests -t .                      # 523 tests, no outside network, no key
 python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
 python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
 python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the TypeSafe and Anthropic keys, LM Studio

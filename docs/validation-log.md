@@ -370,6 +370,20 @@ Measured API spend so far: the pipeline's ledger reads $0.1578 after the 500 gat
 - **Evidence:** `runs/pilot3-cold/`, `cost/`.
 - **Limits:** entry 24's limit stays open. The plan's mark "usage page reconciled" before the full run is not met; Travis gave the go for the full run without it. If output tokens are billed the full pass is about $24.6 (*estimate*), still under the cap. Jev's rate of change rests on four comparisons of 100 to 500 reviews.
 
+### 34. A rehearsal on the full file, and a statement that read every pending review
+
+- **Why:** no run of any kind had used the full file. Every gate was 10,000 reviews or fewer, and the test that reads the full file is skipped by default.
+- **What:** a stand-in run on the full file at 20:55 PDT on 2026-10-06 (`--standin`, no cost), 16 workers, `--stop-after 2000`.
+- **What held:** prepare met its known counts in about 10 seconds: 660,622 rows, 13 empty, 484,189 distinct texts, 176,420 copies.
+- **What did not:** classify saved 2,015 requests in 134.0 s, 15 a second. The same stand-in saved 1,490 a second on a 10,000-review file (entry 22).
+- **Cause:** the statement that marks a finished text and its copies completed. Left to itself the planner took the status index and read every pending review of the run. Timed on the rehearsal's state file with 565,000 pending: 61 ms a request, against 0.005 ms through the text index. At 10,000 reviews the same read is about a millisecond, so no gate showed it.
+- **What it would have cost:** time, not money and not labels. The state file, not Jev's limit, would have set the pace: about 4 hours for the full pass instead of 1 hour 49 minutes (*estimates*), with the calculator's 1.79 hours shown wrong by its own run.
+- **Fix, test first:** two tests read the plan of the two statements that run per request (`tests/test_state.py` class `Plans`). Both failed, naming the status index. The statements now name the text index. 523 tests.
+- **Known answer after the fix:** the same rehearsal resumed on the fixed code saved 30,015 requests in 13.6 s, 2,209 a second.
+- **What changes:** the code hash is now `530c1e237f7c`, so the pilot is run once more on this code. No label can change: the fix alters how rows are found, not which rows or what is written.
+- **Evidence:** `tests/test_state.py`; the rehearsal is run `rehearse-full-1006` in `runs/standin.sqlite`, which is not committed.
+- **Limits:** the stand-in answers at once, so this measures the state file and nothing else. No real run has used the full file. Verify, grouping, the memo and export have not been rehearsed at full size; a fault there costs time and no money, because every answer is saved by then. The plan tests hold the statements to the index; they do not measure speed.
+
 ## Rules adopted because of these checks
 
 - **Label freeze.** A label file is committed and its SHA-256 recorded before model output for its rows is seen. A golden label does not change after the freeze; a plainly wrong one stays and the score is shown both ways.
