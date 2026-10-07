@@ -8,6 +8,8 @@ The golden 50 was scored once, on the full run (validation log entry 36): topic 
 
 **Who read them.** The 20 were read by the AI assistant that built the pipeline, after the score was saved and with Travis's permission to open the label columns for this purpose. He gave it at about 23:57 on 2026-10-06, and this file was committed at 00:09 on 2026-10-07. The readings are that assistant's, set against the wording of `GRADING_CONTRACT.md`. They are one reading, not a second labeler. The three translations are the assistant's and approximate.
 
+**The labeler's read, 2026-10-07.** Travis was shown all 20 cases with the reading beside each and answered: "I agree with Jev on most of these as I just made the mistake and the language issue favors translation I didn't do and I don't count against agreement". He disputed no reading, so the sort below stands as written. He goes further than it in Jev's favor: the sort sides with Jev outright on 4, and he sides with Jev on most of the 20. He named no cases, so no count is drawn from "most". On the three reviews not in English he takes the translation over his fallback label and does not count them against agreement. This is the labeler judging his own labels after seeing Jev's answers. It is his consent to the reading, not a blind second opinion, and it changes nothing scored: the labels stay frozen and 30 of 50 stands. With those three set aside the same saved cases read 30 of 47; that is arithmetic on the saved score, not a second score.
+
 ## The 20 by kind
 
 | Kind | Reviews | What differs |
@@ -99,7 +101,7 @@ All three hand severities are 2 on `unclear`, which the contract's severity rule
 
 ## Limits
 
-- 50 reviews, one labeler, and a reading of the misses by the assistant that built the pipeline. Travis has not yet confirmed the readings.
+- 50 reviews, one labeler, and a reading of the misses by the assistant that built the pipeline. Travis read them on 2026-10-07 and disputed none (above). He saw each case as the one-line summary in the tables here, with the reading beside it, not the full review text; and he had by then seen Jev's answers.
 - By hand 30 of the 50 are `other`, so most topics have 1 to 6 reviews and no per-topic rate means much.
 - The what-if on Premium uses the feature-word matches as a rough marker. It is not a count of paywalled-control complaints.
 - No hard case was dropped. All 20 are listed above and in the case table.
