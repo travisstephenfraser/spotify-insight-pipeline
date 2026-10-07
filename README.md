@@ -4,7 +4,7 @@
 
 This is my final assignment for a Berkeley Haas course on building with AI: advise Spotify on where the next quarter of product effort should go, and make the answer inspectable. The one idea that shaped it is that models only read language and write prose; code owns everything that can be counted. Record accounting, validation, budgets, retries, ranking and every exported number are code. A model never counts, sorts or decides what runs next. That split is enforced, not promised: the supplied checker (`check_submission.py`) passes on an end-to-end test run, and eight deliberate breaks are each named by it.
 
-**Status: built, tested, and run for real on 100, 500 and 10,000 reviews and then on the full file (2026-10-06): 660,609 reviews labeled, 13 empty ones set aside, the supplied checker `pass` with no flags, $20.36 and 2 hours 11 minutes of working time ([`runs/full/`](runs/full/run_summary.json)). The golden 50 is not scored yet and the provider's usage page has not been read against the run.** Every stage is tested end to end with stand-ins that replay saved answers. The 500-review gate (2026-10-05) and the 100-review pilot and 10,000-review gate (2026-10-06) each ran every stage with the real models, stopped once and resumed, and each export passes the supplied checker ([`runs/pilot4-cold/`](runs/pilot4-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json)). Each number below says where it was measured.
+**Status: built, tested, and run for real on 100, 500 and 10,000 reviews and then on the full file (2026-10-06): 660,609 reviews labeled, 13 empty ones set aside, the supplied checker `pass` with no flags, $20.36 and 2 hours 11 minutes of working time ([`runs/full/`](runs/full/run_summary.json)). Against the 50 hand labels, scored once, Jev has topic, intent and severity all right on 30 of 50. The provider's usage page has not been read against the run.** Every stage is tested end to end with stand-ins that replay saved answers. The 500-review gate (2026-10-05) and the 100-review pilot and 10,000-review gate (2026-10-06) each ran every stage with the real models, stopped once and resumed, and each export passes the supplied checker ([`runs/pilot4-cold/`](runs/pilot4-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json)). Each number below says where it was measured.
 
 The repo was built with an AI coding assistant (Claude Code); commits carry its co-author line. Design decisions, the hand labels and every go to spend money are mine. An agent reading this repo should start with [`CLAUDE.md`](CLAUDE.md).
 
@@ -339,7 +339,7 @@ The brief lists the evidence the README must hold. Each item is answered below w
 
 ### Results summary
 
-The real runs: the 100-review pilot (four times, last on 2026-10-06 on the final code), the 500-review gate on 2026-10-05, the 10,000-review gate on 2026-10-06, and the full file that night. There is no golden agreement to report yet: the golden 50 is scored once and has not been.
+The real runs: the 100-review pilot (four times, last on 2026-10-06 on the final code), the 500-review gate on 2026-10-05, the 10,000-review gate on 2026-10-06, and the full file that night. The golden 50 was scored once, on the full run: all three fields right on 30 of 50 (below).
 
 Measured ([`runs/pilot4-cold/`](runs/pilot4-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json), [`runs/full/`](runs/full/run_summary.json), [`cost/report.md`](cost/report.md), [`docs/validation-log.md`](docs/validation-log.md) entries 30 and 32 to 35):
 
@@ -395,7 +395,18 @@ Not written up yet. The 500 gate's files hold everything a trace needs: [`record
 
 ### Golden-set comparison and system checks
 
-- **Golden 50:** labeled by hand and frozen on 2026-10-05 before any model saw the texts ([`evals/golden_50_labeled.csv`](evals/golden_50_labeled.csv), SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`). Not scored yet: it is scored once, on the final setup, by [`evals/score_golden.py`](evals/score_golden.py), which gives two readings. The second applies the contract's rule that unclear text, praise and requests are severity 1; that rule would change 4 of the 50 hand labels.
+- **Golden 50:** labeled by hand and frozen on 2026-10-05 before any model saw the texts ([`evals/golden_50_labeled.csv`](evals/golden_50_labeled.csv), SHA-256 `b9d25cf271d921ec0a2545d2ca4a3ad8655e3b7056ac492b5a0458c5e4f2b79d`). Scored once, on the full run, on 2026-10-06 by [`evals/score_golden.py`](evals/score_golden.py), after the run's export was committed ([`evals/golden_score_full.json`](evals/golden_score_full.json), validation log entry 36). It gives two readings; the second applies the contract's rule that unclear text, praise and requests are severity 1, which changes 4 of the 50 hand labels.
+
+  | Jev against the golden 50 | Labels as frozen | With the severity rule applied |
+  |---|---|---|
+  | Topic | 40 of 50 | 40 of 50 |
+  | Intent | 43 of 50 | 43 of 50 |
+  | Severity, exact | 40 of 50 | 38 of 50 |
+  | All three | 30 of 50 | 30 of 50 |
+  | Severity error, mean and mean absolute | +0.10, 0.22 | +0.18, 0.26 |
+  | Quote is an exact copy of the text | 50 of 50 | 50 of 50 |
+
+  30 of 50 stands for somewhere between about 46% and 72%. Half the topic misses are hand `other` reviews that Jev put in catalog or usability. Five of the seven intent misses are reviews I labeled `unclear` that Jev read as a complaint, a cancellation or a request, so on this sample 4 of Jev's 24 complaints and cancellations are not complaints by hand, and it found 20 of my 21. The review flag is on 9 of the 20 reviews with a wrong label and on 5 of the 30 with none.
 - **Independent verifier procedure:** [Architecture](#architecture) and `pipeline/verify.py`. Run with the real model at every gate and on the full run: 5,000 blind predictions and 0 failures there ([`runs/full/verify_report.json`](runs/full/verify_report.json)).
 - **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. On 2026-10-05 a wording trial on 34 items measured a new intent wording, [`prompts/enrich-v2.json`](prompts/enrich-v2.json): 4 of 4 planted slogans (the probe wording got 2 of 4) and the outside raters' shared intent on 23 of 28 real boycott reviews (the probe wording 15) ([`evals/wording_trial_out.json`](evals/wording_trial_out.json)). It is now the frozen wording. The injection cases have not been measured with it yet.
 - **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. A recording of it is not in the repo.
@@ -421,7 +432,7 @@ The memo is [`runs/full/memo.md`](runs/full/memo.md), written by Claude Sonnet 5
 
 ## Running it for real
 
-Steps 1 to 5 have been done, the full file on 2026-10-06; step 6 has not. A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
+All six steps have been done, the full file and the golden score on 2026-10-06. A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
 
 1. Start the local model server and load `google/gemma-4-26b-a4b-qat`.
 2. Wording trial on the tuning cases only: `python3 evals/wording_trial.py --go`.
@@ -444,7 +455,8 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 
 ## Known limitations and what I would do next
 
-- **One full run, made once, with no one watching.** Every figure from it is read from its export. Nothing in it has been repeated, the golden 50 is not scored, and the usage page has not been read against it.
+- **One full run, made once, with no one watching.** Every figure from it is read from its export. Nothing in it has been repeated, and the usage page has not been read against it.
+- **The only accuracy figure is 30 of 50.** All three fields match my hand labels on 30 of the golden 50, about 46% to 72% at that size, from one labeler. On that sample Jev counts some unclear reviews as complaints and rates severity a little high, so the complaint counts and severity sums behind the ranking lean high. By how much on the full file, and whether evenly across issues, is not measured: 30 of the 50 are `other` by hand and no topic besides it has more than 6.
 - **The order of places 2 to 4 rests on one pass.** It came out differently at 100, 500 and 10,000 reviews. On the full file it is other, playback, billing, with playback and billing 4% apart ([`runs/full/grading/ranking.csv`](runs/full/grading/ranking.csv)). A second pass would change about 3 labels in 100, and whether that could swap the two is not tested. Usability has ranked first at every size.
 - **Jev does not repeat itself exactly.** The same 100 reviews, labeled twice an hour apart with the same wording, changed severity on 2 and the review flag on 3; the tone score moved by 0.03 or less on 9 in 10. A day apart it was more: of 500 reviews labeled at both the 500 and the 10,000 gate, Jev's own answer changed on 14 (severity on 7, topic on 6, intent on 2), and every one was a close call that carries the review flag in both runs (validation log entry 32). Forty minutes apart, 4 of 100 changed (entry 33). The full run changed 258 of the 10,000 gate's labels (2.6%), all flagged in both runs (entry 35). A rerun of the full file would not reproduce every label. The gate check on reviews seen at two gates allows for this: it stops only when more than 5 in 100 change topic, intent or severity.
 - **One labeler.** No second person labeled anything, so nothing measures how firm the hand labels are. My severity labels differ from two outside raters' more than my topic and intent labels do. Fix: every score against hand labels is shown two ways, and the instructor's private sample is the outside check.
