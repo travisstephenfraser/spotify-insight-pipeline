@@ -20,7 +20,7 @@ import threading
 from decimal import Decimal
 from pathlib import Path
 
-from pipeline import classify, export, gemma, group, hashing, jev, ledger, limits, memo, prepare, rank, standins, state, verify
+from pipeline import classify, claude, export, gemma, group, hashing, jev, ledger, limits, memo, prepare, rank, standins, state, verify
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "runs/state.sqlite"
@@ -74,6 +74,19 @@ def _clients(a, real):
     return jev.Client(_env_key("TYPESAFE_API_KEY")), gemma.Client(), limits.Limiter(requests_per_second=75, tokens_per_second=100_000)
 
 
+def memo_client(billing_path, *, real, local):
+    """The client that writes the memo: the paid model the billing file names for a real run, the stand-in otherwise."""
+    if not real:
+        return local
+    entry = json.loads(Path(billing_path).read_text(encoding="utf-8"))["memo"]
+    return claude.Client(_env_key("ANTHROPIC_API_KEY"), entry["model"])
+
+
+def _memo_ledger(db, a, client):
+    """The ledger a paid memo call is booked in, built when the memo is due so its totals hold everything spent so far."""
+    return ledger.Ledger(db, a.billing, cap_usd=Decimal(a.cap), provider="memo") if getattr(client, "paid", False) else None
+
+
 def _would_spend(db, a, requests):
     led = ledger.Ledger(db, a.billing, cap_usd=Decimal(a.cap))
     print(f"This would send about {requests} requests to Jev, one for each distinct text not yet labeled.")
@@ -101,7 +114,7 @@ def _warm_source(db, a, setup, input_sha):
     return source
 
 
-def _warm(db, a, gemma_client):
+def _warm(db, a, gemma_client, memo_writer):
     """The cost pilot's warm pass: take every result from a finished run and make no call of any role."""
     import time
 
@@ -128,7 +141,7 @@ def _warm(db, a, gemma_client):
     named = group.name_issues(db, run, gemma_client, warm_from=source)
     if named.ended_how == "finished":
         session = state.open_session(db, run, "memo", 1, clock)
-        memo.write(db, run, gemma_client, warm_from=source)
+        memo.write(db, run, memo_writer, warm_from=source, ledger=_memo_ledger(db, a, memo_writer))
         state.close_session(db, session, "finished", clock)
     elif named.ended_how != "no_complaints":
         print(f"warm pass: naming did not finish ({named.ended_how}). {named.message} This is not a clean warm pass.")
@@ -145,7 +158,7 @@ def _warm(db, a, gemma_client):
     return OK
 
 
-def _stages(db, a, setup, labeler, gemma_client, limiter):
+def _stages(db, a, setup, labeler, gemma_client, limiter, memo_writer):
     stop = threading.Event()
 
     def on_interrupt(signum, frame):
@@ -199,9 +212,12 @@ def _stages(db, a, setup, labeler, gemma_client, limiter):
     if named.ended_how != "finished":
         return NOT_FINISHED
     try:
-        memo.write(db, a.run, gemma_client)
+        memo.write(db, a.run, memo_writer, ledger=_memo_ledger(db, a, memo_writer))
     except (memo.MemoFailed, gemma.ServerProblem) as e:
         print(f"memo: not written. {e}")
+        return NOT_FINISHED
+    except ledger.CapReached as e:
+        print(f"memo: not written. The spending cap would be passed: {e}")
         return NOT_FINISHED
     print("memo: written and checked")
     print(f"All stages finished. Next: python3 -m pipeline export --run {a.run}")
@@ -219,7 +235,7 @@ def cmd_run(db, a):
             raise Refused(f"run {a.run} exists; drop --new to resume it")
         if not a.input:
             raise Refused("--new needs --input PATH.csv")
-        setup = jev.load_setup(a.prompts, 0.70 if a.cutoff is None else a.cutoff, prompt_name=a.prompt_file or jev.PROMPT_FILE)
+        setup = jev.load_setup(a.prompts, jev.CUTOFF if a.cutoff is None else a.cutoff, prompt_name=a.prompt_file or jev.PROMPT_FILE)
         if real and not a.go:
             rows = prepare.read_rows(a.input)
             return _would_spend(db, a, len({r["review_text"] for r in rows if r["review_text"].strip()}))
@@ -230,6 +246,7 @@ def cmd_run(db, a):
         if real:
             state.require_clean_tree(ROOT, real=True)
         labeler, gemma_client, limiter = _clients(a, real)
+        memo_writer = memo_client(a.billing, real=real, local=gemma_client)  # before any spend: a missing key stops here
         with state.tx(db):
             state.create_run(
                 db, a.run, input_path=str(Path(a.input).resolve()), input_sha256=input_sha, seed=a.seed,
@@ -244,7 +261,7 @@ def cmd_run(db, a):
             + ("" if counts["supplied_file"] else "; not the supplied file, so its known-count checks were skipped")
         )
         if a.warm_from:
-            return _warm(db, a, gemma_client)
+            return _warm(db, a, gemma_client, memo_writer)
     else:
         row = state.load_run(db, a.run)
         if _is_standin(row) != a.standin:
@@ -264,7 +281,8 @@ def cmd_run(db, a):
             hashes=setup.hashes(), allow_code=a.allow_code, code_commit=commit,
         )  # fmt: skip
         labeler, gemma_client, limiter = _clients(a, real)
-    return _stages(db, a, setup, labeler, gemma_client, limiter)
+        memo_writer = memo_client(a.billing, real=real, local=gemma_client)  # before any spend: a missing key stops here
+    return _stages(db, a, setup, labeler, gemma_client, limiter, memo_writer)
 
 
 def cmd_status(db, a):
@@ -279,7 +297,7 @@ def cmd_status(db, a):
     if stuck:
         print(f"{stuck} review(s) are pending after failed rounds. If they keep failing: python3 -m pipeline quarantine-stuck --run {a.run} --reason api_failure_after_retries")
     led = ledger.Ledger(db, a.billing, cap_usd=Decimal(a.cap))
-    print(f"Jev spend in this state file: ${led.spent_usd():.4f} spent, ${led.reserved_usd():.4f} reserved, cap ${a.cap}")
+    print(f"Paid spend in this state file (Jev and the memo model): ${led.spent_usd():.4f} spent, ${led.reserved_usd():.4f} reserved, cap ${a.cap}")
     return OK
 
 
@@ -349,21 +367,32 @@ def cmd_memo(db, a):
 
 
 def cmd_nested(db, a):
-    """The gate check that reviews seen at two gates kept their labels (spec item 25)."""
+    """The gate check on reviews labeled at two gates (spec items 25 and 37)."""
     if a.run == a.against:
         raise Refused("a run compared with itself always agrees; name the earlier, smaller run with --against")
     state.load_run(db, a.run)
     state.load_run(db, a.against)
-    compared, differ = classify.nested_differences(db, a.run, a.against)
+    report = classify.nested_report(db, a.run, a.against)
+    compared, changed = report["compared"], report["labels"]
     if not compared:
         raise Refused(f"runs {a.run} and {a.against} have no completed review in common, so there is nothing to compare")
-    if differ:
-        print(f"{len(differ)} of {compared} reviews labeled in both runs changed between {a.against} and {a.run}:")
-        for review_id, fields in differ:
+    rate = len(changed) / compared
+    print(f"{compared} reviews are labeled in both runs ({a.against} and {a.run})")
+    if changed:
+        print(f"topic, intent or severity changed on {len(changed)} of {compared} ({rate:.1%}):")
+        for review_id, fields in changed:
             print(f"  {review_id}: {', '.join(fields)}")
-        print("This stops the gate. Jev's documents say identical requests can return different answers; it is your call.")
+    else:
+        print("every one kept its topic, intent and severity")
+    print(
+        f"the quoted sentence changed on {report['quote']}; the review flag changed on {report['flag']}; "
+        f"the tone score moved on {report['tone_moved']}, by at most {report['tone_max']:.3f}"
+    )
+    if rate > a.max_rate:
+        print(f"This stops the gate: more than {a.max_rate:.0%} of the labels changed. Jev's own variation was 1 to 2 in 100 when measured; it is your call.")
         return GUARD
-    print(f"{compared} reviews are labeled in both runs and every one kept its labels")
+    if changed:
+        print(f"Within the allowed {a.max_rate:.0%}: Jev does not repeat itself exactly.")
     return OK
 
 
@@ -395,7 +424,7 @@ def parser():
     r.add_argument("--stop-after", type=int, help="stop classify after this many new completions, with work pending")
     r.add_argument("--max-hours", type=float)
     r.add_argument("--workers", type=int, default=1)
-    r.add_argument("--cutoff", type=float, help="needs_review cut-off; part of label_config (default 0.70)")
+    r.add_argument("--cutoff", type=float, help=f"needs_review cut-off; part of label_config (default {jev.CUTOFF:.2f}, the number Travis named)")
     r.add_argument("--verify-size", type=int, default=5000)
     r.add_argument("--seed", default=SEED)
     r.add_argument("--warm-from", help="take every result from this finished run and make no call (the cost pilot's warm pass)")
@@ -434,6 +463,7 @@ def parser():
     n = sub.add_parser("nested", parents=[common], help="check that reviews labeled in two runs kept their labels")
     n.add_argument("--run", required=True)
     n.add_argument("--against", required=True, help="the earlier, smaller run")
+    n.add_argument("--max-rate", type=float, default=0.05, help="the share of reviews whose topic, intent or severity may change before the gate stops (default 0.05)")
 
     k = sub.add_parser("rank", parents=[common], help="rebuild ranking.csv from committed files; no model, no state file")
     k.add_argument("--grading", default=str(ROOT / "grading"))

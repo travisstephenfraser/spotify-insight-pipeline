@@ -6,5 +6,13 @@
     "checked": "2026-10-04",
     "output_rate_checked": "2026-10-05",
     "note": "The input rate is the documented one. Output tokens are not billed: on 2026-10-05 the TypeSafe usage page showed $0.056 for 1,640,194 tokens and 1,451 requests, which is input tokens times the rate; it would have shown about $0.069 if every token were billed (docs/validation-log.md entry 24). To be read again after the 10,000 gate."
+  },
+  "memo": {
+    "model": "claude-sonnet-5-5",
+    "usd_per_mtok_in": "2",
+    "usd_per_mtok_out": "10",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "checked": "2026-10-05",
+    "note": "The memo is one call a run. Chosen on 2026-10-05 by a rule written before the comparison: the cheapest of three Claude models whose first attempt passed the memo check in both trials (experiments/2026-10-05/memo-model/). Thinking is billed as output. Its spend counts against the same cap as Jev's."
   }
 }

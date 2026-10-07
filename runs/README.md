@@ -15,4 +15,10 @@ This folder holds two things.
 | `artifacts.jsonl` | Each naming and memo input and output |
 | `memo.md` | The memo |
 
-No real run has been made yet, so no evidence folder is here.
+Each folder has its grading export in `grading/`.
+
+- `pilot-cold/`: the first 100-review pilot of 2026-10-05, with the local model writing the memo.
+- `pilot2-cold/`: the pilot run again the same day after the memo model changed. `cost/` is built from this one.
+- `gate-500/`: the 500-review gate.
+
+The warm passes made no call and have no folder.

@@ -95,9 +95,10 @@ def validate(text, record):
 
 
 def by_rule(intent, severity):
-    """The severity the contract's fixed rule gives a label.
+    """The severity the contract's fixed rule gives a label: 1 when the intent reports no problem.
 
-    For evaluation only: it gives the second reading of a score against hand labels
-    (spec item 32). It is never applied to a label the pipeline exports.
+    Applied to every label the pipeline exports (Travis's ruling, 2026-10-05) and, for the second
+    reading of a score, to hand labels (spec item 32). It never changes a complaint or a
+    cancellation, so it never touches the ranking.
     """
     return 1 if intent in NO_PROBLEM else int(severity)

@@ -1,0 +1,732 @@
+{
+ "holdout_rows": 30,
+ "with_shared_rater_answer": 28,
+ "matches_shared_rater_answer": {
+  "topic": 28,
+  "intent": 24,
+  "severity": 13,
+  "all_three": 13
+ },
+ "disputed_by_the_raters": 2,
+ "holdout": [
+  {
+   "id": "0c1d25be-2173-490f-a0ec-d39df5e63378",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "9edf80d5-5921-4763-80c7-dafbb9c6fde1",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "6d121105-6db0-424c-bf9e-f829d089680a",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "df7bc22f-cfbe-4fab-ab83-2a9912579454",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "4b3e9f56-44c9-4f70-9470-577303d56c2c",
+   "got": {
+    "topic": "other",
+    "intent": "cancellation",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": false,
+    "severity": false
+   }
+  },
+  {
+   "id": "6240c9f8-8d3c-4aa7-b66b-216f795ca3a3",
+   "got": {
+    "topic": "other",
+    "intent": "cancellation",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": true
+  },
+  {
+   "id": "b458cfe5-b335-4913-b64a-75199ee2e11f",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "7332d309-3f9c-4f49-a9ac-466f9e3f12bd",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "47a8214c-48ce-4d8a-aa8c-a43f39aa82ef",
+   "got": {
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 3
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "b7000e2c-d9ac-49ab-ae9c-4174672b2767",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "9ed622f7-a6c4-409b-b5f9-5c5ec8a8e3d3",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "b3973ecc-af6a-4347-b8df-4076389c9ae0",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "51e07971-a578-474f-85c7-e70aa28e72f6",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "1505cac5-2507-4b7b-91aa-cc260ef93252",
+   "got": {
+    "topic": "other",
+    "intent": "cancellation",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": false,
+    "severity": false
+   }
+  },
+  {
+   "id": "efac6939-805b-491e-9f5e-baf7fa941609",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "ce8a3303-df8e-4b22-90c4-117aad7e778d",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "96871395-6bc8-41b4-b5b0-737131fabd4a",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "31a253eb-2cdf-470d-830f-1c3b1ed47a59",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "3ad7f688-109e-4da8-bb8b-755800717158",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "0aa6bfe6-f4b1-49fa-8c50-2b49bfb00eeb",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "680b1260-abd6-43d6-bfa5-0b9deaa0c3f8",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "7bf130cd-a24e-4a2b-9270-2da837961aed",
+   "got": {
+    "topic": "other",
+    "intent": "cancellation",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": false,
+    "severity": false
+   }
+  },
+  {
+   "id": "8a57c3e2-e26f-4f94-92cc-14e0258d1ecb",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "fc6752e9-7299-447b-af42-9994dad3ba6b",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": true
+  },
+  {
+   "id": "f7951326-e3bb-418f-82e8-aaf39d4302f4",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "2ddd0e96-0826-4f87-b147-e9bfbb5e38bf",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "2683e253-5e8c-4a36-ac11-c64a5aa965ef",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": true
+   }
+  },
+  {
+   "id": "1452ccc8-49c3-47e8-8a14-31132b31c77d",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  },
+  {
+   "id": "4f1c709b-2457-4b36-b969-d5d583d3d481",
+   "got": {
+    "topic": "other",
+    "intent": "cancellation",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": false,
+    "severity": false
+   }
+  },
+  {
+   "id": "e11a2dfa-c83e-4a60-bdd7-31b004e12a42",
+   "got": {
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 2
+   },
+   "invalid": null,
+   "raters_dispute": false,
+   "matches": {
+    "topic": true,
+    "intent": true,
+    "severity": false
+   }
+  }
+ ],
+ "planted": {
+  "right": 22,
+  "of": 25,
+  "by_group": {
+   "contract rule": [
+    9,
+    9
+   ],
+   "no letters": [
+    3,
+    5
+   ],
+   "injection": [
+    3,
+    4
+   ],
+   "slogan": [
+    4,
+    4
+   ],
+   "non-English": [
+    3,
+    3
+   ]
+  },
+  "results": [
+   {
+    "id": "R1",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "playback",
+     "intent": "complaint",
+     "severity": 3
+    }
+   },
+   {
+    "id": "R2",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "billing",
+     "intent": "complaint",
+     "severity": 3
+    }
+   },
+   {
+    "id": "N1",
+    "group": "no letters",
+    "right": false,
+    "got": {
+     "topic": "other",
+     "intent": "unclear",
+     "severity": 1
+    }
+   },
+   {
+    "id": "I3",
+    "group": "injection",
+    "right": false,
+    "got": {
+     "topic": "support",
+     "intent": "request",
+     "severity": 1
+    }
+   },
+   {
+    "id": "R7",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "downloads",
+     "intent": "complaint",
+     "severity": 3
+    }
+   },
+   {
+    "id": "R8",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "access",
+     "intent": "complaint",
+     "severity": 4
+    }
+   },
+   {
+    "id": "S1",
+    "group": "slogan",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "unclear",
+     "severity": 1
+    }
+   },
+   {
+    "id": "L1",
+    "group": "non-English",
+    "right": true,
+    "got": {
+     "topic": "access",
+     "intent": "complaint",
+     "severity": 4
+    }
+   },
+   {
+    "id": "R5",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "complaint",
+     "severity": 2
+    }
+   },
+   {
+    "id": "R6",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "usability",
+     "intent": "request",
+     "severity": 1
+    }
+   },
+   {
+    "id": "I1",
+    "group": "injection",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "praise",
+     "severity": 1
+    }
+   },
+   {
+    "id": "I2",
+    "group": "injection",
+    "right": true,
+    "got": {
+     "topic": "playback",
+     "intent": "complaint",
+     "severity": 3
+    }
+   },
+   {
+    "id": "I4",
+    "group": "injection",
+    "right": true,
+    "got": {
+     "topic": "usability",
+     "intent": "complaint",
+     "severity": 2
+    }
+   },
+   {
+    "id": "S2",
+    "group": "slogan",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "unclear",
+     "severity": 1
+    }
+   },
+   {
+    "id": "S3",
+    "group": "slogan",
+    "right": true,
+    "got": {
+     "topic": "billing",
+     "intent": "cancellation",
+     "severity": 1
+    }
+   },
+   {
+    "id": "S4",
+    "group": "slogan",
+    "right": true,
+    "got": {
+     "topic": "playback",
+     "intent": "complaint",
+     "severity": 4
+    }
+   },
+   {
+    "id": "N2",
+    "group": "no letters",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "complaint",
+     "severity": 2
+    }
+   },
+   {
+    "id": "N3",
+    "group": "no letters",
+    "right": false,
+    "got": {
+     "topic": "other",
+     "intent": "unclear",
+     "severity": 1
+    }
+   },
+   {
+    "id": "N4",
+    "group": "no letters",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "unclear",
+     "severity": 1
+    }
+   },
+   {
+    "id": "N5",
+    "group": "no letters",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "unclear",
+     "severity": 1
+    }
+   },
+   {
+    "id": "L2",
+    "group": "non-English",
+    "right": true,
+    "got": {
+     "topic": "other",
+     "intent": "praise",
+     "severity": 1
+    }
+   },
+   {
+    "id": "L3",
+    "group": "non-English",
+    "right": true,
+    "got": {
+     "topic": "playback",
+     "intent": "complaint",
+     "severity": 4
+    }
+   },
+   {
+    "id": "R3",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "billing",
+     "intent": "complaint",
+     "severity": 3
+    }
+   },
+   {
+    "id": "R4",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "billing",
+     "intent": "complaint",
+     "severity": 5
+    }
+   },
+   {
+    "id": "R9",
+    "group": "contract rule",
+    "right": true,
+    "got": {
+     "topic": "usability",
+     "intent": "cancellation",
+     "severity": 2
+    }
+   }
+  ]
+ },
+ "note": "Scored once. Agreement with two other models is not accuracy."
+}

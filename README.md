@@ -4,7 +4,7 @@
 
 This is my final assignment for a Berkeley Haas course on building with AI: advise Spotify on where the next quarter of product effort should go, and make the answer inspectable. The one idea that shaped it is that models only read language and write prose; code owns everything that can be counted. Record accounting, validation, budgets, retries, ranking and every exported number are code. A model never counts, sorts or decides what runs next. That split is enforced, not promised: the supplied checker (`check_submission.py`) passes on an end-to-end test run, and eight deliberate breaks are each named by it.
 
-**Status: built and tested with stand-in models. No real run has been made.** Every stage runs and is tested end to end with stand-ins that replay saved answers. No paid call, pilot, gate or full run has been made with this code yet, so this README reports no result from one. Where a number below was measured, it comes from the tool-choice probes of 2026-10-04 and says so; everything else is marked as not run or as an estimate.
+**Status: built, tested, and run for real on 100 and on 500 reviews. No large run has been made.** Every stage is tested end to end with stand-ins that replay saved answers. On 2026-10-05 the 100-review pilot and the 500-review gate each ran every stage with the real models, stopped once and resumed, and each export passes the supplied checker ([`runs/pilot2-cold/`](runs/pilot2-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json)). The 10,000 and full-file runs have not been made, so this README reports no result from them. Each number below says where it was measured.
 
 The repo was built with an AI coding assistant (Claude Code); commits carry its co-author line. Design decisions, the hand labels and every go to spend money are mine. An agent reading this repo should start with [`CLAUDE.md`](CLAUDE.md).
 
@@ -15,8 +15,9 @@ Language   Python 3.14, standard library only (no dependency to install)
 State      one SQLite file, write-ahead mode
 Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
-Name/memo  Gemma 26B, local
-Tests      475 automated (474 run with no outside network; 1 skipped unless the 97 MB file is present)
+Name       Gemma 26B, local
+Memo       Claude Sonnet 5.5 (Anthropic API), one call a run
+Tests      521 automated (520 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-05
 ```
 
@@ -271,15 +272,15 @@ A `--standin` run with no `--state` uses `runs/standin.sqlite`. The file that gu
 
 The repository is private until submission. The full dataset, `spotify_reviews_18months.csv` (97.4 MB, 660,622 rows), is not in the repo. It comes from the course's dataset link and goes in `feed/Final Assignment - Spotify Reviews Dataset/`. Its SHA-256 is `1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6`; prepare refuses to continue if the file with that checksum does not give its known counts.
 
-A real run also needs LM Studio serving `google/gemma-4-26b-a4b-qat` at `localhost:1234` (`lms server start`) and a TypeSafe key. See [Running it for real](#running-it-for-real).
+A real run also needs LM Studio serving `google/gemma-4-26b-a4b-qat` at `localhost:1234` (`lms server start`), a TypeSafe key, and an Anthropic key for the memo. See [Running it for real](#running-it-for-real).
 
 ## Environment variables
 
 | Name | Where | Purpose |
 |---|---|---|
 | `TYPESAFE_API_KEY` | local `.env` or the environment | Jev. Needed only for a real run started with `--go` |
-| `ANTHROPIC_API_KEY` | local `.env` | Used only by the outside-rater experiment in `experiments/`, not by the pipeline |
-| `OPENAI_API_KEY` | local `.env` | Same |
+| `ANTHROPIC_API_KEY` | local `.env` or the environment | The memo model, one call a run. Needed only for a real run started with `--go`. Also used by the outside-rater experiment in `experiments/` |
+| `OPENAI_API_KEY` | local `.env` | Used only by the outside-rater experiment in `experiments/`, not by the pipeline |
 
 See [`.env.example`](.env.example).
 
@@ -289,12 +290,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-475 tests: 474 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+521 tests: 520 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 475 tests in 13.180s
+Ran 521 tests in 13.100s
 
 OK (skipped=1)
 ```
@@ -338,7 +339,27 @@ The brief lists the evidence the README must hold. Each item is answered below w
 
 ### Results summary
 
-Not run yet. No full run, gate or pilot has been made with this pipeline, so there are no completed or quarantined counts, no cache-reuse figure, no golden agreement, no verifier disagreement and no full-run cost or time to report.
+Two real runs have been made, both on 2026-10-05: the 100-review pilot and the 500-review gate. No 10,000 or full-file run has been made, so there is no full-run count, no golden agreement and no full-run cost or time to report.
+
+Measured ([`runs/pilot2-cold/`](runs/pilot2-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`cost/report.md`](cost/report.md), [`docs/validation-log.md`](docs/validation-log.md) entries 25, 29 and 30):
+
+| Measure | 100-review pilot | 500-review gate |
+|---|---|---|
+| Labeled / quarantined | 100 / 0 | 500 / 0 |
+| Stopped and resumed | at 50 | at 283 |
+| Supplied checker | `pass`, no flags | `pass`, no flags |
+| Jev requests | 100, 0 failed, one worker | 479 for 500 reviews (21 copies reused), 0 failed, 16 workers, 71.5 a second |
+| Jev cost | $0.0042 | $0.0199 |
+| Verifier (Gemma, blind) | 100 predictions, 0 failures | 500 predictions, 0 failures |
+| Jev and Gemma give the same topic, intent and severity | 81 of 100 | 363 of 500: 146 of 241 complaints and cancellations, 217 of 259 others |
+| Top issues by severity sum | usability 38, other 29, playback 22, billing 20 | usability 167, playback 143, other 135, billing 128 |
+| Memo (Claude Sonnet 5.5) | passed on the retry, $0.045 | passed first time, $0.025 |
+| Warm pass | 0 calls of any role | not part of this gate |
+| Time | 64 seconds end to end | classify 7 seconds, verify 124 seconds |
+
+One full pass, projected from the pilot (*estimates*): $20.44 with exact-text reuse, $21.46 with 5% retries, $27.40 with no reuse.
+
+Two things these runs showed that the design did not expect: Jev's answers are not fully repeatable (on the same 100 reviews, an hour apart, severity changed on 2 and the review flag on 3), and the two engines agree much less on complaints than on other reviews.
 
 What was measured before the build, in throwaway probes on 2026-10-04 (small samples, single runs; evidence in [`experiments/2026-10-04/`](experiments/2026-10-04/README.md) and [`docs/validation-log.md`](docs/validation-log.md)):
 
@@ -360,7 +381,7 @@ See [Architecture](#architecture): the six stages, where code ends and a model b
 
 ### One real review traced end to end
 
-Not run yet. A real trace needs a real run. The export writes everything a trace needs: `records.jsonl` (the label and its `label_config`), `calls.jsonl` (the request that produced it), the verifier's prediction, `membership.csv`, `ranking.csv` and `claims.csv`.
+Not written up yet. The 500 gate's files hold everything a trace needs: [`records.jsonl`](runs/gate-500/grading/records.jsonl) (the label and its `label_config`), [`calls.jsonl`](runs/gate-500/grading/calls.jsonl) (the request that produced it), the verifier's prediction ([`verify_predictions.jsonl`](runs/gate-500/verify_predictions.jsonl)), `membership.csv`, `ranking.csv` and `claims.csv`. The traced review in the final README comes from the full run.
 
 ### Golden-set comparison and system checks
 
@@ -376,7 +397,7 @@ Implemented in [`pipeline/rank.py`](pipeline/rank.py) and checked against the su
 
 ### Decision memo
 
-Not run yet. No memo has been written by a real model. The memo stage and its code check are built (`pipeline/memo.py`); a memo that cites an unknown ID, changes a number, separates a claim from its issue, or speaks of revenue or churn is rejected.
+The latest memo is [`runs/gate-500/memo.md`](runs/gate-500/memo.md), written by Claude Sonnet 5.5 from 500 reviews; the memo that counts comes from the full run. The memo is one call of about 6,000 input tokens, so a paid model costs about two cents; the choice among three models is recorded in [`experiments/2026-10-05/memo-model/`](experiments/2026-10-05/memo-model/bakeoff.py). The code check (`pipeline/memo.py`) rejects a memo that cites an unknown ID, changes a number, cites a claim in a paragraph that does not name its issue, or speaks of revenue or churn. A rejected memo's text is kept with the reasons.
 
 ### Submission checklist
 
@@ -390,7 +411,7 @@ Not run yet. No memo has been written by a real model. The memo stage and its co
 
 ## Running it for real
 
-Only step 2 has been done (2026-10-05, 68 requests). A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
+Steps 2 and 3 have been done (2026-10-05). A real run starts only with `--go`, on committed code, and scales in gates. Each gate is stopped once and resumed, because the checker needs to see saved work, an interruption, then new work.
 
 1. Start the local model server and load `google/gemma-4-26b-a4b-qat`.
 2. Wording trial on the tuning cases only: `python3 evals/wording_trial.py --go`.
@@ -413,7 +434,8 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 
 ## Known limitations and what I would do next
 
-- **No real run yet.** Everything above the model clients is tested; the clients are tested against a local test server only. Fix: the gates above, in order.
+- **No large run yet.** The pilot and the 500 gate are the only real runs. Sustained speed over minutes and the full file's review-bombing bursts are untested. Fix: the gates above, in order.
+- **Jev does not repeat itself exactly.** The same 100 reviews, labeled twice an hour apart with the same wording, changed severity on 2 and the review flag on 3; the tone score moved by 0.03 or less on 9 in 10. A rerun of the full file would not reproduce every label. The gate check on reviews seen at two gates allows for this: it stops only when more than 5 in 100 change topic, intent or severity.
 - **One labeler.** No second person labeled anything, so nothing measures how firm the hand labels are. My severity labels differ from two outside raters' more than my topic and intent labels do. Fix: every score against hand labels is shown two ways, and the instructor's private sample is the outside check.
 - **One issue per topic.** An issue names a topic, not a single defect, and `other` can rank high with nothing specific to fix. Fix: sub-issues inside a topic, decided after the first full pass.
 - **The quote and the topic come from separate questions** and can point at different sentences. How often is unmeasured.

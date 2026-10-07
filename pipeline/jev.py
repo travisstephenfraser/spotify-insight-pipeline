@@ -96,7 +96,12 @@ PROMPT_FILE = "enrich-v2.json"
 PROBE_PROMPT_FILE = "enrich-v1.json"  # the wording of the 2026-10-04 probe; the saved pilot answers were made with it
 
 
-def load_setup(prompts_dir, cutoff, *, prompt_name=PROMPT_FILE, features_name="features-v1.txt"):
+# The needs_review cut-off: a record is flagged when the lowest of Jev's three top probabilities (topic, intent,
+# severity) is below it. Travis named 0.70 on 2026-10-05. It is part of label_config, like the wording.
+CUTOFF = 0.70
+
+
+def load_setup(prompts_dir, cutoff=CUTOFF, *, prompt_name=PROMPT_FILE, features_name="features-v1.txt"):
     prompts_dir = Path(prompts_dir)
     prompt = json.loads((prompts_dir / prompt_name).read_text(encoding="utf-8"))
     return Setup(
@@ -169,7 +174,9 @@ def to_record(text, answer, *, features, cutoff, label_config):
         record = {
             "topic": answer["topic"]["choice"],
             "intent": answer["intent"]["choice"],
-            "severity": labels.SEVERITY[severity_name],
+            # The contract's fixed rule: praise, unclear content and a pure request report no problem, so severity 1.
+            # Jev answers severity as its own question and gives 2 to many slogans it calls unclear. Its answer is kept raw.
+            "severity": labels.by_rule(answer["intent"]["choice"], labels.SEVERITY[severity_name]),
             "sentiment": labels.sentiment_from_tone(answer["tone"]["score"]),
             "entities": entities(text, features),
             "evidence_quote": quote,

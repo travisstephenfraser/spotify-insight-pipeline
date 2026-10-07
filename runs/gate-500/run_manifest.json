@@ -1,0 +1,42 @@
+{
+  "code_commit": "40434d5c378a134f10f9ea972c3af459c4e54c08",
+  "code_hash": "4f7678ea95f6bc7c387443821f7a64f0ce156a3dc5a5b5f295d4b56e4ae2ba2d",
+  "content_hashes": {
+    "cutoff": "0.70",
+    "features": "77a29326a7f4d864c2b18f3692e21204d7ca9000709123c3034aa9b061c18747",
+    "prompt:enrich-v2.json": "020fe73936ba3ed5b57fbc84a653822d5051c4629dbce89e82e6b59e8e34893d",
+    "splitter": "13c5defcb10625761ba212b932627cba242512b5d2d8fbddbe05628d0855cb4b"
+  },
+  "created_utc": "2026-10-06T01:40:13+00:00",
+  "exported_utc": "2026-10-06T01:43:06+00:00",
+  "input_file": "checkpoint_500.csv",
+  "input_sha256": "a94e31663ee7b7eaa77e23b7a8425b530cc0c866ed5e714953172a0afef6a12f",
+  "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+  "models": [
+    "enrich: jev-1.13.0",
+    "group: google/gemma-4-26b-a4b-qat",
+    "memo: claude-sonnet-5-5",
+    "verify: google/gemma-4-26b-a4b-qat"
+  ],
+  "outputs": {
+    "calls.jsonl": "ebdce52363dbb742da90d0e5b482f79b4d41cb081c6d3dac1c7def3c235e483d",
+    "checkpoint_after.json": "fd9b9386c3b63135bbfc0d86da6f67a36e14325611a88cab76bc288e3c94e0e9",
+    "checkpoint_before.json": "88cd085328263917e92f747ee4fb1989f3785f6e252b8d657d13630f961af102",
+    "claims.csv": "1eab162da80abd49805b6b6bc736de47718daf61afe1f77987a2bd6d94f4d394",
+    "ingestion.json": "6ab75c45fc1ea4559b7efbb375a2f7c2e411520d82c56452e3dc930a869c5bee",
+    "membership.csv": "e6c6d0edc7e25e0eec6df655945751e8ba9ea122c9f646f45844085133f353e8",
+    "ranking.csv": "ad65f09f6c8962942bd912766d4a19bebb3b09d4fbdfb66e09c03e63e6c57a61",
+    "records.jsonl": "6d307c99ef1502209ce68d628d9a821bc1d3cd5f70f52d12d29d7d53025c910b",
+    "run.json": "cdc83d4ae8d8ec7035f7755f6d051c8e4f3a42add69e11b9a002ea49415ec8ba"
+  },
+  "run": "gate-500",
+  "sample_seed": "sample-v1",
+  "seed": "berkeley-fall-2026-assignment-5-v1",
+  "stage_configs": {
+    "prompt_file": "enrich-v2.json",
+    "standin": false,
+    "warm_from": null
+  },
+  "verify_seed": "verify-v1",
+  "verify_size": 5000
+}

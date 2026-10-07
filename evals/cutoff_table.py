@@ -40,6 +40,18 @@ def answers_from_exchanges(path):
     return out
 
 
+def answers_from_files(paths):
+    """Answers from several files: saved exchanges, or the flat rows cutoff_rows.py writes. A later file wins."""
+    out = {}
+    for path in paths:
+        lines = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
+        if lines and "response" in lines[0]:
+            out.update(answers_from_exchanges(path))
+        else:
+            out.update({r["review_id"]: {k: r[k] for k in ("topic", "intent", "severity", "min_top")} for r in lines if "invalid" not in r})
+    return out
+
+
 def by_rule(reference):
     """A reference with the contract's fixed severity rule applied (spec item 32)."""
     return {k: {**v, "severity": labels.by_rule(v["intent"], v["severity"])} for k, v in reference.items()}
@@ -87,10 +99,11 @@ def render(rows):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
-    ap.add_argument("--answers", default=str(PROBE), help="saved Jev exchanges to read")
+    ap.add_argument("--answers", action="append", help="saved Jev answers to read; may be given more than once (default: the probe's file)")
     ap.add_argument("--all", action="store_true", help="every row with a reference, not only the cut-off half")
     a = ap.parse_args(argv)
-    answers = answers_from_exchanges(a.answers)
+    files = a.answers or [str(PROBE)]
+    answers = answers_from_files(files)
     _, cutoff_half = common.halves()
     keep = set(answers) if a.all else set(cutoff_half)
     hand = {**common.dev_labels(), **common.adjudication_labels()}
@@ -101,7 +114,7 @@ def main(argv=None):
         "Travis's label with the fixed severity rule": by_rule(hand),
     }
     covered = {k: v for k, v in answers.items() if k in keep}
-    print(f"{len(covered)} of the {len(keep)} {'rows' if a.all else 'cut-off-half rows'} have a saved Jev answer in {Path(a.answers).name}")
+    print(f"{len(covered)} of the {len(keep)} {'rows' if a.all else 'cut-off-half rows'} have a saved Jev answer in {', '.join(Path(f).name for f in files)}")
     if not covered:
         print("Nothing to tabulate yet: Jev has not labeled these rows.")
         return 1

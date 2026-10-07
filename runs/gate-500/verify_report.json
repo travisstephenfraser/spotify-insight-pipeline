@@ -1,0 +1,2060 @@
+{
+  "agreement": {
+    "all_three": 363,
+    "intent": 474,
+    "pairs": 500,
+    "severity": 421,
+    "topic": 443
+  },
+  "by_group": {
+    "complaints_and_cancellations": {
+      "all_three": 146,
+      "intent": 231,
+      "pairs": 241,
+      "severity": 168,
+      "topic": 208
+    },
+    "rest": {
+      "all_three": 217,
+      "intent": 243,
+      "pairs": 259,
+      "severity": 253,
+      "topic": 235
+    }
+  },
+  "by_topic": {
+    "access": {
+      "all_three": 7,
+      "intent": 9,
+      "pairs": 9,
+      "severity": 8,
+      "topic": 7
+    },
+    "billing": {
+      "all_three": 24,
+      "intent": 47,
+      "pairs": 48,
+      "severity": 30,
+      "topic": 40
+    },
+    "catalog": {
+      "all_three": 20,
+      "intent": 29,
+      "pairs": 29,
+      "severity": 23,
+      "topic": 25
+    },
+    "downloads": {
+      "all_three": 6,
+      "intent": 12,
+      "pairs": 14,
+      "severity": 10,
+      "topic": 8
+    },
+    "other": {
+      "all_three": 240,
+      "intent": 261,
+      "pairs": 276,
+      "severity": 260,
+      "topic": 265
+    },
+    "playback": {
+      "all_three": 18,
+      "intent": 44,
+      "pairs": 44,
+      "severity": 30,
+      "topic": 29
+    },
+    "support": {
+      "all_three": 1,
+      "intent": 1,
+      "pairs": 1,
+      "severity": 1,
+      "topic": 1
+    },
+    "usability": {
+      "all_three": 47,
+      "intent": 71,
+      "pairs": 79,
+      "severity": 59,
+      "topic": 68
+    }
+  },
+  "confusion": {
+    "intent": {
+      "cancellation": {
+        "cancellation": 26,
+        "complaint": 1
+      },
+      "complaint": {
+        "cancellation": 5,
+        "complaint": 205,
+        "praise": 1,
+        "request": 3
+      },
+      "praise": {
+        "praise": 202,
+        "unclear": 3
+      },
+      "request": {
+        "complaint": 1,
+        "praise": 1,
+        "request": 8,
+        "unclear": 1
+      },
+      "unclear": {
+        "complaint": 6,
+        "praise": 4,
+        "unclear": 33
+      }
+    },
+    "severity": {
+      "1": {
+        "1": 252,
+        "2": 6,
+        "4": 1
+      },
+      "2": {
+        "1": 6,
+        "2": 107,
+        "4": 1
+      },
+      "3": {
+        "2": 26,
+        "3": 32
+      },
+      "4": {
+        "1": 3,
+        "2": 9,
+        "3": 24,
+        "4": 30
+      },
+      "5": {
+        "2": 1,
+        "3": 1,
+        "4": 1
+      }
+    },
+    "topic": {
+      "access": {
+        "access": 7,
+        "other": 1,
+        "usability": 1
+      },
+      "billing": {
+        "billing": 40,
+        "other": 4,
+        "playback": 1,
+        "usability": 3
+      },
+      "catalog": {
+        "catalog": 25,
+        "usability": 4
+      },
+      "downloads": {
+        "access": 1,
+        "billing": 1,
+        "catalog": 2,
+        "downloads": 8,
+        "playback": 2
+      },
+      "other": {
+        "catalog": 6,
+        "other": 265,
+        "usability": 5
+      },
+      "playback": {
+        "access": 1,
+        "catalog": 1,
+        "other": 4,
+        "playback": 29,
+        "usability": 9
+      },
+      "support": {
+        "support": 1
+      },
+      "usability": {
+        "billing": 1,
+        "catalog": 4,
+        "other": 5,
+        "playback": 1,
+        "usability": 68
+      }
+    }
+  },
+  "disagreements": [
+    {
+      "gemma": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "084077ee-f9be-446a-9935-9e58550d5153"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "a78d831a-69f4-428a-9235-cfdd9775c509"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "playback"
+      },
+      "review_id": "b39971d2-e3f0-4559-96da-a609f54d9cb4"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "review_id": "618d1dbb-0186-4537-923a-7b4dabf19afb"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 4,
+        "topic": "other"
+      },
+      "review_id": "45c561b9-cc47-4d80-95d3-f0d20bc84af3"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "4ab2089a-ffa8-49e7-a8a3-aeb583a96796"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "review_id": "9c9757da-6b99-4c95-a0e7-0661ee858027"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "21915fcd-9a35-48ba-b277-6296c4154603"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "7084ced1-0428-4093-9328-442f74719b4f"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "9e5f9745-f8be-48d3-b9de-4d118507d94a"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "review_id": "0658feaa-5bec-416e-b6b0-3de2a4c14580"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "b9a3e661-0eac-4cc9-a30e-7b1e11ef1315"
+    },
+    {
+      "gemma": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "downloads"
+      },
+      "review_id": "d7b04025-054b-4929-a507-15b751c39fdc"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "cf6166ae-d71a-4839-9add-088645ad3b78"
+    },
+    {
+      "gemma": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "9e3a706c-f502-4664-a23f-33f3480eca64"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "0a5ff524-27b1-4f3b-a761-17ca48ee731d"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "a1a28752-3256-4f81-b888-3e943343529f"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "e5e6c55f-3069-4b7c-9807-f8b5d5bf2726"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "billing"
+      },
+      "review_id": "2313bd8e-43bd-4777-bff9-3ae753288f0e"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "playback"
+      },
+      "review_id": "d26566f7-a898-4298-a06a-50bd3f7319c1"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "d635d6c8-460e-452f-8d53-6cd1ea804e98"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "access"
+      },
+      "review_id": "15502657-31ee-440e-8df3-2c405b5da275"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "ee17dcd6-07c0-4441-8e64-e7ea57877c78"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "b551645f-204f-4134-b3ec-dd37dda36d95"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "9db060c5-2ff5-493a-8a19-01a3da91ff1d"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "billing"
+      },
+      "review_id": "aa8fec15-2de4-46af-a911-1b49bcb4eb4c"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "billing"
+      },
+      "review_id": "bc1c4825-00c5-458d-ac00-098ce729c76d"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "catalog"
+      },
+      "review_id": "9f7a013a-082e-4ec1-8a65-a1e0a0395d20"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "playback"
+      },
+      "review_id": "f9e87b89-b080-48a2-a019-5c5dcf1689a6"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "3df77a78-ad9a-4456-8be8-8178ffd43d67"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "review_id": "7f27bbab-ef19-4fb1-80d8-cd014da3e002"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "179d79f7-d052-490f-a9d6-f97525b32642"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "77a53aa5-a453-4bcb-8267-d4f44a492dd3"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "downloads"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 5,
+        "topic": "downloads"
+      },
+      "review_id": "b03d6dc9-449a-4647-b112-559186656759"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "review_id": "fe5dadcb-e99c-4675-b8c8-6c2bacb338d7"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "review_id": "4b3ace8e-b199-40b3-8ad4-5c0580e38203"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "6a2cd434-9ad2-4e66-8968-ad066659d4df"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "62b53e0a-0397-4200-826f-122d18fdde32"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "05fa5b8a-a49b-43be-bab5-38af789a65a7"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "6eb64519-37d4-4591-a47a-bbb96357de36"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "4966b59e-cf09-4881-b3ea-34fd4118a553"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "55bc2f5d-0157-467b-8f5c-2f9c7d1b0c04"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "billing"
+      },
+      "review_id": "4001e2ec-2621-4256-b42d-c4988458a293"
+    },
+    {
+      "gemma": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "b4f4440f-d952-405d-bf7b-f19fb0adf484"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "82aedd59-debc-4147-9ff4-5a95c3d3a4e4"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "0cc5a3be-e40c-4e9f-918d-53d284e2e5b3"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "a06df5ff-01c8-4aff-a89c-a0c2ddc88f76"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "af53cf35-c680-4ccb-b30c-cfd85bb61c57"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "other"
+      },
+      "review_id": "02777996-211f-447b-94c4-99b61f049f78"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "11ad400f-4487-4dfa-a9da-c8d624f4f107"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "6a4f84b4-18e2-47d9-adb8-2461a9319c11"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "other"
+      },
+      "review_id": "4e4c0ec8-e42b-4428-b192-d527c3384aab"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "df239418-e786-4b6f-9545-6946e1960b89"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "c7df9cb8-7bec-4036-a6a1-1353d2d705d8"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "00363dc8-2117-4565-9af9-efadf8fa90cf"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "catalog"
+      },
+      "review_id": "d218ffde-42f9-48f8-a793-832507454b35"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "dd89d3d3-e4c1-446e-b899-fc038cfbcf95"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "82247807-4a3b-47ac-9daa-8b085dcdd56d"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "playback"
+      },
+      "review_id": "a862b037-7542-4a3e-94ef-836b7092f4ef"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "review_id": "ed8efdfe-43e3-4baa-bbed-317807663531"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "playback"
+      },
+      "review_id": "1340bd5d-35eb-4434-84b2-0ce9ca7dc9be"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 4,
+        "topic": "access"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "downloads"
+      },
+      "review_id": "1f13c3a2-e57b-460c-b569-964e6b2b1f31"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "f8a85378-c4dd-40e2-b548-beebcdf3b991"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "7fd63051-28ec-4e51-a06e-97f7010eae40"
+    },
+    {
+      "gemma": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "99a2f218-f1e7-4341-b8cf-bfef974095f1"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 5,
+        "topic": "billing"
+      },
+      "review_id": "08c07310-e802-4a88-bd97-2a5f240c0b44"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "review_id": "544a8481-e12b-4878-92d0-ec3a5256e13a"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "1ee942bb-a3de-4380-8c08-a15949687c6c"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "02311997-e9a2-41f9-acd2-303988b849a4"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "f1abd13b-2391-4b04-8109-efa7f3cfed0b"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "downloads"
+      },
+      "review_id": "c64af4d8-ac17-48fe-ae38-fd54b41b16b1"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "billing"
+      },
+      "review_id": "074efbfd-f69e-46ca-9cea-e5204a192a2a"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "1cdc5bb2-8e8d-4267-8853-6c1dd4c7ef13"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "catalog"
+      },
+      "review_id": "0b716a9d-85bf-4f4e-8e2e-be71e4a379a6"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 5,
+        "topic": "usability"
+      },
+      "review_id": "d87536c5-6fe0-4b38-b0b1-c47936e4a0d8"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "4526d439-a6e4-4e0a-b0bc-ae0f9ce5bd96"
+    },
+    {
+      "gemma": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "0b5db00e-a562-4125-897e-3e73937b53bf"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "039112fc-bbed-4540-83cc-890fcb129751"
+    },
+    {
+      "gemma": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "7d5ddaf5-2f4f-4883-9ddb-e46a2b584ac0"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "access"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "9ce5f16c-aef0-48eb-ace1-91905796bc3d"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "other"
+      },
+      "review_id": "8cd35162-9223-42d1-8097-06e22fde94ea"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "billing"
+      },
+      "review_id": "86adc9b6-be58-400c-9a08-aa082ff0535c"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "f1c0acd2-8eaf-421c-8143-9908a9a527fc"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "02365ec7-f37a-419a-b26d-bf2467d38461"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "review_id": "232c669e-8bfe-4642-b0c9-229c2911cc6c"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "6524068a-cff5-45b9-bd37-b91a6cb71475"
+    },
+    {
+      "gemma": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "review_id": "3a88c96b-2760-4eb8-9271-6c55e2304392"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "e5e362d7-1057-43bf-a3ca-8ffd93f80789"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "playback"
+      },
+      "review_id": "0e5a2a0d-7f67-48a5-9edd-27064f670656"
+    },
+    {
+      "gemma": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "6531323c-f8ae-4103-8bb1-d021bcd7efe8"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "review_id": "e07b106c-f454-46aa-a592-0b92d644bac0"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "access"
+      },
+      "review_id": "c1726764-f0ce-4abc-ad9e-6cd143e1b2c7"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "playback"
+      },
+      "review_id": "8b9d84a8-f650-4272-b332-4d60cb42377d"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "downloads"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "downloads"
+      },
+      "review_id": "394b1e3e-205a-48a7-a9ca-64170fa5f6a0"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "playback"
+      },
+      "review_id": "9b7042bf-56c4-4b64-9c8a-3c6c10ca487b"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "review_id": "4d327494-7846-481a-bf00-f4b5abc099c4"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "ac581cea-24f2-4251-a062-53cdd77cfed7"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "3899ed22-7b96-4c4f-9706-42985b8d8049"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "f9cf3b4a-c40e-4578-9f6f-358807450b0f"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "bfda45a9-d2a3-4aa6-8530-9abe87a63df8"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "billing"
+      },
+      "review_id": "384008ad-eb79-4525-a794-b0b67f7fb3f5"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "0070e713-4cb7-4d78-954f-1764d5593c91"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "4a2ba740-231c-406e-a7a1-c31349e99c44"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "ac480d7d-1af8-48ab-b581-ab13ede82e67"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "5650dbb7-7525-46e7-87b7-a75197c48ec7"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "a0cbc9d6-51bb-46f0-9ba9-ad4f4593c266"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "e09a9cf4-7ab2-49fb-b3f9-543ab70d6aec"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "aa94c946-8e7c-48dd-a673-87c5389b2edd"
+    },
+    {
+      "gemma": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 2,
+        "topic": "other"
+      },
+      "review_id": "66c1f7bf-096a-4ecd-aeaf-6c534e326ad1"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "caa9bb7e-814c-4895-b872-10637419b9ba"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 1,
+        "topic": "billing"
+      },
+      "review_id": "f782a3f3-b0c8-475c-a34c-cda0fefa272e"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 4,
+        "topic": "other"
+      },
+      "review_id": "83e0e3fb-c641-483d-8b6a-16dff7c2ab24"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "cd1d1b59-9de2-4181-bf4c-635a5d5f8e1e"
+    },
+    {
+      "gemma": {
+        "intent": "request",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "991dc66a-aba8-4844-be48-816539680877"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "request",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "review_id": "c0f03952-e067-4f25-99fc-18a1a045ed9f"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "f87fb3d9-501a-4119-bc40-b0669270ae44"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "downloads"
+      },
+      "review_id": "cc915d09-97ce-4d74-a04e-77d8f2d00e85"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "237e6174-4921-44df-828c-28f7b9d6196e"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "other"
+      },
+      "review_id": "2f40c0be-faf9-450d-8823-da8dbf9ec3f5"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "billing"
+      },
+      "review_id": "b5c993cb-5447-409a-8ea4-b8d8b2952145"
+    },
+    {
+      "gemma": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "77146d59-68bc-4555-9242-ffabb360086b"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "catalog"
+      },
+      "review_id": "9f3626e0-1bcb-4788-a412-f812102502d1"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "cc39673b-e332-4f1d-a6c6-ce378a715dcb"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "eb3e15c2-8576-40e3-9024-2f619aa5b983"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "usability"
+      },
+      "review_id": "91755919-64e7-4613-94f9-4cfb44976c44"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "downloads"
+      },
+      "review_id": "1d3f978e-b31f-4a4b-ab17-ec46ab4966b3"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "downloads"
+      },
+      "review_id": "5a4a0f00-ce5f-448d-8425-48eeeba76b4d"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "f40fbd38-16c4-46fb-ac1f-35d28fb5a48e"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "catalog"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "e88f6617-0bce-498a-9f39-fbeb266f2304"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "review_id": "adc4c3e4-3717-4888-ad86-c9381c224d2f"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "usability"
+      },
+      "review_id": "db98b02f-8a79-4b0c-af77-439171a20781"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "unclear",
+        "severity": 1,
+        "topic": "other"
+      },
+      "review_id": "6906dfd7-a45a-4d04-aa74-5f34b1ca5ed5"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "playback"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "playback"
+      },
+      "review_id": "509915ba-cf86-4baa-9bea-a73af229ca48"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "other"
+      },
+      "review_id": "a598cfe0-473b-4665-9eb2-4eebb3c1d877"
+    },
+    {
+      "gemma": {
+        "intent": "cancellation",
+        "severity": 2,
+        "topic": "billing"
+      },
+      "jev": {
+        "intent": "cancellation",
+        "severity": 3,
+        "topic": "billing"
+      },
+      "review_id": "7a5919ad-16d4-4f29-8e6e-1041415d7eee"
+    },
+    {
+      "gemma": {
+        "intent": "complaint",
+        "severity": 3,
+        "topic": "usability"
+      },
+      "jev": {
+        "intent": "complaint",
+        "severity": 4,
+        "topic": "usability"
+      },
+      "review_id": "0e71515c-ecf1-4b23-b783-00f58e51d96a"
+    },
+    {
+      "gemma": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "other"
+      },
+      "jev": {
+        "intent": "praise",
+        "severity": 1,
+        "topic": "billing"
+      },
+      "review_id": "3e503f9c-5c5b-4edc-bfd6-a19104c0822e"
+    }
+  ],
+  "jev_unlabeled": 0,
+  "pairs": 500,
+  "pairs_share_of_sample": 1.0,
+  "predictions": 500,
+  "ranking": {
+    "gemma": [
+      {
+        "complaint_count": 78,
+        "severity_sum": 181,
+        "topic": "usability"
+      },
+      {
+        "complaint_count": 64,
+        "severity_sum": 123,
+        "topic": "other"
+      },
+      {
+        "complaint_count": 33,
+        "severity_sum": 112,
+        "topic": "playback"
+      },
+      {
+        "complaint_count": 40,
+        "severity_sum": 101,
+        "topic": "billing"
+      },
+      {
+        "complaint_count": 9,
+        "severity_sum": 36,
+        "topic": "access"
+      },
+      {
+        "complaint_count": 14,
+        "severity_sum": 32,
+        "topic": "catalog"
+      },
+      {
+        "complaint_count": 5,
+        "severity_sum": 19,
+        "topic": "downloads"
+      },
+      {
+        "complaint_count": 1,
+        "severity_sum": 2,
+        "topic": "support"
+      }
+    ],
+    "jev": [
+      {
+        "complaint_count": 63,
+        "severity_sum": 167,
+        "topic": "usability"
+      },
+      {
+        "complaint_count": 40,
+        "severity_sum": 143,
+        "topic": "playback"
+      },
+      {
+        "complaint_count": 64,
+        "severity_sum": 135,
+        "topic": "other"
+      },
+      {
+        "complaint_count": 43,
+        "severity_sum": 128,
+        "topic": "billing"
+      },
+      {
+        "complaint_count": 14,
+        "severity_sum": 41,
+        "topic": "catalog"
+      },
+      {
+        "complaint_count": 8,
+        "severity_sum": 32,
+        "topic": "access"
+      },
+      {
+        "complaint_count": 8,
+        "severity_sum": 28,
+        "topic": "downloads"
+      },
+      {
+        "complaint_count": 1,
+        "severity_sum": 2,
+        "topic": "support"
+      }
+    ]
+  },
+  "sample": 500,
+  "verify_failures": 0
+}

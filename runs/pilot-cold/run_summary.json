@@ -1,0 +1,137 @@
+{
+  "accepted_guards": [],
+  "calls": {
+    "enrich": {
+      "calls_with_unknown_usage": 0,
+      "failed": 0,
+      "input_tokens": 98996,
+      "output_tokens": 21467,
+      "succeeded": 100
+    },
+    "group": {
+      "calls_with_unknown_usage": 0,
+      "failed": 0,
+      "input_tokens": 4787,
+      "output_tokens": 279,
+      "succeeded": 8
+    },
+    "memo": {
+      "calls_with_unknown_usage": 0,
+      "failed": 3,
+      "input_tokens": 20347,
+      "output_tokens": 1835,
+      "succeeded": 1
+    },
+    "verify": {
+      "calls_with_unknown_usage": 0,
+      "failed": 0,
+      "input_tokens": 69090,
+      "output_tokens": 2017,
+      "succeeded": 100
+    }
+  },
+  "checker": {
+    "coverage": {
+      "accounted_fraction": 1.0,
+      "duplicate_ids": 0,
+      "expected": 100,
+      "invalid_or_unresolved": 0,
+      "labelable": 100,
+      "labelable_completion_fraction": 1.0,
+      "missing": 0,
+      "quarantined": 0,
+      "received_lines": 100,
+      "unique_expected_ids": 100,
+      "valid_cache_reuses": 0,
+      "valid_completed": 100,
+      "valid_completion_fraction": 1.0
+    },
+    "coverage_point": 1.0,
+    "issue_counts": {},
+    "status": "pass"
+  },
+  "code_overrides": [],
+  "notes": [],
+  "quarantine_reasons": {},
+  "resume": {
+    "boundary_session": 3,
+    "completed_after": 100,
+    "completed_before": 50
+  },
+  "run": "pilot-cold",
+  "sessions": [
+    {
+      "ended_how": "stop_after",
+      "seconds": 6.591,
+      "session_id": 3,
+      "stage": "classify",
+      "started_utc": "2026-10-06T00:53:31+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 6.841,
+      "session_id": 4,
+      "stage": "classify",
+      "started_utc": "2026-10-06T00:53:37+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 25.695,
+      "session_id": 5,
+      "stage": "verify",
+      "started_utc": "2026-10-06T00:53:44+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 3.954,
+      "session_id": 6,
+      "stage": "group",
+      "started_utc": "2026-10-06T00:54:10+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "failed",
+      "seconds": 10.308,
+      "session_id": 7,
+      "stage": "memo",
+      "started_utc": "2026-10-06T00:54:14+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 0.0,
+      "session_id": 8,
+      "stage": "classify",
+      "started_utc": "2026-10-06T00:56:04+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 0.001,
+      "session_id": 9,
+      "stage": "group",
+      "started_utc": "2026-10-06T00:56:04+00:00",
+      "workers": 1
+    },
+    {
+      "ended_how": "finished",
+      "seconds": 9.03,
+      "session_id": 10,
+      "stage": "memo",
+      "started_utc": "2026-10-06T00:56:04+00:00",
+      "workers": 1
+    }
+  ],
+  "spend": {
+    "cap_usd": "35",
+    "jev_usd_this_run": "0.004157832",
+    "note": "Computed from the ledger at the rates stored on each row. Output tokens are counted at the rate in pipeline/billing.json; whether the provider bills them is settled against its usage page.",
+    "of_which_reservations_kept_for_unknown_usage_usd": "0"
+  },
+  "statuses": {
+    "completed": 100
+  }
+}

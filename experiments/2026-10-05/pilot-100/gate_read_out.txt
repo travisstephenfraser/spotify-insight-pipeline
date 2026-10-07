@@ -1,0 +1,28 @@
+reviews: 100 in the run, 100 with a saved probe answer, 100 verifier predictions
+
+1. The frozen wording (v2) against the probe wording (v1), same 100 reviews, same model
+   changed: {'topic': 0, 'intent': 1, 'severity': 2} | any of the three: 3
+   intent moves (v1 -> v2): {'praise -> unclear': 1}
+   topic moves: {}
+   severity moves: {'3 -> 2': 1, '4 -> 3': 1}
+   v1: 52 complaints or cancellations; severity sums {'usability': 38, 'other': 29, 'playback': 22, 'billing': 20, 'catalog': 13, 'access': 8, 'downloads': 7, 'support': 2}; needs_review 26
+   v2: 52 complaints or cancellations; severity sums {'usability': 37, 'other': 29, 'playback': 22, 'billing': 20, 'catalog': 12, 'access': 8, 'downloads': 7, 'support': 2}; needs_review 30
+
+2. Against the 29 development labels (5 revised after seeing a model; the severity rule changes 0)
+   Jev v1: all three 24 of 29 as the labels stand (21 as first written); topic 28, intent 28, severity 26
+   Jev v2: all three 24 of 29 as the labels stand (21 as first written); topic 28, intent 28, severity 26
+   Gemma, one review a request: all three 24 of 29 as the labels stand (21 as first written); topic 27, intent 29, severity 24
+
+3. Against the answer the two outside raters share (92 of the 100): agreement with other models, not accuracy
+   Jev v1: all three 79 of 92; topic 88, intent 88, severity 86
+   Jev v2: all three 79 of 92; topic 88, intent 87, severity 87
+   Gemma, one review a request: all three 79 of 92; topic 87, intent 88, severity 84
+
+4. Jev v2 against Gemma (the run's own verify report)
+   all pairs: {'all_three': 83, 'intent': 96, 'pairs': 100, 'severity': 90, 'topic': 94}
+   complaints_and_cancellations: {'all_three': 40, 'intent': 50, 'pairs': 52, 'severity': 43, 'topic': 48}
+   rest: {'all_three': 43, 'intent': 46, 'pairs': 48, 'severity': 47, 'topic': 46}
+   disagreements 17; of those flagged needs_review at 0.70: 12; flagged in all: 30
+
+5. Quotes and entities
+   records with entities: 37 | most common: [('premium', 13), ('update', 12), ('ads', 5), ('playlist', 5), ('skip', 5), ('lyrics', 3), ('recommendation', 2), ('download', 2)]

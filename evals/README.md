@@ -22,6 +22,7 @@ The golden label columns are never read into a prompt, an example, a cut-off or 
 | `wording_trial.py` | The probe's intent wording against a candidate, on the 4 planted slogans and the `tune` half only. Refuses a held-back row | Yes, with `--go` |
 | `holdout_score.py` | The 30 held-back boycott reviews and the 25 planted cases, once, with the frozen wording | Yes, with `--go` |
 | `cutoff_table.py` | For each candidate cut-off: what the review flag marks, against every reference side by side | No |
+| `cutoff_rows.py` | Labels the cut-off-half reviews the pilot does not cover, once | Yes, with `--go` |
 | `score_golden.py` | A run against the golden 50, once, in two readings | No |
 | `compare_check.py` | Changes labels on purpose in a copy and checks the comparison flags each one | No |
 | `feature_words.py` | Counts candidate feature words over the full file and drafts `prompts/features-v1.txt` | No |
@@ -30,4 +31,10 @@ Every paid call goes through the same spend ledger as the pipeline, so the $35 c
 
 ## Results
 
-None from a real model with this code yet. Earlier measurements, made with throwaway scripts on 2026-10-04, are in `experiments/2026-10-04/README.md` and `docs/validation-log.md`.
+- `wording_trial_out.json`: the wording trial of 2026-10-05 (validation log entry 23). The candidate wording met every pass mark and is frozen.
+- The 100-review pilot's labels against the development labels and the raters' shared answer: `experiments/2026-10-05/pilot-100/gate_read_out.txt` (validation log entry 25).
+- `holdout_score_prompt-v2.json`: the holdout, scored once on 2026-10-05 (validation log entry 26).
+- `cutoff_rows_out.jsonl`: the 28 cut-off-half reviews outside the pilot, labeled once (entry 27).
+- The golden 50 has not been scored.
+
+Earlier measurements, made with throwaway scripts on 2026-10-04, are in `experiments/2026-10-04/README.md` and `docs/validation-log.md`.

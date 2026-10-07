@@ -14,6 +14,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from pipeline import gemma, group, hashing, rank, state, verify
+from pipeline.ledger import CapReached
 
 ROLE = "memo"
 PROMPT = Path(__file__).resolve().parents[1] / "prompts/memo-v1.md"
@@ -141,10 +142,13 @@ def _numbers(value):
     return set()
 
 
-def _sentences(text):
+def _paragraphs(text):
+    """Each paragraph or list item (one line of the memo) with its sentences."""
     for line in text.split("\n"):
         line = LIST_NUMBER.sub("", line)  # "1. " at the start of a line numbers a list item; it is not a claim
-        yield from (s for s in re.split(r"(?<=[.!?])\s+", line) if s.strip())
+        sentences = [s for s in re.split(r"(?<=[.!?])\s+", line) if s.strip()]
+        if sentences:
+            yield line, sentences
 
 
 def _section(text, title):
@@ -190,27 +194,32 @@ def check(text, pack):
         problems.append("the memo speaks of revenue, churn or money, which this data cannot support")
 
     facts = _numbers(pack["run_facts"])
-    for sentence in _sentences(plain):
-        if sentence.lstrip().startswith("#"):
+    for paragraph, sentences in _paragraphs(plain):
+        if paragraph.lstrip().startswith("#"):
             continue
-        cited = [known_claims[c] for c in CLAIM.findall(sentence) if c in known_claims]
-        named = set(ISSUE.findall(sentence))
-        for claim in cited:
-            if claim["issue_id"] not in named:
-                problems.append(f"{claim['claim_id']} is not in the same sentence as its issue {claim['issue_id']}")
-        bare = sentence
-        for pattern in (CLAIM, REVIEW, ISSUE, RANK_WORD):
-            bare = pattern.sub(" ", bare)
-        allowed = {Decimal(c["value"]) for c in cited} | facts
-        for token in NUMBER.findall(bare):
-            if Decimal(token.replace(",", "")) not in allowed:
-                problems.append(f"the number {token} is neither the value of a claim cited in its sentence nor a run fact")
+        # A claim's issue must be named in the paragraph or list item that cites it. The first version asked for the
+        # same sentence, which rejected "issue-x ranks first. It has 37 [CL-004]." from every model that wrote it.
+        named = set(ISSUE.findall(paragraph))
+        for sentence in sentences:
+            cited = [known_claims[c] for c in CLAIM.findall(sentence) if c in known_claims]
+            for claim in cited:
+                if claim["issue_id"] not in named:
+                    problems.append(f"{claim['claim_id']} is not in the same paragraph as its issue {claim['issue_id']}")
+            bare = sentence
+            for pattern in (CLAIM, REVIEW, ISSUE, RANK_WORD):
+                bare = pattern.sub(" ", bare)
+            # A number still answers to its own sentence: it must be the value of a claim cited there, or a run fact.
+            allowed = {Decimal(c["value"]) for c in cited} | facts
+            for token in NUMBER.findall(bare):
+                if Decimal(token.replace(",", "")) not in allowed:
+                    problems.append(f"the number {token} is neither the value of a claim cited in its sentence nor a run fact")
     return list(dict.fromkeys(problems))
 
 
 def config(client, per_issue, prompt_path=PROMPT):
     """The memo setup, the prompt's content included, so an edited prompt is never answered from an old memo."""
-    return f"{client.model}/memo-v1-{hashing.short_sha(prompt_path)}/schema-v1/max-{MAX_TOKENS}/quotes-{per_issue}"
+    name = getattr(client, "label", client.model)  # a paid client's label also names its effort setting
+    return f"{name}/memo-v1-{hashing.short_sha(prompt_path)}/schema-v1/max-{MAX_TOKENS}/quotes-{per_issue}"
 
 
 def recheck(db, run, text):
@@ -254,9 +263,12 @@ def _set_final(db, run, key, text, model):
     )
 
 
-def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_path=PROMPT, warm_from=None):
-    """Write the memo for the run and return it. Raises MemoFailed after two memos that fail the check."""
-    state.recover_orphans(db, run, roles=(ROLE,))  # before anything else: an open call would make export refuse
+def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_path=PROMPT, warm_from=None, ledger=None):
+    """Write the memo for the run and return it. Raises MemoFailed after two memos that fail the check.
+
+    `ledger` is given when the memo model is a paid one: each call then reserves its worst case
+    and settles its reported usage, and the ledger's CapReached is raised before a call that would pass the cap."""
+    state.recover_orphans(db, run, ledger=ledger, roles=(ROLE,))  # before anything else: an open call would make export refuse
     pack = evidence_pack(db, run, per_issue=per_issue)
     if not pack["ranking"]:
         raise NothingToWrite("no complaint or cancellation in this run, so there is nothing to rank or recommend")
@@ -284,27 +296,41 @@ def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_
             message += "\n\nYour previous memo had these problems. Fix every one and return the whole memo again:\n"
             message += "\n".join(f"- {p}" for p in problems)
         request_id = uuid.uuid4().hex
-        state.begin_attempt(
-            db, None, request_id=request_id, run=run, role=ROLE, review_ids=[], model=client.model,
-            label_config=label_config, session_id=session, reserve_tokens=0,
-        )  # fmt: skip
+        # A paid call reserves its worst case: a byte is never less than a token, and the output has a ceiling.
+        ceiling = getattr(client, "output_ceiling", lambda limit: limit)(MAX_TOKENS)
+        try:
+            state.begin_attempt(
+                db, ledger, request_id=request_id, run=run, role=ROLE, review_ids=[], model=client.model,
+                label_config=label_config, session_id=session,
+                reserve_tokens=len((system + message).encode("utf-8")) if ledger else 0, reserve_output_tokens=ceiling if ledger else 0,
+            )  # fmt: skip
+        except CapReached:
+            state.close_session(db, session, "cap", clock)
+            raise
         sent, reply = time.monotonic(), None
         try:
             reply = client.ask(system, message, SCHEMA, max_tokens=MAX_TOKENS)
         except gemma.ServerProblem as e:
-            state.finish_attempt(db, request_id, outcome="failed", error=str(e)[:500], seconds=time.monotonic() - sent)
+            state.finish_attempt(db, request_id, outcome="failed", error=str(e)[:500], seconds=time.monotonic() - sent, ledger=ledger)
             state.close_session(db, session, "server_problem", clock)
             raise
         except gemma.InvalidOutput as e:
-            state.finish_attempt(db, request_id, outcome="failed", error=str(e)[:500], seconds=time.monotonic() - sent)
+            state.finish_attempt(db, request_id, outcome="failed", error=str(e)[:500], seconds=time.monotonic() - sent, ledger=ledger)
             problems = [str(e)]
             continue
         text = reply.data.get("memo")
         problems = ["the answer holds no memo text"] if not isinstance(text, str) or not text.strip() else check(text, pack)
         if problems:
+            with state.tx(db):
+                # A rejected memo is evidence of what the model wrote; without its text the rejection cannot be read.
+                db.execute(
+                    "INSERT OR REPLACE INTO artifacts (key, run, role, input_json, output_json, model, created_utc) VALUES (?,?,?,?,?,?,?)",
+                    (f"{run}:rejected:{request_id}", run, "memo-rejected", key,
+                     json.dumps({"memo": text if isinstance(text, str) else None, "problems": problems}, ensure_ascii=False), reply.model, state.now_utc()),
+                )  # fmt: skip
             state.finish_attempt(
                 db, request_id, outcome="failed", error="; ".join(problems)[:500], seconds=time.monotonic() - sent,
-                input_tokens=reply.input_tokens, output_tokens=reply.output_tokens,
+                input_tokens=reply.input_tokens, output_tokens=reply.output_tokens, ledger=ledger,
             )  # fmt: skip
             continue
         with state.tx(db):
@@ -315,7 +341,7 @@ def write(db, run, client, *, per_issue=PER_ISSUE, clock=time.monotonic, prompt_
             _set_final(db, run, key, text, reply.model)
         state.finish_attempt(
             db, request_id, outcome="succeeded", seconds=time.monotonic() - sent,
-            input_tokens=reply.input_tokens, output_tokens=reply.output_tokens,
+            input_tokens=reply.input_tokens, output_tokens=reply.output_tokens, ledger=ledger,
         )  # fmt: skip
         state.close_session(db, session, "finished", clock)
         return text
