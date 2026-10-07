@@ -12,9 +12,10 @@ import time
 import urllib.request
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 URL = "http://localhost:1234/v1/chat/completions"
-SRC = "/Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/analysis_10000.csv"
+SRC = str(Path(__file__).resolve().parents[3] / "feed/Final Assignment - Spotify Reviews Dataset/analysis_10000.csv")
 TOPICS = [
     "access",
     "usability",

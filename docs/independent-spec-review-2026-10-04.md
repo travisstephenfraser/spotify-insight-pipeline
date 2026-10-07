@@ -1,23 +1,25 @@
+*Note added 2026-10-07: the eight file links below pointed into the folder this review was run in. They now point at the same files and lines in this repo. Nothing else is changed.*
+
 No repository instruction file was loaded automatically; CLAUDE.md was not read. Reviewer: Codex (GPT-6), using desktop file reads, shell and Python. Section references below refer to Part B.
 
 ## Pass 1. Would it pass?
 
 **Blocker — Pending work does not guarantee valid resume evidence.**  
-Section 6.1 selects a boundary while reviews remain pending. However, the [checker](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/check_submission.py:369>) requires a successful enrichment call for a new, non-cached record after that boundary.
+Section 6.1 selects a boundary while reviews remain pending. However, the [checker](<../feed/Final Assignment - Spotify Reviews Dataset/check_submission.py#L369>) requires a successful enrichment call for a new, non-cached record after that boundary.
 
 Sequence: finish every original text → stop with duplicate copies pending → resume those copies → `resume_call_evidence`.
 
 **Smallest fix:** stop while at least one unclassified original remains, and require that original’s successful completion after resume.
 
 **Blocker — Failed-call usage remains an unresolved export decision.**  
-Sections 9 and 12.13 leave missing usage versus zero placeholders undecided. The [checker](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/check_submission.py:345>) requires nonnegative integer counts for both token fields on every attempt.
+Sections 9 and 12.13 leave missing usage versus zero placeholders undecided. The [checker](<../feed/Final Assignment - Spotify Reviews Dataset/check_submission.py#L345>) requires nonnegative integer counts for both token fields on every attempt.
 
 Sequence: request times out or the process dies → usage remains unknown → omit both counts → two `invalid_usage` flags. Zero placeholders pass mechanically, but the checker ignores `usage_known:false` when summing tokens.
 
 **Smallest fix:** settle the adapter policy before running. Preserve unknown usage separately, explicitly disclose placeholders, and label aggregate usage incomplete until reconciled.
 
 **Blocker — An input without complaints cannot produce a passing export.**  
-Section 6.3 makes no grouping call when there are no issues. The checker requires a successful `group` role and nonempty issue-level claims ([lines 302](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/check_submission.py:302>), [371](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/check_submission.py:371>)).
+Section 6.3 makes no grouping call when there are no issues. The checker requires a successful `group` role and nonempty issue-level claims ([lines 302](<../feed/Final Assignment - Spotify Reviews Dataset/check_submission.py#L302>), [371](<../feed/Final Assignment - Spotify Reviews Dataset/check_submission.py#L371>)).
 
 Sequence: classify an all-praise input → empty membership/ranking → no group call or truthful issue claim → `missing_model_roles` and `missing_claims`.
 
@@ -87,14 +89,14 @@ Sequence: local model changes after verification → naming or memo uses another
 ## Pass 4. What is missing?
 
 **Should fix — Required submission and setup evidence needs explicit acceptance checks.**  
-Sections 1 and 11 promise README links and “clone and run,” but omit several concrete requirements: a real review traced through every stage plus a failed case; blank credential examples and ignore rules; local-model setup; and signed-out artifact access. These appear in the assignment brief at [149](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md:149>), [189](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md:189>) and [197](</Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md:197>).
+Sections 1 and 11 promise README links and “clone and run,” but omit several concrete requirements: a real review traced through every stage plus a failed case; blank credential examples and ignore rules; local-model setup; and signed-out artifact access. These appear in the assignment brief at [149](<../feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md#L149>), [189](<../feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md#L189>) and [197](<../feed/Final Assignment - Multi Agent Large Data Processing Pipeline.md#L197>).
 
 Sequence: pipeline finishes → README contains generic rubric links → grader cannot reproduce setup or inspect the required trace.
 
 **Smallest fix:** add those specific acceptance checks, including clean-environment setup, calculator replay and ranking regeneration.
 
 **Blocker — The measured concurrency trial is misdescribed.**  
-Section 6.2 attributes 0.27 seconds per review to four workers on 50 reviews. The [saved output](</Users/travis/Developer/pepeclass/assign5-multiagent/experiments/2026-10-04/tool-choice/speed_test_out.txt:7>) shows **40 reviews, 10 per request, four workers**.
+Section 6.2 attributes 0.27 seconds per review to four workers on 50 reviews. The [saved output](<../experiments/2026-10-04/tool-choice/speed_test_out.txt#L7>) shows **40 reviews, 10 per request, four workers**.
 
 Sequence: apply this timing to the proposed one-review verifier → unsupported throughput enters its runtime projection.
 

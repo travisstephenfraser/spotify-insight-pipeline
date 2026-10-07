@@ -294,7 +294,7 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 - **The README now has a rubric map** (ten points, each with evidence links and where it is thin), the limits of the totals (review bias, missing data, the two burst months) and the data links. `cost/README.md` no longer says the pilot has not run.
 - **131,072 at the stop is real, not a cap:** 8,939 finished requests plus the 122,133 copies of their texts, rebuilt from the export.
 - **`docs/final-review-brief.md`** is the one file to hand an outside reviewer of the whole repo (another maker's model, a fresh clone, no paid call). It quotes no result on purpose and holds this file, the rest of `docs/` and the error analysis back until its last pass. If you are that reviewer and this file was loaded, set it aside as the brief says. When the report comes back, compare it with the validation log and add an entry.
-- **For Travis before submitting:** 13 lines under `docs/` and `experiments/2026-10-04/` hold a home-directory path and `runs/full/run_full_text.txt` shows the laptop's name. No key is in the tree, the history or the gzipped exports.
+- **For Travis before submitting (done on 2026-10-07, see "Scrub and license" below):** 13 lines under `docs/` and `experiments/2026-10-04/` held a home-directory path and `runs/full/run_full_text.txt` showed the laptop's name. No key is in the tree, the history or the gzipped exports.
 
 **Outside review and its fixes, 2026-10-07** (validation log entry 39). No paid call. `pipeline/` and `prompts/` untouched; the code hash is still `530c1e237f7c`.
 
@@ -306,7 +306,15 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 - **The recording exists** (validation log entry 40): `runs/demo-100b/stop_resume.mov`, a real 100-review run Travis stopped with Ctrl-C at 38 of 100 and resumed. An earlier take, `demo-100`, is in the state file only. The two takes cost $0.0498 and $0.0502, and the ledger reads $21.0760 of $35. `python3 -m pipeline export` writes to the root `grading/` unless `--out` is given: always name `--out` for any run but `full`.
 - **Earlier notes above that say "$21.44 with 5% retries" are right about what that figure was.** It is no longer what the report prints for the conservative case.
 - **The usage page was read after the full run** (validation log entry 41): $20.79, 602,455,939 tokens, 495,150 requests on 2026-10-07 at about 12:35 PDT. The rise since the 2026-10-05 reading equals what the state file logged, to the token, and the dollars are input tokens only. Output tokens are not billed. `python3 experiments/2026-10-07/billing/usage_page_check.py` replays it. Next reading should show 495,250 requests and 602,576,401 tokens.
-- **Travis read the submitted memo on 2026-10-07 and let it stand.** Still his: a license (none chosen; the README says all rights reserved), the readings in `evals/golden_error_analysis.md`, the portal.
+- **Travis read the submitted memo on 2026-10-07 and let it stand.** Still his: the readings in `evals/golden_error_analysis.md`, the portal.
+
+**Scrub and license, 2026-10-07** (validation log entry 42). No paid call; `pipeline/` and `prompts/` untouched, code hash still `530c1e237f7c`.
+
+- **Home paths and the laptop's name are out of the tracked files.** Eight links in `docs/independent-spec-review-2026-10-04.md` are now relative, eight scripts under `experiments/2026-10-04/` find the repo from their own place, `runs/full/run_full_text.txt` reads `[laptop]`, and the screenshot has grey boxes over the name (no pixel outside the boxes changed).
+- **`tests/test_personal.py` keeps it that way.** It reads every tracked file, the gzipped exports included. It cannot read pictures: a new picture or video fails a test until it has been looked at and added to that test's list. Never write a real home path or machine name into a tracked file, a test included; build examples from pieces as that file does.
+- **The history still holds all of it.** Rewriting it would change every commit ID the documents cite. Not done; his call.
+- **License: MIT** (`LICENSE`), for what was written here. Not covered, and said so in the README: everything under `feed/` (the course's) and the review texts (a CC0 Kaggle dataset).
+- **A formatter hook rewrites any Python file the assistant edits with its edit tools** (88-column style). The older test files are not in that style, so one small edit turns into a whole-file diff. Edit those with a script, or check `git diff --stat` after.
 
 ## How to work with Travis here
 
@@ -346,7 +354,7 @@ python3 "$D/check_submission.py" check     --reference local-reference.json --su
 The pipeline's own commands (see `README.md` for the full list):
 
 ```sh
-python3 -m unittest discover -s tests -t .                      # 588 tests, no outside network, no key
+python3 -m unittest discover -s tests -t .                      # 596 tests, no outside network, no key
 python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
 python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
 python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the TypeSafe and Anthropic keys, LM Studio

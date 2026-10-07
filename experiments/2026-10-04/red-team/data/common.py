@@ -2,10 +2,11 @@
 
 import csv
 import sys
+from pathlib import Path
 
 csv.field_size_limit(sys.maxsize)
 
-DATA = "/Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset"
+DATA = str(Path(__file__).resolve().parents[4] / "feed/Final Assignment - Spotify Reviews Dataset")
 FULL = DATA + "/spotify_reviews_18months.csv"
 FIELDS = [
     "review_id",

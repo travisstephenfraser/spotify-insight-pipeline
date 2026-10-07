@@ -1,8 +1,9 @@
 """E4 extra: ROUGH keyword proxies for every non-'other' topic, in the actual golden 50 and the 10,000 dev sample.
 A keyword hit is a mention, not a primary-topic label. Read-only."""
 import csv, sys
+from pathlib import Path
 csv.field_size_limit(sys.maxsize)
-D = "/Users/travis/Developer/pepeclass/assign5-multiagent/feed/Final Assignment - Spotify Reviews Dataset/"
+D = str(Path(__file__).resolve().parents[4] / "feed/Final Assignment - Spotify Reviews Dataset") + "/"
 def load(fn):
     with open(D + fn, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))

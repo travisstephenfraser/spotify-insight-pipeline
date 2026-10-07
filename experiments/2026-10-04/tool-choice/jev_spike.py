@@ -20,7 +20,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path("/Users/travis/Developer/pepeclass/assign5-multiagent")
+ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "feed/Final Assignment - Spotify Reviews Dataset/cost_100.csv"
 OUT = Path(__file__).parent
 URL = "https://api.typesafe.ai/v1/systemone"

@@ -53,6 +53,16 @@ class Readme(unittest.TestCase):
                 self.assertNotIn("/Users/", text)
                 self.assertNotIn("/home/", text)
 
+    def test_the_license_the_readme_names_is_the_file_at_the_root_and_the_course_material_is_left_out(self):
+        text = (fixtures.ROOT / "LICENSE").read_text(encoding="utf-8")
+        self.assertEqual(text.splitlines()[0], "MIT License")
+        self.assertIn("Copyright (c) 2026 Travis Fraser", text)
+        self.assertIn("Permission is hereby granted, free of charge, to any person obtaining a copy", text)
+        section = (fixtures.ROOT / "README.md").read_text(encoding="utf-8").split("\n## License\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("[MIT](LICENSE)", section)
+        self.assertIn("[`feed/`](feed/)", section)  # the course's files are not the author's to license
+        self.assertNotIn("No license chosen", section)
+
     def test_the_readme_states_the_test_count_the_suite_reports(self):
         text = (fixtures.ROOT / "README.md").read_text(encoding="utf-8")
         stated = int(re.search(r"Ran (\d+) tests", text).group(1))

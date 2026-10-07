@@ -1,19 +1,19 @@
 Last login: Tue Oct  6 20:07:55 on ttys001
 cd ~/Developer
-(base) travis@Traviss-MacBook-Pro-4 ~ % cd ~/Developer
-(base) travis@Traviss-MacBook-Pro-4 Developer % cd pepeclass
-(base) travis@Traviss-MacBook-Pro-4 pepeclass % cd assign5-multiagent
-(base) travis@Traviss-MacBook-Pro-4 assign5-multiagent % python3 -m pipeline run --run full --new --go --workers 16 --input "feed/Final Assignment - Spotify Reviews Dataset/spotify_reviews_18months.csv"
+(base) travis@[laptop] ~ % cd ~/Developer
+(base) travis@[laptop] Developer % cd pepeclass
+(base) travis@[laptop] pepeclass % cd assign5-multiagent
+(base) travis@[laptop] assign5-multiagent % python3 -m pipeline run --run full --new --go --workers 16 --input "feed/Final Assignment - Spotify Reviews Dataset/spotify_reviews_18months.csv"
 prepared 660622 rows: 13 empty, 484189 distinct texts, 176420 copies, verify sample 5000
 ^C
 stopping: no new work, requests in flight will finish and be saved. Run the same command to resume.
 classify: interrupted; completed 131072, pending 529537, quarantined 13; spent $0.9852 of $35
-(base) travis@Traviss-MacBook-Pro-4 assign5-multiagent % python3 -m pipeline status --run full
+(base) travis@[laptop] assign5-multiagent % python3 -m pipeline status --run full
 run full (real), jev-1.13.0/prompt-v2/schema-v1/cut-0.70, input spotify_reviews_18months.csv
 reviews: completed 131072, pending 529537, quarantined 13
   session 54: classify, interrupted, 122.3 s, 16 worker(s)
 Paid spend in this state file (Jev and the memo model): $0.9852 spent, $0.0000 reserved, cap $35
-(base) travis@Traviss-MacBook-Pro-4 assign5-multiagent % python3 -m pipeline run --run full --go --workers 16 --input "feed/Final Assignment - Spotify Reviews Dataset/spotify_reviews_18months.csv"
+(base) travis@[laptop] assign5-multiagent % python3 -m pipeline run --run full --go --workers 16 --input "feed/Final Assignment - Spotify Reviews Dataset/spotify_reviews_18months.csv"
 
 classify: finished; completed 660609, pending 0, quarantined 13; spent $20.9509 of $35
 verify: finished; predicted 5000, failed 0, left 0.
@@ -21,5 +21,5 @@ verify report: sample 5000, predictions 5000, verify failures 0, not labeled by 
 group: finished; 291865 members, 8 named, 0 reused, 0 fell back.
 memo: written and checked
 All stages finished. Next: python3 -m pipeline export --run full
-(base) travis@Traviss-MacBook-Pro-4 assign5-multiagent % 
-(base) travis@Traviss-MacBook-Pro-4 assign5-multiagent % 
+(base) travis@[laptop] assign5-multiagent % 
+(base) travis@[laptop] assign5-multiagent % 
