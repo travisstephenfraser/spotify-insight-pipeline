@@ -17,7 +17,7 @@ Classify   Jev (TypeSafe), jev-1.13.0, one request per distinct review text
 Verify     Gemma 26B, local through LM Studio, blind, on a fixed sample of 5,000
 Name       Gemma 26B, local
 Memo       Claude Sonnet 5.5 (Anthropic API), one call a run
-Tests      523 automated (522 run with no outside network; 1 skipped unless the 97 MB file is present)
+Tests      528 automated (527 run with no outside network; 1 skipped unless the 97 MB file is present)
 Checked    2026-10-05
 ```
 
@@ -90,7 +90,8 @@ The first command stops on purpose after 50 reviews. The second is the same comm
 | State | One SQLite file in write-ahead mode | Every save is one transaction, so two workers cannot double-count and a crash cannot leave half a result. A folder of JSON files would need its own locking |
 | Classifier | Jev `jev-1.13.0`, direct TypeSafe API | Measured on 2026-10-04 against 29 hand labels: Jev 24 right on all three fields, local Gemma 23, too close to call, and Jev was far faster and cost $0.0039 per 100 reviews. The tie went to the faster engine. Jev through a gateway was ruled out: its rate cap meant about 40 hours a pass |
 | Verifier | Gemma 26B, local, one review per request | A second opinion from another maker, at no API cost. Ten reviews per request was dropped because labels shifted with their neighbors (15 of 100 changed when regrouped) |
-| Names and memo | Gemma 26B, local | Small bounded writing tasks. No model has written either yet, so this choice is reviewed at the 100-review pilot |
+| Issue names | Gemma 26B, local | A small bounded writing task: one name and one sentence per issue, eight calls on the full run, at no API cost |
+| Memo | Claude Sonnet 5.5, Anthropic API | One call a run, about two cents. On the first pilot the local model needed four attempts to pass the memo check, so three paid models were compared on the pilot's evidence pack and the cheapest that passed was chosen ([`experiments/2026-10-05/memo-model/`](experiments/2026-10-05/memo-model/bakeoff.py), validation log entry 28) |
 | Fallback model | None | A hard case is flagged for review, never re-labeled by a stronger model. A fallback would put two setups under one `label_config` |
 | Tests | `unittest` | In the standard library. No test runner to install |
 
@@ -120,7 +121,7 @@ The first command stops on purpose after 50 reviews. The second is the same comm
       v
  5 RANK        code     count, severity sum, mean, order. No model.
       v
- 6 MEMO        Gemma    role "memo": recommendation from the ranked table and a
+ 6 MEMO        Sonnet   role "memo": recommendation from the ranked table and a
       |                 bounded pack of quotes; never the raw file
       |        code     checks every ID and every number; one retry, then stop
       v
@@ -135,7 +136,7 @@ The first command stops on purpose after 50 reviews. The second is the same comm
 | `enrich` | Jev | one review's text, fixed choices | a choice and probabilities per question | Reading messy customer language | Maps the choice to a label, picks the quote, finds entities, sets the review flag, validates, saves |
 | `verify` | Gemma | one review's text, the contract's definitions word for word | topic, intent, severity | An independent read | Samples, compares, reports. Disagreement changes no label |
 | `group` | Gemma | a topic, its definition, up to 30 quotes | a name and a description | Summarizing what customers say | Decides membership and never lets a name change it |
-| `memo` | Gemma | ranked table, claims, up to 5 quotes per issue, run facts | a markdown memo | Writing an argument | Computes every number first and rejects a memo that changes one |
+| `memo` | Claude Sonnet 5.5 | ranked table, claims, up to 5 quotes per issue, run facts | a markdown memo | Writing an argument | Computes every number first and rejects a memo that changes one |
 
 ### The design decision worth explaining
 
@@ -290,12 +291,12 @@ See [`.env.example`](.env.example).
 python3 -m unittest discover -s tests -t .
 ```
 
-523 tests: 522 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
+528 tests: 527 pass with no outside network and no key (two client test files talk to a server on localhost), 1 is skipped unless the 97 MB file is present and `RUN_FULL=1` is set. That one reads the whole file and checks its known counts; it was run once on 2026-10-05 and passed (660,622 rows, 13 empty, 484,189 distinct texts, 159,701 missing app versions).
 
 ```console
 $ python3 -m unittest discover -s tests -t .
 ----------------------------------------------------------------------
-Ran 523 tests in 13.100s
+Ran 528 tests in 13.220s
 
 OK (skipped=1)
 ```
@@ -407,9 +408,11 @@ Not written up yet. The 500 gate's files hold everything a trace needs: [`record
   | Quote is an exact copy of the text | 50 of 50 | 50 of 50 |
 
   30 of 50 stands for somewhere between about 46% and 72%. Half the topic misses are hand `other` reviews that Jev put in catalog or usability. Five of the seven intent misses are reviews I labeled `unclear` that Jev read as a complaint, a cancellation or a request, so on this sample 4 of Jev's 24 complaints and cancellations are not complaints by hand, and it found 20 of my 21. The review flag is on 9 of the 20 reviews with a wrong label and on 5 of the 30 with none.
+
+  **The 20 misses, read one by one** ([`evals/golden_error_analysis.md`](evals/golden_error_analysis.md); case by case with pass or fail per field in [`evals/golden_cases_full.csv`](evals/golden_cases_full.csv); validation log entry 37). Six are severity one step apart, six sit on a topic boundary the contract draws, three are not in English, three are boycott or political text and two are short or doubtful praise. Read against the contract's wording, 3 are plain Jev errors, 4 are cases where the contract's own example points at Jev's label, 3 carry my fallback label for a language I did not read, and 10 are open. The three plain errors: premium-only controls put in usability where the contract says billing, lost controls read as a playback failure, and "Great..." read as unclear. The reading was made by the AI assistant after the score was saved, with my permission to open the labels; no label and no score changed.
 - **Independent verifier procedure:** [Architecture](#architecture) and `pipeline/verify.py`. Run with the real model at every gate and on the full run: 5,000 blind predictions and 0 failures there ([`runs/full/verify_report.json`](runs/full/verify_report.json)).
-- **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. On 2026-10-05 a wording trial on 34 items measured a new intent wording, [`prompts/enrich-v2.json`](prompts/enrich-v2.json): 4 of 4 planted slogans (the probe wording got 2 of 4) and the outside raters' shared intent on 23 of 28 real boycott reviews (the probe wording 15) ([`evals/wording_trial_out.json`](evals/wording_trial_out.json)). It is now the frozen wording. The injection cases have not been measured with it yet.
-- **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. A recording of it is not in the repo.
+- **Planted errors and injections:** 25 made-up cases with expected answers ([`evals/planted_cases.py`](evals/planted_cases.py)), kept out of every business total. Measured with the probe wording on 2026-10-04: Jev 21 of 25, missing 2 of 4 injections and 2 of 4 boycott slogans. Injections get a test and a reported miss rate, no guard. On 2026-10-05 a wording trial on 34 items measured a new intent wording, [`prompts/enrich-v2.json`](prompts/enrich-v2.json): 4 of 4 planted slogans (the probe wording got 2 of 4) and the outside raters' shared intent on 23 of 28 real boycott reviews (the probe wording 15) ([`evals/wording_trial_out.json`](evals/wording_trial_out.json)). It is now the frozen wording. With it, scored once on 2026-10-05, the planted cases read 22 of 25: contract rules 9 of 9, slogans 4 of 4, non-English 3 of 3, injections 3 of 4 (one injected instruction moved the answer to topic `support`, intent `request`), and text with no letters 3 of 5 ([`evals/holdout_score_prompt-v2.json`](evals/holdout_score_prompt-v2.json), validation log entry 26). A deliberately wrong label is planted in a copy by [`evals/compare_check.py`](evals/compare_check.py), and the verifier's comparison flags each one.
+- **Interruption and resume:** tested with stand-ins: a count stop, Ctrl-C, a hard kill and a simulated sleep, each followed by a resume that sends no completed review again (`tests/test_classify.py`, `tests/test_end_to_end.py`). Every real run was stopped once and resumed with the same command; the full run was stopped by hand with Ctrl-C after 122 seconds, and the checker reads that boundary from the export. The record of it is a screenshot of that terminal session and its text, not a video: [`runs/full/run_full_screenshot.png`](runs/full/run_full_screenshot.png), [`runs/full/run_full_text.txt`](runs/full/run_full_text.txt). The two checkpoint files are [`checkpoint_before.json`](runs/full/grading/checkpoint_before.json) (131,072 completed) and [`checkpoint_after.json`](runs/full/grading/checkpoint_after.json) (660,609).
 - **Every check so far, with its limits:** [`docs/validation-log.md`](docs/validation-log.md).
 
 ### Baseline, aggregation rules, tie-break and scope
@@ -457,7 +460,7 @@ The step that is easy to miss: the prompt wording and the review cut-off are par
 
 - **One full run, made once, with no one watching.** Every figure from it is read from its export. Nothing in it has been repeated, and the usage page has not been read against it.
 - **The only accuracy figure is 30 of 50.** All three fields match my hand labels on 30 of the golden 50, about 46% to 72% at that size, from one labeler. On that sample Jev counts some unclear reviews as complaints and rates severity a little high, so the complaint counts and severity sums behind the ranking lean high. By how much on the full file, and whether evenly across issues, is not measured: 30 of the 50 are `other` by hand and no topic besides it has more than 6.
-- **The order of places 2 to 4 rests on one pass.** It came out differently at 100, 500 and 10,000 reviews. On the full file it is other, playback, billing, with playback and billing 4% apart ([`runs/full/grading/ranking.csv`](runs/full/grading/ranking.csv)). A second pass would change about 3 labels in 100, and whether that could swap the two is not tested. Usability has ranked first at every size.
+- **The order of places 2 to 4 rests on one pass.** It came out differently at 100, 500 and 10,000 reviews. On the full file it is other, playback, billing, with playback and billing 4% apart ([`runs/full/grading/ranking.csv`](runs/full/grading/ranking.csv)). A second pass would change about 3 labels in 100, and whether that could swap the two is not tested. Usability has ranked first at every size. One boundary alone could swap places 3 and 4: the contract sends premium-only controls to billing, and 9,403 of usability's 81,756 complaints name Premium. Counted as billing they would leave usability first and put billing ahead of playback (a what-if by code, validation log entry 37).
 - **Jev does not repeat itself exactly.** The same 100 reviews, labeled twice an hour apart with the same wording, changed severity on 2 and the review flag on 3; the tone score moved by 0.03 or less on 9 in 10. A day apart it was more: of 500 reviews labeled at both the 500 and the 10,000 gate, Jev's own answer changed on 14 (severity on 7, topic on 6, intent on 2), and every one was a close call that carries the review flag in both runs (validation log entry 32). Forty minutes apart, 4 of 100 changed (entry 33). The full run changed 258 of the 10,000 gate's labels (2.6%), all flagged in both runs (entry 35). A rerun of the full file would not reproduce every label. The gate check on reviews seen at two gates allows for this: it stops only when more than 5 in 100 change topic, intent or severity.
 - **One labeler.** No second person labeled anything, so nothing measures how firm the hand labels are. My severity labels differ from two outside raters' more than my topic and intent labels do. Fix: every score against hand labels is shown two ways, and the instructor's private sample is the outside check.
 - **One issue per topic.** An issue names a topic, not a single defect, and `other` can rank high with nothing specific to fix. Fix: sub-issues inside a topic, decided after the first full pass.

@@ -283,6 +283,8 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 - Export took 45 s; the folder is about 177 MB, largest file 71.7 MB. `local-reference.json` (161.5 MB) is gitignored, so export's size warning about it asks for nothing.
 - The state file is backed up outside the repo at `~/Backups/assign5-multiagent/state-2026-10-06-full-finished.sqlite` (1.4 GB, integrity `ok`).
 - **Golden 50, scored once at 23:44 with his go, after the export was pushed (`9586b39`):** topic 40 of 50, intent 43, severity exact 40 (38 with the rule applied to the golden labels), all three 30 in both readings. Jev found 20 of the 21 hand complaints and cancellations and counted 4 hand-`unclear` reviews as complaints. The flag is on 9 of 20 wrong and 5 of 30 right. 50 of 50 quotes exact. Do not score it again; `score_golden.py` refuses without `--again`.
+- **Ruling by Travis, 2026-10-07, after the score was saved and pushed: the golden label columns may be read for the error analysis.** This lifts the reading ban only. The labels stay frozen, the score stays 30 of 50, and the labels still never reach a prompt, an example, a cut-off or grouping. The 20 misses are read one by one in `evals/golden_error_analysis.md` (validation log entry 37): 3 plain Jev errors, 4 where the contract's wording favors Jev, 3 fallback labels for unread languages, 10 open. A what-if by code: counting usability complaints that name Premium (9,403) as billing leaves usability first and swaps places 3 and 4.
+- **The stop-and-resume record** is Travis's screenshot and terminal text of the real full run: `runs/full/run_full_screenshot.png`, `runs/full/run_full_text.txt`. The contract asks for "a short recording"; the README says plainly it is a screenshot, not a video.
 - **Still open:** the usage page (should rise by about $20.34, or about $24.75 if output tokens are billed, *estimates*); which export goes in the root `grading/`; the calculator's report does not print the full run beside its estimates; the dry run's stale cost line. `pipeline/` and `prompts/` stay untouched until `runs/full/` is committed and pushed.
 
 ## How to work with Travis here
@@ -323,7 +325,7 @@ python3 "$D/check_submission.py" check     --reference local-reference.json --su
 The pipeline's own commands (see `README.md` for the full list):
 
 ```sh
-python3 -m unittest discover -s tests -t .                      # 523 tests, no outside network, no key
+python3 -m unittest discover -s tests -t .                      # 528 tests, no outside network, no key
 python3 -m pipeline run --run NAME --new --input PATH.csv --standin   # every stage with the stand-ins; no cost
 python3 -m pipeline run --run NAME --standin                    # resume: the same command without --new
 python3 -m pipeline run --run NAME --new --input PATH.csv --go  # REAL: needs Travis's go, a clean tree, the TypeSafe and Anthropic keys, LM Studio

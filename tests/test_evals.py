@@ -16,6 +16,7 @@ sys.path.insert(0, str(fixtures.ROOT / "evals"))
 import common  # noqa: E402
 import cutoff_rows  # noqa: E402
 import cutoff_table  # noqa: E402
+import golden_cases  # noqa: E402
 import holdout_score  # noqa: E402
 import planted_cases  # noqa: E402
 import score_golden  # noqa: E402
@@ -379,6 +380,60 @@ class Golden(unittest.TestCase):
             code = score_golden.main(["--golden", str(self.golden), "--records", str(self.records), "--run", "t", "--out-dir", str(self.dir)])
         self.assertEqual(code, 2)
         self.assertIn("already", again.getvalue())
+
+    def scored(self):
+        with redirect_stdout(io.StringIO()):
+            score_golden.main(["--golden", str(self.golden), "--records", str(self.records), "--run", "t", "--out-dir", str(self.dir)])
+        return self.dir / "golden_score_t.json"
+
+    def cases_command(self):
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = golden_cases.main(["--golden", str(self.golden), "--records", str(self.records), "--run", "t", "--out-dir", str(self.dir)])
+        return code, out.getvalue()
+
+    def test_the_case_table_has_one_row_a_review_with_both_labels_and_which_fields_match(self):
+        table = golden_cases.cases(self.golden, self.records)
+        self.assertEqual([c["review_id"] for c in table], [r["review_id"] for r in self.rows])
+        wrong_topic = table[1]
+        self.assertEqual((wrong_topic["expected_topic"], wrong_topic["predicted_topic"]), ("playback", "usability"))
+        self.assertEqual((wrong_topic["topic_ok"], wrong_topic["intent_ok"], wrong_topic["severity_ok"], wrong_topic["all_three"]), (0, 1, 1, 0))
+        self.assertEqual(wrong_topic["predicted_needs_review"], 1)
+        ruled = table[4]  # unclear with a hand severity of 2: wrong as written, right once the rule is applied
+        self.assertEqual((ruled["expected_severity"], ruled["expected_severity_by_rule"], ruled["predicted_severity"]), (2, 1, 1))
+        self.assertEqual((ruled["severity_ok"], ruled["severity_ok_by_rule"], ruled["all_three"], ruled["all_three_by_rule"]), (0, 1, 0, 1))
+        self.assertEqual(table[2]["labeler_note"], 1)
+
+    def test_a_review_with_no_prediction_is_a_row_that_matches_nothing(self):
+        last = golden_cases.cases(self.golden, self.records)[7]
+        self.assertEqual((last["status"], last["predicted_topic"], last["predicted_severity"]), ("quarantined", "", ""))
+        self.assertEqual((last["topic_ok"], last["intent_ok"], last["severity_ok"], last["all_three"], last["all_three_by_rule"]), (0, 0, 0, 0, 0))
+
+    def test_the_case_table_adds_up_to_the_score(self):
+        totals = golden_cases.totals(golden_cases.cases(self.golden, self.records))
+        both = self.report()
+        for name in ("as_written", "by_rule"):
+            self.assertEqual(totals[name], {k: both[name][k] for k in ("topic", "intent", "severity_exact", "all_three")})
+
+    def test_the_command_writes_the_table_only_when_it_adds_up_to_the_saved_score(self):
+        saved = self.scored()
+        code, _ = self.cases_command()
+        self.assertEqual(code, 0)
+        with open(self.dir / "golden_cases_t.csv", encoding="utf-8", newline="") as f:
+            self.assertEqual(len(list(csv.DictReader(f))), 8)
+        (self.dir / "golden_cases_t.csv").unlink()
+        score = json.loads(saved.read_text())
+        score["as_written"]["all_three"] += 1
+        saved.write_text(json.dumps(score))
+        code, printed = self.cases_command()
+        self.assertEqual(code, 2)
+        self.assertIn("does not add up", printed)
+        self.assertFalse((self.dir / "golden_cases_t.csv").exists())
+
+    def test_the_command_refuses_when_nothing_has_been_scored(self):
+        code, printed = self.cases_command()
+        self.assertEqual(code, 2)
+        self.assertIn("no saved score", printed)
 
 
 if __name__ == "__main__":
