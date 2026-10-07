@@ -18,7 +18,8 @@ This folder holds two things.
 Each folder has its grading export in `grading/`.
 
 - `pilot-cold/`: the first 100-review pilot of 2026-10-05, with the local model writing the memo.
-- `pilot2-cold/`: the pilot run again the same day after the memo model changed. `cost/` is built from this one.
+- `pilot2-cold/`: the pilot run again the same day after the memo model changed.
+- `pilot3-cold/`: the pilot of 2026-10-06 on the final code, with the contract's severity rule. `cost/` is built from this one.
 - `gate-500/`: the 500-review gate.
 - `gate-10k/`: the 10,000-review gate of 2026-10-06, the first run with the contract's severity rule in code.
 
