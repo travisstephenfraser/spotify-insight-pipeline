@@ -1,0 +1,42 @@
+{
+  "code_commit": "c20aa344a5d213d8cdf1fe3d6be15870f3a29ccc",
+  "code_hash": "530c1e237f7cebfdea2ed3fbaefc1f5c75994087ba74edacb7e885f5ac14aa36",
+  "content_hashes": {
+    "cutoff": "0.70",
+    "features": "77a29326a7f4d864c2b18f3692e21204d7ca9000709123c3034aa9b061c18747",
+    "prompt:enrich-v2.json": "020fe73936ba3ed5b57fbc84a653822d5051c4629dbce89e82e6b59e8e34893d",
+    "splitter": "13c5defcb10625761ba212b932627cba242512b5d2d8fbddbe05628d0855cb4b"
+  },
+  "created_utc": "2026-10-07T04:09:18+00:00",
+  "exported_utc": "2026-10-07T06:33:56+00:00",
+  "input_file": "spotify_reviews_18months.csv",
+  "input_sha256": "1fc85de68a304dd8978b537cfa58793d5f41cbaf417fa32cb53899f83a2fcef6",
+  "label_config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+  "models": [
+    "enrich: jev-1.13.0",
+    "group: google/gemma-4-26b-a4b-qat",
+    "memo: claude-sonnet-5-5",
+    "verify: google/gemma-4-26b-a4b-qat"
+  ],
+  "outputs": {
+    "calls.jsonl.gz": "cc609c02af2b17c5c8442760663892ae7d672168b5e06a2fe6ae37cf1a4b2203",
+    "checkpoint_after.json": "590cfcec5b0a4c73f71a29ace51681cf7db7668e90e8156d85d62856246887a6",
+    "checkpoint_before.json": "f8220501ec2627101f740d587ab0aeef9963fa2891e88a3d6fb738861191dca3",
+    "claims.csv": "4abd61556d45e041096eb57eaddd01058859c255cb904b60ec31411fad3c8bc4",
+    "ingestion.json": "5512dd793b0bde3bd51f28b20b440108f3c9bab31233819bea5f32ce19482153",
+    "membership.csv": "9862bbbba3679cbbc0068db1b7abe97dd7c58328725667eddf454794984bbdbb",
+    "ranking.csv": "5565cc5b42d12d397d24837a5d5ac0058d11a4319d9c707cd85597389e67984e",
+    "records.jsonl.gz": "6e3e6cb7f854d6db1d64223d00428d6bded8b4defaf4a83c112d697d71ff3824",
+    "run.json": "09bf8e059a1517c9fd5d01d2ab9f43731b5c8f0f9d51da89daa40288a574645e"
+  },
+  "run": "full",
+  "sample_seed": "sample-v1",
+  "seed": "berkeley-fall-2026-assignment-5-v1",
+  "stage_configs": {
+    "prompt_file": "enrich-v2.json",
+    "standin": false,
+    "warm_from": null
+  },
+  "verify_seed": "verify-v1",
+  "verify_size": 5000
+}
