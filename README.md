@@ -4,7 +4,7 @@
 
 This is my final assignment for a Berkeley Haas course on building with AI: advise Spotify on where the next quarter of product effort should go, and make the answer inspectable. The one idea that shaped it is that models only read language and write prose; code owns everything that can be counted. Record accounting, validation, budgets, retries, ranking and every exported number are code. A model never counts, sorts or decides what runs next. That split is enforced, not promised: the supplied checker (`check_submission.py`) passes on an end-to-end test run, and eight deliberate breaks are each named by it.
 
-**Status: built, tested, and run for real on 100, 500 and 10,000 reviews. The full-file run has not been made.** Every stage is tested end to end with stand-ins that replay saved answers. The 500-review gate (2026-10-05) and the 100-review pilot and 10,000-review gate (2026-10-06) each ran every stage with the real models, stopped once and resumed, and each export passes the supplied checker ([`runs/pilot3-cold/`](runs/pilot3-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json)). The full-file run has not been made, so this README reports no result from it. Each number below says where it was measured.
+**Status: built, tested, and run for real on 100, 500 and 10,000 reviews. The full-file run has not been made.** Every stage is tested end to end with stand-ins that replay saved answers. The 500-review gate (2026-10-05) and the 100-review pilot and 10,000-review gate (2026-10-06) each ran every stage with the real models, stopped once and resumed, and each export passes the supplied checker ([`runs/pilot4-cold/`](runs/pilot4-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json)). The full-file run has not been made, so this README reports no result from it. Each number below says where it was measured.
 
 The repo was built with an AI coding assistant (Claude Code); commits carry its co-author line. Design decisions, the hand labels and every go to spend money are mine. An agent reading this repo should start with [`CLAUDE.md`](CLAUDE.md).
 
@@ -339,9 +339,9 @@ The brief lists the evidence the README must hold. Each item is answered below w
 
 ### Results summary
 
-The real runs so far: the 100-review pilot (three times, last on 2026-10-06 on the final code), the 500-review gate on 2026-10-05, and the 10,000-review gate on 2026-10-06. No full-file run has been made, so there is no full-run count, no golden agreement and no full-run cost or time to report.
+The real runs so far: the 100-review pilot (four times, last on 2026-10-06 on the final code), the 500-review gate on 2026-10-05, and the 10,000-review gate on 2026-10-06. No full-file run has been made, so there is no full-run count, no golden agreement and no full-run cost or time to report.
 
-Measured ([`runs/pilot3-cold/`](runs/pilot3-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json), [`cost/report.md`](cost/report.md), [`docs/validation-log.md`](docs/validation-log.md) entries 30, 32 and 33):
+Measured ([`runs/pilot4-cold/`](runs/pilot4-cold/run_summary.json), [`runs/gate-500/`](runs/gate-500/run_summary.json), [`runs/gate-10k/`](runs/gate-10k/run_summary.json), [`cost/report.md`](cost/report.md), [`docs/validation-log.md`](docs/validation-log.md) entries 30, 32, 33 and 34):
 
 | Measure | 100-review pilot | 500-review gate | 10,000-review gate |
 |---|---|---|---|
@@ -353,11 +353,11 @@ Measured ([`runs/pilot3-cold/`](runs/pilot3-cold/run_summary.json), [`runs/gate-
 | Verifier (Gemma, blind) | 100 predictions, 0 failures | 500 predictions, 0 failures | 5,000 predictions, 0 failures |
 | Jev and Gemma give the same topic, intent and severity | 80 of 100 | 363 of 500: 146 of 241 complaints and cancellations, 217 of 259 others | 3,495 of 5,000: 1,307 of 2,243 complaints and cancellations, 2,188 of 2,757 others |
 | Top issues by severity sum | usability 37, other 31, playback 25, billing 17 | usability 167, playback 143, other 135, billing 128 | usability 3,311, other 2,661, billing 2,319, playback 2,296 |
-| Memo (Claude Sonnet 5.5) | passed on the retry, $0.046 | passed first time, $0.025 | passed first time, $0.026 |
+| Memo (Claude Sonnet 5.5) | passed first time, $0.022 | passed first time, $0.025 | passed first time, $0.026 |
 | Warm pass | 0 calls of any role | not part of this gate | not part of this gate |
-| Time | 58 seconds end to end | classify 7 seconds, verify 124 seconds | classify 115 seconds, verify 1,301 seconds |
+| Time | 50 seconds end to end | classify 7 seconds, verify 124 seconds | classify 115 seconds, verify 1,301 seconds |
 
-One full pass, projected from the pilot (*estimates*): $20.44 with exact-text reuse, $21.46 with 5% retries, $27.40 with no reuse.
+One full pass, projected from the pilot (*estimates*): $20.42 with exact-text reuse, $21.44 with 5% retries, $27.37 with no reuse.
 
 Two things these runs showed that the design did not expect: Jev's answers are not fully repeatable (on the same 100 reviews, an hour apart, severity changed on 2 and the review flag on 3), and the two engines agree much less on complaints than on other reviews.
 

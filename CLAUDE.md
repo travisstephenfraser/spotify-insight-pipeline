@@ -258,7 +258,7 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 
 **Before the full run, 2026-10-06** (validation log entry 33). Evidence: `runs/pilot3-cold/`, `cost/`.
 
-- **Pilot on the final code:** `pilot3-cold` and `pilot3-warm`. 100 of 100, checker `pass`, warm pass 0 calls, memo passed on its retry. `cost/` is now built from this pilot. Projection unchanged: $20.44 with reuse (*estimate*). The ledger reads $0.5859 of $35.
+- **Pilot on the code as it then stood:** `pilot3-cold` and `pilot3-warm`. 100 of 100, checker `pass`, warm pass 0 calls, memo passed on its retry. Superseded an hour later by `pilot4-cold` (below), after the state-file fix.
 - **Jev changed 4 labels in 100 within 40 minutes** (pilot against the 10,000 gate, same code): topic 2, severity 2. Expect the full run's nested check against `gate-10k` to read near 3 in 100. It stops above 5.
 - **Feature-word list accepted by Travis** (spec item 5, now decided). Do not edit `prompts/features-v1.txt`, its header comment included: the file is hashed into every run.
 - **The usage page lags by hours.** Half an hour after the 10,000 gate it read about 9 cents, 2.5 million tokens and 2,200 requests, which is the ledger as of the night before (2,213 requests, 2,559,498 tokens). Entry 24's limit is still open. To close it: read the page a day after a run and compare with $0.056 plus input tokens since at $0.042 a million.
@@ -268,6 +268,8 @@ The cost pilot in `cost/` was made before the severity rule. Rerun it once more 
 - The dry run's cost line still uses the probe wording's rate ($0.0039 per 100) and says $18.88 for the full pass. The ledger and the calculator are right.
 
 **A full-file rehearsal found a slow statement, 2026-10-06** (validation log entry 34). A stand-in run on the full file saved 15 requests a second where 1,490 was measured at 10,000 reviews. The statement that marks a finished text completed was reading every pending review (61 ms at 565,000 pending; 0.005 ms by the text index). Fixed test-first in `pipeline/state.py` (`MARK_TEXT_COMPLETED`, `MARK_TEXT_QUARANTINED`, both `INDEXED BY reviews_by_text`); the same rehearsal then saved 2,209 a second. 523 tests. The code hash is now `530c1e237f7c`. Unfixed, the full pass would have taken about 4 hours (*estimate*) at the same cost. **Rule from this: rehearse any new size with the stand-in before paying for it.** Verify, grouping, the memo and export are still unrehearsed at full size.
+
+**The pilot on the fixed code, 2026-10-06 21:04, with Travis's go:** `pilot4-cold` and `pilot4-warm` on commit `313757c`. 100 of 100, checker `pass`, warm pass 0 calls, memo passed first time. `cost/` is built from this pilot. Projection (*estimates*): $20.42 with reuse, $21.44 with 5% retries, $27.37 with no reuse. The ledger reads $0.6123 of $35. **Then the full run: run name `full`, started by Travis in his own terminal, stopped once with Ctrl-C on camera and resumed.** If this note is the last thing here, check `python3 -m pipeline status --run full` before anything else; it refuses while the run still holds the state file.
 
 ## How to work with Travis here
 
