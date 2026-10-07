@@ -1,0 +1,20 @@
+usage page, 2026-10-05: $0.056, 1,640,194 tokens, 1,451 requests
+usage page, 2026-10-07: $20.79, 602,455,939 tokens, 495,150 requests
+rise between the readings: 493,699 requests, 600,815,745 tokens
+logged by the state file after the first reading, in time order:
+  pilot-cold       100 succeeded,  0 failed,     120,463 tokens
+  evals             83 succeeded,  0 failed,     102,164 tokens
+  pilot2-cold      100 succeeded,  0 failed,     120,461 tokens
+  gate-500         479 succeeded,  0 failed,     576,216 tokens
+  gate-10k       8,448 succeeded,  0 failed,  10,214,432 tokens
+  pilot3-cold      100 succeeded,  0 failed,     120,463 tokens
+  pilot4-cold      100 succeeded,  0 failed,     120,463 tokens
+  full         484,189 succeeded, 24 failed, 589,320,622 tokens
+  demo-100         100 succeeded,  0 failed,     120,461 tokens
+  these sum to exactly the rise: 493,699 succeeded requests and 600,815,745 tokens, input plus output
+  the 24 failed attempts in these runs are not on the page
+not on the page yet: demo-100b, 100 requests, last sent 2026-10-07T19:21:42 UTC
+billing rule:
+  only input tokens billed: $20.7883; the page shows $20.79: fits True
+  every token billed: $25.3031: fits False
+prediction for the next reading: 495,250 requests, 602,576,401 tokens, $20.79

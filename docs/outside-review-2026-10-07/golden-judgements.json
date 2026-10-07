@@ -1,0 +1,28 @@
+{
+  "classifier_wrong": [
+    "3ddb3f4e",
+    "dceb14e7"
+  ],
+  "hand_label_wrong": [
+    "292ce26a",
+    "1fc8b08f",
+    "723f07de",
+    "ac6cd66d",
+    "46842184",
+    "5de7f95b",
+    "372d4e67",
+    "47f1406d",
+    "16d640e9",
+    "8cc4fad4",
+    "215463ae",
+    "2aa566c6"
+  ],
+  "open_under_contract": [
+    "b5ee7834",
+    "947821dc",
+    "fc344263",
+    "46c0b49f",
+    "ac4e860a",
+    "d2f3874f"
+  ]
+}

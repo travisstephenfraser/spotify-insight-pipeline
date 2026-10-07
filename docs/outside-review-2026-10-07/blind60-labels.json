@@ -1,0 +1,422 @@
+[
+  {
+    "index": 1,
+    "review_id": "6da164b9-bf3e-437a-afa8-c6ad82fe8ea5",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 2,
+    "review_id": "f086a305-46f6-4371-b717-8b53efb27872",
+    "topic": "other",
+    "intent": "cancellation",
+    "severity": 1
+  },
+  {
+    "index": 3,
+    "review_id": "2df416f7-4b66-466e-80ed-fc945864ad62",
+    "topic": "other",
+    "intent": "request",
+    "severity": 1
+  },
+  {
+    "index": 4,
+    "review_id": "b50af8ce-3895-4367-84ec-692028cb0196",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 5,
+    "review_id": "80572ed3-e692-4243-9fa6-597de8b6e812",
+    "topic": "catalog",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 6,
+    "review_id": "dc874ca7-4a3c-456c-8957-b5043328d536",
+    "topic": "catalog",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 7,
+    "review_id": "095e2ca3-ab78-4526-b6a3-03204000b429",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 8,
+    "review_id": "e4219d1e-89c7-4a06-82b3-7f202ac2fad1",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 9,
+    "review_id": "372b946c-0d3a-43e1-a50b-ddf18b163f04",
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+  },
+  {
+    "index": 10,
+    "review_id": "087c7637-5646-4650-82f0-2c2b3481f401",
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+  },
+  {
+    "index": 11,
+    "review_id": "9fcd58db-8443-4174-bc77-fe2e97d53ceb",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 12,
+    "review_id": "701c6fb7-1e70-4810-8841-04afa2e8cf7c",
+    "topic": "billing",
+    "intent": "request",
+    "severity": 1
+  },
+  {
+    "index": 13,
+    "review_id": "4b4a312d-45fb-4122-bf3f-08c3c1cad049",
+    "topic": "catalog",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 14,
+    "review_id": "d6d4c6db-4fb9-4c7c-b86f-e0b2edde4175",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 15,
+    "review_id": "1454d775-5f0e-4607-b8ea-d9ed5829f2a2",
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 16,
+    "review_id": "5a9241c2-aa2c-4902-a442-e3ae86bbe647",
+    "topic": "billing",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 17,
+    "review_id": "cfc83148-28d7-4695-a6fa-71aeb330e127",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 18,
+    "review_id": "8d7e352e-1c70-496d-8eda-2852e299c22a",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 19,
+    "review_id": "ee18c406-7536-4d80-a52b-361c545ac21a",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 20,
+    "review_id": "047c2ab8-b19a-4ae2-960a-99e4d1b7971b",
+    "topic": "usability",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 21,
+    "review_id": "3c2334be-6a3a-438a-8536-d4beaccefb94",
+    "topic": "usability",
+    "intent": "request",
+    "severity": 1
+  },
+  {
+    "index": 22,
+    "review_id": "05b17f84-96fb-4b23-a199-3601ea94d8ad",
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+  },
+  {
+    "index": 23,
+    "review_id": "4f4f2e58-45ed-489e-ae7e-20987fe27627",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 24,
+    "review_id": "7167ddde-dca8-4200-90d3-68b2281ea303",
+    "topic": "usability",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 25,
+    "review_id": "8c36690c-d0ac-4b7c-86f4-418391d8e604",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 26,
+    "review_id": "1336ad3d-d0a5-4573-820f-f59da83dde3f",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 27,
+    "review_id": "9ffed4b6-9792-4d02-b7b6-0ee649ad2bc1",
+    "topic": "other",
+    "intent": "unclear",
+    "severity": 1
+  },
+  {
+    "index": 28,
+    "review_id": "c1e7756f-8e08-4298-bd6b-300082f9ab98",
+    "topic": "usability",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 29,
+    "review_id": "532c5332-5926-4fd9-8054-473ca6af6b0f",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 30,
+    "review_id": "35e952ef-432e-474a-b418-940a72f252da",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 31,
+    "review_id": "9d5f152e-16ca-4828-afd6-7de0c4deeddd",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 32,
+    "review_id": "ea7d14bc-f556-407b-bdd7-1a6a213a903f",
+    "topic": "access",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 33,
+    "review_id": "b818a92c-a7aa-4877-b49a-02c53430e29f",
+    "topic": "downloads",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 34,
+    "review_id": "68a5d92a-1dca-40ba-b9f8-fc61a24b12a8",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 5
+  },
+  {
+    "index": 35,
+    "review_id": "e4a46ede-48ca-43c6-bf21-9143cb887d02",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 36,
+    "review_id": "945884c2-60b2-4063-bf34-48fe6d26026a",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 37,
+    "review_id": "8fe193da-4f33-4213-a10d-d87cc39e96fe",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 38,
+    "review_id": "c8394ae6-4d22-47bd-9cc5-69bd32afafe6",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 39,
+    "review_id": "f318668e-0699-4338-9403-e2b8cd440b60",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 40,
+    "review_id": "ed678243-fe54-45a0-a10f-ff054f599e5d",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 41,
+    "review_id": "6cd1fd8f-06e0-47d4-bcb0-336c1388ff44",
+    "topic": "catalog",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 42,
+    "review_id": "8454f126-3062-4222-a1ca-115176930074",
+    "topic": "usability",
+    "intent": "request",
+    "severity": 1
+  },
+  {
+    "index": 43,
+    "review_id": "7955e61c-d3c3-4bb7-a04d-8cf055422b92",
+    "topic": "usability",
+    "intent": "request",
+    "severity": 1
+  },
+  {
+    "index": 44,
+    "review_id": "36cb69bb-a616-46b7-9b85-220194b102d5",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 45,
+    "review_id": "e8bfef1f-006a-44b7-89f3-f188fe2e82ef",
+    "topic": "catalog",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 46,
+    "review_id": "3a7c08ea-59f2-4f5a-879f-388d8cdd85d3",
+    "topic": "billing",
+    "intent": "request",
+    "severity": 1
+  },
+  {
+    "index": 47,
+    "review_id": "a97885d0-8b4a-4964-8e5f-d130662076d5",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 48,
+    "review_id": "5b86c771-d4af-4af8-a21f-8c1c39b8f091",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 49,
+    "review_id": "878d6241-200f-46c5-aa39-45745cd4a55e",
+    "topic": "usability",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 50,
+    "review_id": "a9afa9d2-0678-46fe-a548-0747184bd6cb",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 51,
+    "review_id": "8ced144b-b230-4f13-a568-40a33974bb74",
+    "topic": "catalog",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 52,
+    "review_id": "ed87f9dc-7043-4903-b66b-436f5c454952",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 3
+  },
+  {
+    "index": 53,
+    "review_id": "e89c32b9-af2c-4ef1-bc91-ed58c3a8f407",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 54,
+    "review_id": "86737267-7d67-4239-aaab-168e5b72aad1",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 55,
+    "review_id": "69cfa4d3-9868-45ec-981f-00393b458956",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 56,
+    "review_id": "c5f71daa-e808-4c3d-9f55-c088110123f0",
+    "topic": "playback",
+    "intent": "complaint",
+    "severity": 4
+  },
+  {
+    "index": 57,
+    "review_id": "1f6b7d2e-2172-449a-9d7f-efe418d7b394",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 58,
+    "review_id": "b7178947-7b74-427b-9684-e5c442ca3fdf",
+    "topic": "other",
+    "intent": "complaint",
+    "severity": 2
+  },
+  {
+    "index": 59,
+    "review_id": "c104cb65-30cd-4bd9-b045-eae5a03acd22",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  },
+  {
+    "index": 60,
+    "review_id": "c6c3e38e-1089-4ca5-a7dd-f2d8e80c3c0b",
+    "topic": "other",
+    "intent": "praise",
+    "severity": 1
+  }
+]

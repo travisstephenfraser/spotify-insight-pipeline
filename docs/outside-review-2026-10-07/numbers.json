@@ -1,0 +1,695 @@
+{
+  "accounting": {
+    "source": 660622,
+    "unique_ids": 660622,
+    "empty": 13,
+    "missing_versions": 159701,
+    "distinct_nonempty": 484189,
+    "records": 660622,
+    "statuses": {
+      "completed": 660609,
+      "quarantined": 13
+    },
+    "quarantine_reasons": {
+      "empty_review_text": 13
+    },
+    "cached": 176420,
+    "bad_cache": [],
+    "wrong_source_hash": 0,
+    "quotes_not_substrings": 0,
+    "needs_review": 191158,
+    "intents": {
+      "complaint": 266793,
+      "praise": 271883,
+      "unclear": 75431,
+      "cancellation": 25072,
+      "request": 21430,
+      "null": 13
+    }
+  },
+  "calls": {
+    "enrich": {
+      "attempts": 484213,
+      "succeeded": 484189,
+      "input": 484181345,
+      "output": 105139277,
+      "unknown": 24,
+      "batch_max": 1,
+      "duplicate_request_id": 0,
+      "repeated_success_id": 0,
+      "failed": 24
+    },
+    "verify": {
+      "attempts": 5000,
+      "succeeded": 5000,
+      "input": 3442245,
+      "output": 100586,
+      "unknown": 0,
+      "batch_max": 1,
+      "duplicate_request_id": 0
+    },
+    "group": {
+      "attempts": 8,
+      "succeeded": 8,
+      "input": 16882,
+      "output": 314,
+      "unknown": 0,
+      "batch_max": 0,
+      "duplicate_request_id": 0
+    },
+    "memo": {
+      "attempts": 1,
+      "succeeded": 1,
+      "input": 6994,
+      "output": 1108,
+      "unknown": 0,
+      "batch_max": 0,
+      "duplicate_request_id": 0
+    }
+  },
+  "models": {
+    "enrich": [
+      "jev-1.13.0"
+    ],
+    "verify": [
+      "google/gemma-4-26b-a4b-qat"
+    ],
+    "group": [
+      "google/gemma-4-26b-a4b-qat"
+    ],
+    "memo": [
+      "claude-sonnet-5-5"
+    ]
+  },
+  "phases": {
+    "initial_succeeded": 8939,
+    "resume_succeeded": 475250,
+    "resume_failed": 24
+  },
+  "checkpoint": {
+    "before": 131072,
+    "after": 660609,
+    "subset": true,
+    "resume_overlap": [],
+    "initial_success_origins": 8939
+  },
+  "failed": {
+    "count": 24,
+    "statuses": {
+      "null": 16,
+      "520": 8
+    },
+    "errors": {
+      "Temporary: TimeoutError: The read operation timed out": 16,
+      "Temporary: HTTP 520: error code: 520\n": 8
+    },
+    "all_later_succeeded": true,
+    "unknown": 24
+  },
+  "time": {
+    "session_counts": {
+      "54": 8939,
+      "55": 475274,
+      "56": 5000,
+      "57": 8,
+      "58": 1
+    },
+    "max_starts_per_logged_second": {
+      "54": 81,
+      "55": 82
+    },
+    "latency": {
+      "enrich": {
+        "min": 0.07816050000838004,
+        "max": 30.092475958022987,
+        "mean": 0.13819386324566627
+      },
+      "verify": {
+        "min": 0.20005687497905456,
+        "max": 6.550025041011395,
+        "mean": 0.24684791339939693
+      },
+      "group": {
+        "min": 0.8616261250281241,
+        "max": 1.1464867090107873,
+        "mean": 0.9793469479991472
+      },
+      "memo": {
+        "min": 7.87758854200365,
+        "max": 7.87758854200365,
+        "mean": 7.87758854200365
+      }
+    }
+  },
+  "verifier": {
+    "sample": 5000,
+    "unique_ids": 5000,
+    "failed": 0,
+    "agree": {
+      "topic": 4451,
+      "intent": 4510,
+      "severity": 4145,
+      "all3": 3523
+    },
+    "split": {
+      "complaints": {
+        "total": 2196,
+        "all3": 1294
+      },
+      "other": {
+        "total": 2804,
+        "all3": 2229
+      }
+    }
+  },
+  "ranking": {
+    "members": 291865,
+    "duplicate_pairs": 0,
+    "matches_saved": true,
+    "all_claims_match": true,
+    "claims_count": 14,
+    "rows": [
+      {
+        "rank": "1",
+        "issue_id": "issue-usability",
+        "complaint_count": "81756",
+        "severity_sum": "212158",
+        "mean_severity": "2.595014",
+        "priority_score": "212158"
+      },
+      {
+        "rank": "2",
+        "issue_id": "issue-other",
+        "complaint_count": "85466",
+        "severity_sum": "175815",
+        "mean_severity": "2.057134",
+        "priority_score": "175815"
+      },
+      {
+        "rank": "3",
+        "issue_id": "issue-playback",
+        "complaint_count": "42503",
+        "severity_sum": "147175",
+        "mean_severity": "3.462697",
+        "priority_score": "147175"
+      },
+      {
+        "rank": "4",
+        "issue_id": "issue-billing",
+        "complaint_count": "48484",
+        "severity_sum": "141482",
+        "mean_severity": "2.918117",
+        "priority_score": "141482"
+      },
+      {
+        "rank": "5",
+        "issue_id": "issue-catalog",
+        "complaint_count": "15795",
+        "severity_sum": "45210",
+        "mean_severity": "2.862298",
+        "priority_score": "45210"
+      },
+      {
+        "rank": "6",
+        "issue_id": "issue-access",
+        "complaint_count": "10353",
+        "severity_sum": "40751",
+        "mean_severity": "3.936154",
+        "priority_score": "40751"
+      },
+      {
+        "rank": "7",
+        "issue_id": "issue-downloads",
+        "complaint_count": "6807",
+        "severity_sum": "23427",
+        "mean_severity": "3.441604",
+        "priority_score": "23427"
+      },
+      {
+        "rank": "8",
+        "issue_id": "issue-support",
+        "complaint_count": "701",
+        "severity_sum": "1945",
+        "mean_severity": "2.774608",
+        "priority_score": "1945"
+      }
+    ]
+  },
+  "golden": {
+    "as_written": {
+      "counts": {
+        "topic": 40,
+        "intent": 43,
+        "severity": 40,
+        "all3": 30,
+        "wrong_flagged": 9,
+        "right_flagged": 5
+      },
+      "signed_error": 0.1,
+      "mae": 0.22,
+      "confusion": {
+        "topic": {
+          "other": {
+            "catalog": 3,
+            "other": 25,
+            "usability": 2
+          },
+          "usability": {
+            "usability": 5,
+            "playback": 1
+          },
+          "catalog": {
+            "other": 1,
+            "catalog": 3
+          },
+          "playback": {
+            "playback": 3,
+            "usability": 1
+          },
+          "access": {
+            "playback": 1
+          },
+          "billing": {
+            "usability": 1,
+            "billing": 3
+          },
+          "downloads": {
+            "downloads": 1
+          }
+        },
+        "intent": {
+          "unclear": {
+            "complaint": 3,
+            "unclear": 4,
+            "cancellation": 1,
+            "request": 1
+          },
+          "praise": {
+            "praise": 19,
+            "unclear": 1
+          },
+          "complaint": {
+            "complaint": 19,
+            "praise": 1
+          },
+          "cancellation": {
+            "cancellation": 1
+          }
+        },
+        "severity": {
+          "2": {
+            "2": 11,
+            "1": 2,
+            "3": 2
+          },
+          "1": {
+            "1": 25,
+            "3": 1
+          },
+          "3": {
+            "3": 3,
+            "4": 4
+          },
+          "4": {
+            "3": 1,
+            "4": 1
+          }
+        }
+      },
+      "wrong": [
+        "292ce26a-815d-4bce-a3b6-93cb6c9e7e2c",
+        "b5ee7834-a0eb-4c15-9c7b-935831021922",
+        "1fc8b08f-7d6a-472f-b317-8ceb28d00f22",
+        "947821dc-b356-45dc-a0bc-1903728fad40",
+        "723f07de-9881-4049-8680-1a9e25652914",
+        "fc344263-308d-48a1-9715-c380d063b6de",
+        "ac6cd66d-a9d2-42a4-afb8-2f84beff7fd1",
+        "46842184-32f8-4088-ac15-2a700a7e94ed",
+        "5de7f95b-ccad-41b2-9f63-a13f7c1d9f09",
+        "372d4e67-59cc-4c54-879f-3e8a202ee554",
+        "47f1406d-4918-4d60-9647-5ca8e610caca",
+        "3ddb3f4e-f7b9-430b-b335-eadc6d321f46",
+        "16d640e9-b281-4746-9562-c7dbcf7126b6",
+        "8cc4fad4-26ec-47b7-96e8-49c7da714eca",
+        "215463ae-95b7-4481-8747-1754b68f31fa",
+        "46c0b49f-83a1-427e-8f0b-cef62e3c94b5",
+        "2aa566c6-b98d-4513-b900-83702a8db8eb",
+        "dceb14e7-2df0-422f-bb2b-73d7c373159a",
+        "ac4e860a-c042-49cc-90f3-189591c336ac",
+        "d2f3874f-d15d-4a2f-bb97-4f1213defa46"
+      ]
+    },
+    "by_rule": {
+      "counts": {
+        "topic": 40,
+        "intent": 43,
+        "severity": 38,
+        "all3": 30,
+        "wrong_flagged": 9,
+        "right_flagged": 5
+      },
+      "signed_error": 0.18,
+      "mae": 0.26,
+      "confusion": {
+        "topic": {
+          "other": {
+            "catalog": 3,
+            "other": 25,
+            "usability": 2
+          },
+          "usability": {
+            "usability": 5,
+            "playback": 1
+          },
+          "catalog": {
+            "other": 1,
+            "catalog": 3
+          },
+          "playback": {
+            "playback": 3,
+            "usability": 1
+          },
+          "access": {
+            "playback": 1
+          },
+          "billing": {
+            "usability": 1,
+            "billing": 3
+          },
+          "downloads": {
+            "downloads": 1
+          }
+        },
+        "intent": {
+          "unclear": {
+            "complaint": 3,
+            "unclear": 4,
+            "cancellation": 1,
+            "request": 1
+          },
+          "praise": {
+            "praise": 19,
+            "unclear": 1
+          },
+          "complaint": {
+            "complaint": 19,
+            "praise": 1
+          },
+          "cancellation": {
+            "cancellation": 1
+          }
+        },
+        "severity": {
+          "1": {
+            "2": 3,
+            "1": 26,
+            "3": 1
+          },
+          "3": {
+            "3": 3,
+            "4": 4
+          },
+          "2": {
+            "2": 8,
+            "3": 2,
+            "1": 1
+          },
+          "4": {
+            "3": 1,
+            "4": 1
+          }
+        }
+      },
+      "wrong": [
+        "292ce26a-815d-4bce-a3b6-93cb6c9e7e2c",
+        "b5ee7834-a0eb-4c15-9c7b-935831021922",
+        "1fc8b08f-7d6a-472f-b317-8ceb28d00f22",
+        "947821dc-b356-45dc-a0bc-1903728fad40",
+        "723f07de-9881-4049-8680-1a9e25652914",
+        "fc344263-308d-48a1-9715-c380d063b6de",
+        "ac6cd66d-a9d2-42a4-afb8-2f84beff7fd1",
+        "46842184-32f8-4088-ac15-2a700a7e94ed",
+        "5de7f95b-ccad-41b2-9f63-a13f7c1d9f09",
+        "372d4e67-59cc-4c54-879f-3e8a202ee554",
+        "47f1406d-4918-4d60-9647-5ca8e610caca",
+        "3ddb3f4e-f7b9-430b-b335-eadc6d321f46",
+        "16d640e9-b281-4746-9562-c7dbcf7126b6",
+        "8cc4fad4-26ec-47b7-96e8-49c7da714eca",
+        "215463ae-95b7-4481-8747-1754b68f31fa",
+        "46c0b49f-83a1-427e-8f0b-cef62e3c94b5",
+        "2aa566c6-b98d-4513-b900-83702a8db8eb",
+        "dceb14e7-2df0-422f-bb2b-73d7c373159a",
+        "ac4e860a-c042-49cc-90f3-189591c336ac",
+        "d2f3874f-d15d-4a2f-bb97-4f1213defa46"
+      ]
+    }
+  },
+  "nested": {
+    "overlap": 10000,
+    "changed": 258,
+    "both_flagged": 258,
+    "fields": {
+      "topic": 100,
+      "intent": 54,
+      "severity": 120
+    }
+  },
+  "cost_full": {
+    "known_jev": "20.335616490",
+    "memo": "0.025068",
+    "known_api": "20.360684490",
+    "reserved_unknown": "0.002945292",
+    "ledger_jev": "20.338561782",
+    "classify_seconds": "6585.875",
+    "active_seconds": "7842.081",
+    "requests_per_second": "73.52295632698768197088465845",
+    "input_per_success": 999.9841900580145,
+    "output_billed_alternative": "24.776534124"
+  },
+  "pilot": {
+    "stats": {
+      "enrich": {
+        "calls": 100,
+        "input": 98996,
+        "output": 21467,
+        "failed": 0
+      },
+      "verify": {
+        "calls": 100,
+        "input": 69090,
+        "output": 2017,
+        "failed": 0
+      },
+      "group": {
+        "calls": 7,
+        "input": 4611,
+        "output": 244,
+        "failed": 0
+      },
+      "memo": {
+        "calls": 1,
+        "input": 5675,
+        "output": 1092,
+        "failed": 0
+      }
+    },
+    "api": "0.026427832",
+    "seconds": {
+      "cold": "49.751264",
+      "warm": "0.020187"
+    },
+    "usage": [
+      {
+        "run_id": "pilot4-cold",
+        "pass": "cold",
+        "stage": "classify",
+        "provider": "TypeSafe",
+        "model": "jev-1.13.0",
+        "config": "jev-1.13.0/prompt-v2/schema-v1/cut-0.70",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "100",
+        "attempts": "100",
+        "succeeded": "100",
+        "failed": "0",
+        "input_tokens": "98996",
+        "output_tokens": "21467",
+        "calls_usage_unknown": "0",
+        "seconds": "13.589636",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-cold",
+        "pass": "cold",
+        "stage": "verify",
+        "provider": "LM Studio (local)",
+        "model": "google/gemma-4-26b-a4b-qat",
+        "config": "google/gemma-4-26b-a4b-qat/verify-v1-85a7b171251f/schema-v1/max-200",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "100",
+        "attempts": "100",
+        "succeeded": "100",
+        "failed": "0",
+        "input_tokens": "69090",
+        "output_tokens": "2017",
+        "calls_usage_unknown": "0",
+        "seconds": "24.539686",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-cold",
+        "pass": "cold",
+        "stage": "group",
+        "provider": "LM Studio (local)",
+        "model": "google/gemma-4-26b-a4b-qat",
+        "config": "google/gemma-4-26b-a4b-qat/group-v1-1a315732eeb2/schema-v1/max-300/quotes-30",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "7",
+        "attempts": "7",
+        "succeeded": "7",
+        "failed": "0",
+        "input_tokens": "4611",
+        "output_tokens": "244",
+        "calls_usage_unknown": "0",
+        "seconds": "3.176535",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-cold",
+        "pass": "cold",
+        "stage": "memo",
+        "provider": "Anthropic",
+        "model": "claude-sonnet-5-5",
+        "config": "claude-sonnet-5-5/effort-low/memo-v1-1aa8174f53a3/schema-v1/max-1500/quotes-5",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "1",
+        "attempts": "1",
+        "succeeded": "1",
+        "failed": "0",
+        "input_tokens": "5675",
+        "output_tokens": "1092",
+        "calls_usage_unknown": "0",
+        "seconds": "8.445407",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-cold",
+        "pass": "cold",
+        "stage": "end_to_end",
+        "provider": "",
+        "model": "",
+        "config": "",
+        "batch_size": "1",
+        "workers": "0",
+        "requests": "208",
+        "attempts": "208",
+        "succeeded": "208",
+        "failed": "0",
+        "input_tokens": "178372",
+        "output_tokens": "24820",
+        "calls_usage_unknown": "0",
+        "seconds": "49.751264",
+        "note": "cost_100.csv, SHA-256 c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e, label_config jev-1.13.0/prompt-v2/schema-v1/cut-0.70. Time is the sum of the run's sessions; idle time between a stop and a resume is left out"
+      },
+      {
+        "run_id": "pilot4-warm",
+        "pass": "warm",
+        "stage": "classify",
+        "provider": "",
+        "model": "",
+        "config": "",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "0",
+        "attempts": "0",
+        "succeeded": "0",
+        "failed": "0",
+        "input_tokens": "0",
+        "output_tokens": "0",
+        "calls_usage_unknown": "0",
+        "seconds": "0.000741",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-warm",
+        "pass": "warm",
+        "stage": "verify",
+        "provider": "",
+        "model": "",
+        "config": "",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "0",
+        "attempts": "0",
+        "succeeded": "0",
+        "failed": "0",
+        "input_tokens": "0",
+        "output_tokens": "0",
+        "calls_usage_unknown": "0",
+        "seconds": "0.000324",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-warm",
+        "pass": "warm",
+        "stage": "group",
+        "provider": "",
+        "model": "",
+        "config": "",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "0",
+        "attempts": "0",
+        "succeeded": "0",
+        "failed": "0",
+        "input_tokens": "0",
+        "output_tokens": "0",
+        "calls_usage_unknown": "0",
+        "seconds": "0.001858",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-warm",
+        "pass": "warm",
+        "stage": "memo",
+        "provider": "",
+        "model": "",
+        "config": "",
+        "batch_size": "1",
+        "workers": "1",
+        "requests": "0",
+        "attempts": "0",
+        "succeeded": "0",
+        "failed": "0",
+        "input_tokens": "0",
+        "output_tokens": "0",
+        "calls_usage_unknown": "0",
+        "seconds": "0.017264",
+        "note": ""
+      },
+      {
+        "run_id": "pilot4-warm",
+        "pass": "warm",
+        "stage": "end_to_end",
+        "provider": "",
+        "model": "",
+        "config": "",
+        "batch_size": "1",
+        "workers": "0",
+        "requests": "0",
+        "attempts": "0",
+        "succeeded": "0",
+        "failed": "0",
+        "input_tokens": "0",
+        "output_tokens": "0",
+        "calls_usage_unknown": "0",
+        "seconds": "0.020187",
+        "note": "cost_100.csv, SHA-256 c884ac3b9be5066995d5063f96ad9af6e5e082975788c1684c4f6b6ea661dd0e, label_config jev-1.13.0/prompt-v2/schema-v1/cut-0.70. Time is the sum of the run's sessions; idle time between a stop and a resume is left out"
+      }
+    ],
+    "source_ids_match": true
+  }
+}

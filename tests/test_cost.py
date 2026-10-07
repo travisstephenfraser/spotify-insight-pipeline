@@ -15,6 +15,8 @@ from pipeline import classify, cli, jev, ledger, limits, standins, state
 from tests import fixtures
 
 COST = fixtures.ROOT / "cost"
+JEV_INPUT_RATE = Decimal("0.000000042")  # dollars a token, as in cost/rates.csv
+NANO = Decimal("0.000000001")  # a quotient is involved, so the last digits depend on the order of operations
 
 
 def run_cli(*args):
@@ -261,6 +263,44 @@ class Projection(PilotCase):
         p = self.project()
         self.assertGreater(p["conservative"]["api_usd"], p["base"]["api_usd"])
 
+    def test_the_conservative_case_bills_output_tokens_at_the_input_rate_though_the_stated_rate_is_zero(self):
+        """The row said so and did not do so until an outside review found it on 2026-10-07 (validation log entry 39)."""
+        self.assertEqual(calc._rate(self.inputs["rates"], "jev_output_tokens"), 0)
+        c = self.project()["conservative"]["stages"]["classify"]
+        self.assertGreater(c["output_tokens_per_request"], 0)
+        expected = c["attempts"] * (c["input_tokens_per_request"] + c["output_tokens_per_request"]) * JEV_INPUT_RATE
+        self.assertEqual(c["api_usd"].quantize(NANO), expected.quantize(NANO))
+
+    def test_the_other_cases_bill_output_tokens_at_the_stated_rate_only(self):
+        p = self.project()
+        for name in ("base", "no_reuse"):
+            c = p[name]["stages"]["classify"]
+            expected = c["attempts"] * c["input_tokens_per_request"] * JEV_INPUT_RATE
+            self.assertEqual(c["api_usd"].quantize(NANO), expected.quantize(NANO), name)
+
+    def test_a_stated_output_rate_above_the_input_rate_is_kept_in_the_conservative_case(self):
+        dear = [{**r, "usd_per_unit": "0.0000001"} if r["item"] == "jev_output_tokens" else r for r in self.inputs["rates"]]
+        c = calc.project(self.measured(rates=dear), **{**calc.projection_inputs(self.inputs), "rates": dear})["conservative"]["stages"]["classify"]
+        expected = c["attempts"] * (c["input_tokens_per_request"] * JEV_INPUT_RATE + c["output_tokens_per_request"] * Decimal("0.0000001"))
+        self.assertEqual(c["api_usd"].quantize(NANO), expected.quantize(NANO))
+
+    def test_doubling_every_rate_doubles_the_conservative_case_too(self):
+        double = [{**r, "usd_per_unit": str(Decimal(r["usd_per_unit"]) * 2) if r["usd_per_unit"] else ""} for r in self.inputs["rates"]]
+        twice = calc.project(self.measured(rates=double), **{**calc.projection_inputs(self.inputs), "rates": double})
+        self.assertEqual(twice["conservative"]["api_usd"].quantize(NANO), (self.project()["conservative"]["api_usd"] * 2).quantize(NANO))
+        self.assertGreater(twice["conservative"]["api_usd"], 0)
+
+    def test_jev_time_counts_every_attempt_not_every_request(self):
+        p = self.project()
+        for name in ("base", "no_reuse", "conservative"):
+            c = p[name]["stages"]["classify"]
+            self.assertEqual(c["seconds"], c["attempts"] / Decimal(75), name)
+        base, slow = p["base"]["stages"]["classify"], p["conservative"]["stages"]["classify"]
+        self.assertGreater(slow["attempts"], base["attempts"])
+        self.assertGreater(slow["seconds"], base["seconds"])
+        self.assertGreater(slow["seconds_one_worker"], base["seconds_one_worker"])
+        self.assertEqual(slow["seconds_one_worker"] / base["seconds_one_worker"], slow["attempts"] / base["attempts"])
+
     def test_a_case_that_passes_the_cap_carries_a_warning(self):
         self.assertTrue(any("cap" in w for w in self.project(cap=Decimal("1"))["warnings"]))
         self.assertEqual([w for w in self.project(cap=Decimal("1000"))["warnings"] if "passes the cap" in w], [])
@@ -317,6 +357,55 @@ class Replay(PilotCase):
         cut = "## Estimated before the full run"
         self.assertEqual(full.split(cut)[0], small.split(cut)[0])
         self.assertNotEqual(full.split(cut)[1], small.split(cut)[1])
+
+
+class CommittedPilot(unittest.TestCase):
+    """The committed pilot files, not a stand-in. The known answers were worked out on 2026-10-07 by an outside reviewer
+    from these same files with its own arithmetic, not with this calculator (validation log entry 39)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.inputs = calc.load(COST)
+        cls.measured = calc.measured(**cls.inputs)
+        cls.projection = calc.project(cls.measured, **calc.projection_inputs(cls.inputs))
+
+    def each(self, value, places):
+        return {name: value(self.projection[name]).quantize(Decimal(places)) for name in ("base", "no_reuse", "conservative")}
+
+    def test_the_three_cases_cost_what_the_outside_review_worked_out(self):
+        self.assertEqual(
+            self.each(lambda case: case["api_usd"], "0.01"),
+            {"base": Decimal("20.42"), "no_reuse": Decimal("27.37"), "conservative": Decimal("26.02")},
+        )
+
+    def test_the_three_cases_take_as_long_at_the_rate_cap_as_the_outside_review_worked_out(self):
+        self.assertEqual(
+            self.each(lambda case: case["stages"]["classify"]["seconds"] / 3600, "0.01"),
+            {"base": Decimal("1.79"), "no_reuse": Decimal("2.45"), "conservative": Decimal("1.88")},
+        )
+
+    def test_the_committed_report_is_what_a_replay_of_the_committed_files_writes(self):
+        self.assertEqual((COST / "report.md").read_text(encoding="utf-8"), calc.report(self.inputs, self.measured, self.projection))
+
+    def test_the_folders_readme_says_what_doubling_one_price_does_and_its_figures_are_the_calculators(self):
+        """It used to say that doubling a price doubles the API subtotal. That is true of every price together, not of one."""
+        text = (COST / "README.md").read_text(encoding="utf-8")
+        sentence = next(line for line in text.splitlines() if "Double one price" in line)
+        one = [{**r, "usd_per_unit": str(Decimal(r["usd_per_unit"]) * 2)} if r["item"] == "jev_input_tokens" else r for r in self.inputs["rates"]]
+        before, after = self.measured["cold"]["api_usd"], calc.measured(**{**self.inputs, "rates": one})["cold"]["api_usd"]
+        self.assertEqual(after - before, self.measured["cold"]["stages"]["classify"]["api_usd"])
+        self.assertLess(after, before * 2)
+        self.assertEqual((before.quantize(Decimal("0.000001")), after.quantize(Decimal("0.000001"))), (Decimal("0.026428"), Decimal("0.030586")))
+        self.assertIn(f"${before:.6f} to ${after:.6f}", sentence)
+        self.assertNotIn("double a price", text.lower())
+
+    def test_the_report_says_how_the_conservative_case_is_worked_out(self):
+        report = (COST / "report.md").read_text(encoding="utf-8")
+        row = next(line for line in report.splitlines() if line.startswith("| Conservative"))
+        self.assertIn("$26.02", row)
+        self.assertIn("1.88 h", row)
+        self.assertIn("whichever is higher", report)
+        self.assertIn("attempts / requests per second", report)
 
 
 class Pilot(unittest.TestCase):

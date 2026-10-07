@@ -15,7 +15,7 @@ This folder holds two things.
 | `artifacts.jsonl` | Each naming and memo input and output |
 | `memo.md` | The memo |
 
-Each folder has its grading export in `grading/`.
+Each folder has its grading export in `grading/`. The repo's root [`grading/`](../grading/run.json) is a copy of `full/grading/`, file for file: it is the one folder the grading contract asks for.
 
 - `pilot-cold/`: the first 100-review pilot of 2026-10-05, with the local model writing the memo.
 - `pilot2-cold/`: the pilot run again the same day after the memo model changed.
@@ -24,5 +24,6 @@ Each folder has its grading export in `grading/`.
 - `gate-500/`: the 500-review gate.
 - `gate-10k/`: the 10,000-review gate of 2026-10-06, the first run with the contract's severity rule in code.
 - `full/`: the full file, 660,622 reviews, on the night of 2026-10-06. Its three largest files are gzipped (`records.jsonl.gz`, `calls.jsonl.gz`, `run_log.jsonl.gz`). As for every run, the checker's own outputs (`local-reference.json`, 161.5 MB here, and `self-check.json`) are not committed; `python3 -m pipeline export` writes them again from the state file.
+- `demo-100b/`: the 100-review file again on 2026-10-07, stopped by hand after 5.4 seconds and resumed, to put a stop and resume on video (`stop_resume.mov`). 38 completed at the stop, 100 at the end. It is not a gate and nothing is measured from it. An earlier take, `demo-100`, was stopped too early to show and has no folder.
 
 The warm passes made no call and have no folder.

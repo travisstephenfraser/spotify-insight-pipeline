@@ -1,0 +1,123 @@
+[
+ {
+  "run": "evals",
+  "before_first_reading": true,
+  "calls": 68,
+  "succeeded": 68,
+  "failed": 0,
+  "input_tokens": 64710,
+  "output_tokens": 14535,
+  "first_utc": "2026-10-05T22:20:26+00:00",
+  "last_utc": "2026-10-05T22:20:40+00:00"
+ },
+ {
+  "run": "pilot-cold",
+  "before_first_reading": false,
+  "calls": 100,
+  "succeeded": 100,
+  "failed": 0,
+  "input_tokens": 98996,
+  "output_tokens": 21467,
+  "first_utc": "2026-10-06T00:53:31+00:00",
+  "last_utc": "2026-10-06T00:53:44+00:00"
+ },
+ {
+  "run": "evals",
+  "before_first_reading": false,
+  "calls": 83,
+  "succeeded": 83,
+  "failed": 0,
+  "input_tokens": 83883,
+  "output_tokens": 18281,
+  "first_utc": "2026-10-06T01:22:55+00:00",
+  "last_utc": "2026-10-06T01:27:20+00:00"
+ },
+ {
+  "run": "pilot2-cold",
+  "before_first_reading": false,
+  "calls": 100,
+  "succeeded": 100,
+  "failed": 0,
+  "input_tokens": 98996,
+  "output_tokens": 21465,
+  "first_utc": "2026-10-06T01:37:54+00:00",
+  "last_utc": "2026-10-06T01:38:07+00:00"
+ },
+ {
+  "run": "gate-500",
+  "before_first_reading": false,
+  "calls": 479,
+  "succeeded": 479,
+  "failed": 0,
+  "input_tokens": 473486,
+  "output_tokens": 102730,
+  "first_utc": "2026-10-06T01:40:13+00:00",
+  "last_utc": "2026-10-06T01:40:24+00:00"
+ },
+ {
+  "run": "gate-10k",
+  "before_first_reading": false,
+  "calls": 8448,
+  "succeeded": 8448,
+  "failed": 0,
+  "input_tokens": 8392066,
+  "output_tokens": 1822366,
+  "first_utc": "2026-10-07T03:12:20+00:00",
+  "last_utc": "2026-10-07T03:14:22+00:00"
+ },
+ {
+  "run": "pilot3-cold",
+  "before_first_reading": false,
+  "calls": 100,
+  "succeeded": 100,
+  "failed": 0,
+  "input_tokens": 98996,
+  "output_tokens": 21467,
+  "first_utc": "2026-10-07T03:50:24+00:00",
+  "last_utc": "2026-10-07T03:50:37+00:00"
+ },
+ {
+  "run": "pilot4-cold",
+  "before_first_reading": false,
+  "calls": 100,
+  "succeeded": 100,
+  "failed": 0,
+  "input_tokens": 98996,
+  "output_tokens": 21467,
+  "first_utc": "2026-10-07T04:04:32+00:00",
+  "last_utc": "2026-10-07T04:04:45+00:00"
+ },
+ {
+  "run": "full",
+  "before_first_reading": false,
+  "calls": 484213,
+  "succeeded": 484189,
+  "failed": 24,
+  "input_tokens": 484181345,
+  "output_tokens": 105139277,
+  "first_utc": "2026-10-07T04:09:27+00:00",
+  "last_utc": "2026-10-07T05:59:56+00:00"
+ },
+ {
+  "run": "demo-100",
+  "before_first_reading": false,
+  "calls": 100,
+  "succeeded": 100,
+  "failed": 0,
+  "input_tokens": 98996,
+  "output_tokens": 21465,
+  "first_utc": "2026-10-07T19:16:38+00:00",
+  "last_utc": "2026-10-07T19:17:12+00:00"
+ },
+ {
+  "run": "demo-100b",
+  "before_first_reading": false,
+  "calls": 100,
+  "succeeded": 100,
+  "failed": 0,
+  "input_tokens": 98996,
+  "output_tokens": 21466,
+  "first_utc": "2026-10-07T19:21:04+00:00",
+  "last_utc": "2026-10-07T19:21:42+00:00"
+ }
+]
