@@ -1,0 +1,933 @@
+[
+ {
+  "id": "daeb580b-3d30-49fb-93f3-d064bc560e06",
+  "text": "The new update is worst 💔💔💔 Can't play the songs in que Can't repeat the previous songs I am uninstalling Spotify Only showing adds Everything is only for premium users Switched to prime music 🖤🖤🖤🖤🖤",
+  "a13": {
+   "topic": "usability",
+   "intent": "cancellation",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "usability",
+   "intent": "cancellation",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "usability",
+   "intent": "cancellation",
+   "severity": 4
+  }
+ },
+ {
+  "id": "5e6a1430-6c20-484b-8610-51985933204e",
+  "text": "ఒరేయ్ బేవకుఫ్ నా నెంబర్ కు add కాలేదు కానీ నా దగ్గర నెల నెల అమౌంట్ కట్ చేస్తున్నావ్ కనీసం కస్టమర్ కేర్ నెంబర్ చెప్పరా",
+  "a13": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 5
+  },
+  "c14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 5
+  }
+ },
+ {
+  "id": "eb354cda-99bb-47bb-baae-856f52db774a",
+  "text": "تطبيق زبالة يدعم العدو الصهيوني 👎",
+  "a13": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "2ff6035a-3612-44ea-b11b-6166d5ac6d72",
+  "text": "hello team spotify , I will give you only two star rating because I can't find all popular hindi song .. like apna bana le piya or dil jhoom ...bAck those song .",
+  "a13": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "d3aa7340-1a6a-4504-8815-ad6f42a74ce4",
+  "text": "अब मुझे लिखने की कोई जरूरत नहीं, लोगो ने जो लिख के और रेटिंग देके सब साबित कर दिया है.",
+  "a13": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "3ecd2406-f69a-4dd1-acfe-e73da5680ee4",
+  "text": "Bhohat sahi App hai bas down load ke liye premium chahiye hoto hai.",
+  "a13": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "c14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 4
+  }
+ },
+ {
+  "id": "33fba0b8-b02c-4e33-9b7c-6fe15287c7c1",
+  "text": "I am a loyal Spotify User. Every thing in this app is ok but I think that some songs should be added like \"Main Phir Bhi Tumko Chahunga\" or \"Apna Bana Le Piya\" etc.. & lyrics should be checked before adding because in some songs' lyrics they are wrong or not in the way they should be. Else everything is fine.I request to developers to not to remove songs. Please accept my request",
+  "a13": {
+   "topic": "catalog",
+   "intent": "request",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "7d925804-527a-48b7-8988-39000fcb69f4",
+  "text": "Aplk eror ngak jelas lin yang di cari lain pulak yang muncul, apk terburuk yang pernah ada , jadi saya hapus saja 👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎👎✊️✊️✊️✊️✊️✊️✊️✊️",
+  "a13": {
+   "topic": "usability",
+   "intent": "cancellation",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "cancellation",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "cancellation",
+   "severity": 4
+  }
+ },
+ {
+  "id": "f9dccbe4-88b4-4502-89f6-0e0e8c95ed1d",
+  "text": "بغير اغنيه عالزيرو",
+  "a13": {
+   "topic": "playback",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "playback",
+   "intent": "unclear",
+   "severity": 1
+  }
+ },
+ {
+  "id": "9f4e692d-4b3a-4331-90b3-445c2c812000",
+  "text": "Bahut badddiyaaa",
+  "a13": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "36082c2a-e1eb-4990-9c54-37889c415d9a",
+  "text": "¿cual es el sentido de las canciones puestas con \"❤️\" si cuando le doy a mi playlist de canciones favoritas, me suena una canción de mis favoritas \"❤️\" y el resto de playlist es música que no tengo en \"❤️\"?",
+  "a13": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "8cba2dd7-fbee-404b-a0cb-6beebbe9ff97",
+  "text": "Fazool app hai. Without internet chl hi ni sakti ya app to faida. Is sy bhtr bnda YouTube sy songs sun ly. Baat to aik hi hai. Na hi download ki option hai. Na save ki option hai k banda save krky baad mai hi sun ly.",
+  "a13": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 3
+  }
+ },
+ {
+  "id": "12e1704b-b8f8-487e-ad54-fd638662c57c",
+  "text": "ga bisa lihat lirik lagi",
+  "a13": {
+   "topic": "catalog",
+   "intent": "request",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 4
+  }
+ },
+ {
+  "id": "425817e6-dcdc-41d3-851e-4eddfb99eda8",
+  "text": "अप कितना बी ad चलाए। लेकिन में आपका premium नही करीदाने वाला हु। एक गाना चलाएंगे और दो ad चलाएंगे।",
+  "a13": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "201bafef-a868-4b48-b12c-cca763f4a0b0",
+  "text": "Bekar app hai jo song jaasa suno woh remove kar da tha hai",
+  "a13": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 4
+  }
+ },
+ {
+  "id": "ee9a0ac0-e299-42c8-9ee9-90ffbe9b7c9c",
+  "text": "Liriknya gk muncul krnaoa yah? kemarin\" ada, kok skrng gk ada:(. Tolong dibenerin",
+  "a13": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  }
+ },
+ {
+  "id": "3336741c-e7f6-4ef6-8913-73dedfad55bf",
+  "text": "𝑹𝒆𝒈𝒖𝒍𝒂𝒓 𝒖𝒔𝒆𝒓 𝒕𝒐 𝒕𝒉𝒊𝒔 𝒂𝒑𝒑. 𝑺𝒑𝒐𝒕𝒊𝒇𝒚 𝒊𝒔 𝒗𝒆𝒓𝒚 𝒄𝒐𝒏𝒗𝒆𝒏𝒊𝒆𝒏𝒕.",
+  "a13": {
+   "topic": "usability",
+   "intent": "praise",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "7767b7a8-f16c-4a1b-a3bd-ce6cf2c7a525",
+  "text": "Bakwaas aap kr diya h ab spotify ko koi bhi insaan apni mrji ka song nhi lga skta ab premium Lena pdega phir hoga kuch solution uninstall the spotify aap",
+  "a13": {
+   "topic": "billing",
+   "intent": "cancellation",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "c14": {
+   "topic": "billing",
+   "intent": "cancellation",
+   "severity": 3
+  }
+ },
+ {
+  "id": "c7bb5b65-d41b-4777-9502-79eb3f979f4d",
+  "text": "Spotify team members subh ke gaane ban karo",
+  "a13": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  }
+ },
+ {
+  "id": "cf2f26b2-1bcb-4d84-9bff-82a2274c1ce4",
+  "text": "𝘞𝘪𝘴𝘩 𝘵𝘩𝘦𝘳𝘦 𝘸𝘢𝘴 𝘢 bigger 𝘭𝘪𝘴𝘵 𝘰𝘧 𝘴𝘰𝘯𝘨𝘴 𝘪𝘯 𝘦𝘢𝘤𝘩 𝘱𝘭𝘢𝘺𝘭𝘪𝘴𝘵.",
+  "a13": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "request",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 1
+  }
+ },
+ {
+  "id": "7cad32fa-cb18-47e9-8feb-3e487b43b9db",
+  "text": "search หาเพลงที่ต้องการยากจังค่ะ มี list มาให้ก็จริง แต่เลือกอันไหน ก็มาเป็นอัลบั้ม ขนาดเลือกแบบ song แล้ว ต้องไปหาเพลงนั้นจากอัลบั้มอีกที",
+  "a13": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  }
+ },
+ {
+  "id": "ccf984a1-8e0f-4d72-b6a6-d48911040740",
+  "text": "I bycott this app because Sweden citizen burn aur heart. Aur love (quran)",
+  "a13": {
+   "topic": "other",
+   "intent": "cancellation",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "cancellation",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "cancellation",
+   "severity": 2
+  }
+ },
+ {
+  "id": "ba2ce5fd-79c0-42e5-9f18-b32e6aae8c71",
+  "text": "Bilkul bekr aap hai jhatuo ka 😂😂😂",
+  "a13": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "1abba5a4-7324-44ec-8506-103f8eda3e2f",
+  "text": "Itnai paise ki Kami pad gai ki lyrics bhi premium kardiyee",
+  "a13": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 1
+  }
+ },
+ {
+  "id": "d47e07f3-aaec-4908-988b-67a2891d778e",
+  "text": "Best hai",
+  "a13": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "30180b66-43c1-49dd-bd39-464125ffe4c4",
+  "text": "Bravo Experience with✨Spotify.. Swagger 🤘🤘🤘🤟🏻🤟🏻🤟🏻👌👌✌✌🤞📍📍🔖🔖🧲💣💣💣🧨🧨🛑🛑⭕⭕♨️♨️💯‼️Music🎶🎶🎶🎶 with loads of ❤❤❤love and ✨Happiness... Moods based songs🎵🎵🎵.. Just in Spotify 💕💕💝🤍💛🧡💜💙💙💚💛Spotify sunta jaoo aur sab ki bajaata jaO... Mood 😶😶😶swings ho ya kise ka dukh bass 👂👂👂Spotify💕 ☀️sunta jao",
+  "a13": {
+   "topic": "catalog",
+   "intent": "praise",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "c786f42b-5f42-4f50-8095-cb58a765b4e6",
+  "text": "song library is very good and song quality is also the best of all but ads kam karo bhai, India me kitna bhi ad dikhao koi premium nai lega app change kr denge but won't pay for premium.",
+  "a13": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "usability",
+   "intent": "cancellation",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "15d0726c-73bd-424a-95f1-b1f4e74bf9bd",
+  "text": "So cute songs in Hindi to English",
+  "a13": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  }
+ },
+ {
+  "id": "e3df1a45-02b1-43a7-8a2e-0205d7192e57",
+  "text": "পেমেন্ট ইসু টা কি ভাবে কি করবো",
+  "a13": {
+   "topic": "billing",
+   "intent": "request",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 1
+  }
+ },
+ {
+  "id": "09531794-9082-4370-b3a7-b9497496aab3",
+  "text": "Bhout sach aaap hai ye",
+  "a13": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "07e5df15-7abd-4b3d-9ce8-591a16a2cb8d",
+  "text": "Dr subservient CD rant game then b CFC hai kya Bhai is no per month for a while to put on the same hai ok use of a girl and teachers",
+  "a13": {
+   "topic": "billing",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  }
+ },
+ {
+  "id": "d1efde35-d2e9-4ebe-961f-1ccc8110d834",
+  "text": "Very bad experience mint mint me ad aata h or koi bhi gana lgao to primium lene ko bolte h or gana bhi nhi chalta",
+  "a13": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 4
+  }
+ },
+ {
+  "id": "fbe3b8c7-a92b-4d25-9c38-263958291839",
+  "text": "Delete karoooo sareee choorr hai",
+  "a13": {
+   "topic": "downloads",
+   "intent": "cancellation",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "cancellation",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "cancellation",
+   "severity": 2
+  }
+ },
+ {
+  "id": "b7267fe8-a689-49a0-818e-6a04b22a8a02",
+  "text": "Best experience Maine to munawar faruqui ko bolte suna tha ek show me ke main mast baitha Spotify pr Adds sun rha tha tabhi maine socha ke Spotify Download krte hai",
+  "a13": {
+   "topic": "downloads",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 1
+  }
+ },
+ {
+  "id": "5363413f-cf87-4a9e-8902-27fb060d22d6",
+  "text": "Nao vejo o historico do que acabei de ouvir, nao consigo achar onde parei em um podcast depois que minha filha usa meu celular um botao de dislike pra nao passar mais por algumas musicas seria legal. Musica esta parando de tocar, do nada. Ja aconteceu com meus 2 celulares e com o notebook",
+  "a13": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 4
+  }
+ },
+ {
+  "id": "dd4b348d-5f1f-441e-9542-9a16ecb00d61",
+  "text": "Bahut aacha gaana sunane wala aap hai thinks spotify☺️🌹🥰😘",
+  "a13": {
+   "topic": "playback",
+   "intent": "praise",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "f844b7cf-7a46-4d02-a073-81eb38cbe35b",
+  "text": "😃Thank you! mujhe wo sare songs yha mile hai jo kisi aur application se delete kiye ja chuke hai",
+  "a13": {
+   "topic": "downloads",
+   "intent": "praise",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "catalog",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "59f42449-a350-4d4e-af8a-d140a6578b2b",
+  "text": "Aap is but beek magne ka takika toda casual hai",
+  "a13": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 1
+  }
+ },
+ {
+  "id": "8d88d2b0-8f0a-495a-9069-2efcc7f5fbb0",
+  "text": "Monopoly ban chuka hai to loot raha hai",
+  "a13": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "c14": {
+   "topic": "billing",
+   "intent": "complaint",
+   "severity": 4
+  }
+ },
+ {
+  "id": "41b15524-0de7-46d0-b33a-646a8fdfab15",
+  "text": "Nak dengar lagu lain lagu lain yg di dengarnya bodo",
+  "a13": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "53491f2e-e6f5-4e3f-8bc5-85d61b861fb6",
+  "text": "Bhyi br br add he suna pdta h gaane se jda to",
+  "a13": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 1
+  }
+ },
+ {
+  "id": "f37341db-3bf6-4df4-a514-bef68832741b",
+  "text": "La aplicación muestra la letra de las canciones a destiempo desde hace como un mes , intento instalar y volver a desinstalar y nads que se nota el cambio, es demasiado frustrante",
+  "a13": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "c14": {
+   "topic": "playback",
+   "intent": "complaint",
+   "severity": 3
+  }
+ },
+ {
+  "id": "54b2ed29-8c66-4ab7-977b-37095a713e0f",
+  "text": "ادارة عنصرية تدعم الاحتلال وتحذف اغاني تخص فلسطين .. تطبيق فاشل لا يستحق حتى ربع نجمة",
+  "a13": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 3
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 3
+  }
+ },
+ {
+  "id": "4ade75dd-1ba8-457f-bcf0-c1f28d41df76",
+  "text": "Bekar app hai bilkul",
+  "a13": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "praise",
+   "severity": 1
+  }
+ },
+ {
+  "id": "3a056e71-6951-4750-ac8d-261831c45b69",
+  "text": "Plz badsha k gano ka aad mat do mood ki maa bhen hojati",
+  "a13": {
+   "topic": "other",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  }
+ },
+ {
+  "id": "8ed206e4-a9d7-465c-aa8d-2148ecbc1604",
+  "text": "Best songs in hindi/ English",
+  "a13": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "request",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "request",
+   "severity": 1
+  }
+ },
+ {
+  "id": "302d38ba-f1a8-4103-991f-3bd619ad8d69",
+  "text": "Mast app nahi hay",
+  "a13": {
+   "topic": "other",
+   "intent": "cancellation",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  },
+  "c14": {
+   "topic": "other",
+   "intent": "unclear",
+   "severity": 1
+  }
+ },
+ {
+  "id": "f2cff9c1-5aec-4c64-8e91-2ef990575cdf",
+  "text": "👎 update ke bad song change bhi nahi hota 🤬",
+  "a13": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 4
+  },
+  "b14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "usability",
+   "intent": "complaint",
+   "severity": 2
+  }
+ },
+ {
+  "id": "6f8212b7-3f1b-4828-928f-fcd38122cf40",
+  "text": "pura purana aur badiya gana delet kar diya h for example apna bana le piye",
+  "a13": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "b14": {
+   "topic": "catalog",
+   "intent": "complaint",
+   "severity": 2
+  },
+  "c14": {
+   "topic": "downloads",
+   "intent": "complaint",
+   "severity": 2
+  }
+ }
+]
